@@ -1,0 +1,212 @@
+// ClaimPilot PRO — Prisma schema.
+// SQLite for the zero-setup demo; no SQLite-only features are used so the
+// schema ports to PostgreSQL by changing the datasource provider.
+// Enum-like columns are String and validated in src/lib/domain/constants.ts.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Required table 1 ────────────────────────────────────────────────
+model Claim {
+  claimId           String    @id @map("Claim_ID")
+  employee          String    @map("Employee")
+  department        String    @map("Department")
+  projectCode       String?   @map("Project_Code")
+  category          String    @map("Category")
+  amount            Decimal   @map("Amount")
+  currency          String    @default("USD")
+  status            String    @default("Pending") @map("Status")
+  originalReceipt   String    @map("Original_Receipt")
+  aiAnalyzedReceipt String?   @map("AI_Analyzed_Receipt")
+  extractedData     String?   @map("Extracted_Data")
+
+  vendorId      String?
+  vendorName    String
+  invoiceNumber String?
+  poNumber      String?
+  grnNumber     String?
+  receiptHash   String?
+  receiptMime   String?
+  receiptName   String?
+  source        String    @default("seed") // seed | upload
+  submittedAt   DateTime
+  analyzedAt    DateTime?
+  riskScore     Int?
+  riskLevel     String?
+  decision      String?
+  ocrText       String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  vendor        Vendor?        @relation(fields: [vendorId], references: [vendorId])
+  purchaseOrder PurchaseOrder? @relation(fields: [poNumber], references: [poNumber])
+  project       Project?       @relation(fields: [projectCode], references: [code])
+  exceptions    Exception[]
+  auditLogs     AuditLog[]
+  aiRuns        AiRun[]
+
+  @@index([status, submittedAt])
+  @@index([department, category])
+  @@index([projectCode])
+  @@index([vendorName, invoiceNumber])
+  @@map("Claims")
+}
+
+// ─── Required table 2 ────────────────────────────────────────────────
+model Exception {
+  exceptionId String   @id @map("Exception_ID")
+  claimId     String   @map("Claim_ID")
+  anomalyType String   @map("Anomaly_Type")
+  riskLevel   String   @map("Risk_Level")
+  ruleId      String
+  points      Int
+  message     String
+  evidence    String?
+  status      String   @default("Open") // Open | Resolved | Waived
+  createdAt   DateTime @default(now())
+
+  claim Claim @relation(fields: [claimId], references: [claimId], onDelete: Cascade)
+
+  @@unique([claimId, ruleId])
+  @@index([claimId, status])
+  @@index([anomalyType, riskLevel])
+  @@map("Exceptions")
+}
+
+// ─── Required table 3 (append-only) ──────────────────────────────────
+model AuditLog {
+  logId     String   @id @map("Log_ID")
+  timestamp DateTime @default(now()) @map("Timestamp")
+  actor     String   @map("Actor")
+  action    String   @map("Action")
+  details   String   @map("Details")
+  claimId   String?  @map("Claim_ID")
+  metadata  String?
+
+  claim Claim? @relation(fields: [claimId], references: [claimId], onDelete: SetNull)
+
+  @@index([claimId, timestamp])
+  @@index([timestamp])
+  @@map("AuditLog")
+}
+
+// ─── Master data ─────────────────────────────────────────────────────
+model Employee {
+  name       String @id
+  department String
+  title      String
+}
+
+model Vendor {
+  vendorId           String    @id
+  name               String    @unique
+  category           String
+  city               String
+  state              String
+  country            String
+  taxId              String
+  approved           Boolean
+  w9OnFile           Boolean
+  w9ExpiresAt        DateTime?
+  insuranceExpiresAt DateTime?
+  paymentTerms       String
+  bankName           String
+  bankAccountLast4   String
+
+  claims         Claim[]
+  purchaseOrders PurchaseOrder[]
+}
+
+model PurchaseOrder {
+  poNumber       String   @id
+  vendorId       String
+  projectCode    String
+  amount         Decimal
+  consumedAmount Decimal
+  currency       String   @default("USD")
+  costType       String   @default("Expense") // Capital | Expense (GL coding, used by R-18)
+  issuedAt       DateTime
+  status         String // Open | Closed | On Hold
+  description    String   @default("")
+
+  vendor        Vendor         @relation(fields: [vendorId], references: [vendorId])
+  goodsReceipts GoodsReceipt[]
+  claims        Claim[]
+}
+
+model GoodsReceipt {
+  grnNumber      String   @id
+  poNumber       String
+  gatePassNumber String
+  receivedAt     DateTime
+  quantity       Int
+  amount         Decimal
+  plant          String
+
+  purchaseOrder PurchaseOrder @relation(fields: [poNumber], references: [poNumber])
+
+  @@index([poNumber])
+}
+
+model Project {
+  code            String    @id
+  name            String
+  department      String
+  budget          Decimal
+  startDate       DateTime
+  endDate         DateTime?
+  customerProgram String
+  status          String
+
+  claims Claim[]
+}
+
+model Policy {
+  category            String  @id
+  perClaimLimit       Decimal
+  requiresPo          Boolean
+  requiresGrn         Boolean
+  requiresProjectCode Boolean
+  approvalThreshold   Decimal
+  notes               String
+}
+
+model Benchmark {
+  itemCode      String   @id
+  category      String
+  description   String
+  unit          String
+  p50           Decimal
+  p90           Decimal
+  effectiveDate DateTime
+  source        String
+}
+
+model AiRun {
+  id             String   @id
+  claimId        String
+  mode           String // mock | live | fallback
+  provider       String
+  model          String
+  promptVersion  String
+  latencyMs      Int
+  inputTokens    Int      @default(0)
+  outputTokens   Int      @default(0)
+  confidence     Float?
+  warnings       String? // JSON array
+  narrative      String?
+  idempotencyKey String   @unique // claimId + receiptHash + promptVersion
+  requestKey     String?  @unique // client Idempotency-Key header
+  responseJson   String? // stored response for idempotent replay
+  createdAt      DateTime @default(now())
+
+  claim Claim @relation(fields: [claimId], references: [claimId], onDelete: Cascade)
+
+  @@index([claimId])
+}
