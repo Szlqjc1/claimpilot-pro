@@ -46,7 +46,7 @@ What each role may do (DECISIONS D-27):
 | `reviewer` | Everything a requester can, plus resolve/waive exceptions and post to SAP | Resolve, waive or post on a claim they submitted themselves (403) |
 | `admin` | Same as reviewer; Dana Whitfield is in Corporate Audit, so she cannot submit expense claims | Act on their own claims (403) |
 
-Claims are always owned by the signed-in user: employee and department come from the Employee master record, never from the form. Resolving an exception records the reviewer's name on the exception (`resolvedBy`) and as the audit-log actor; posting records them on the "Exceptions Resolved" row and as `postedBy` in the "Posted to SAP" row's metadata.
+Claims are always owned by the signed-in user: employee and department come from the Employee master record, never from the form. Resolving an exception records the reviewer's name on the exception (`resolvedBy`) and as the audit-log actor; posting records them on the "Exceptions Resolved" row and as `initiatedBy` in the "Posted to SAP" row's metadata. The AI-RPA audit row likewise records who ran it as `initiatedBy`, while its actor stays `AI-RPA Agent`.
 
 | Script | What it does |
 |---|---|
@@ -60,7 +60,7 @@ Claims are always owned by the signed-in user: employee and department come from
 
 ## Screenshots
 
-Captured with `pnpm shots` (Playwright, 1440×900, against `pnpm dev` in Demo AI mode after `pnpm db:seed`; the script signs in as the demo admin). Frames for an audit GIF are in `docs/images/audit-frames/` (idle → running → done).
+Captured with `pnpm shots` (Playwright, 1440×900, against a running server with `AI_MODE="mock"` and `OCR_MODE="fixture"` after `pnpm db:seed`). The script captures `/login` while signed out, then signs in as the demo reviewer (Priya Natarajan). Frames for an audit GIF are in `docs/images/audit-frames/` (idle → running → done).
 
 | | |
 |---|---|
@@ -68,8 +68,10 @@ Captured with `pnpm shots` (Playwright, 1440×900, against `pnpm dev` in Demo AI
 | **Dashboard**: KPIs, watchlist, charts, claims list | **Claim review, Pending**: AI panels are not in the DOM |
 | ![Claim review after the audit](docs/images/claim-analyzed.png) | ![Risk assessment](docs/images/risk-panel.png) |
 | **Claim review, Analyzed**: structured data + annotated invoice | **Risk panel**: "How this was calculated" expanded |
-| ![Audit log](docs/images/audit-log.png) | |
-| **Audit log**: append-only trail | |
+| ![Audit log](docs/images/audit-log.png) | ![Handled exception](docs/images/exceptions-handled.png) |
+| **Audit log**: append-only trail; system rows show who initiated them | **Exceptions**: a handled exception shows who handled it |
+| ![Sign-in page](docs/images/login.png) | |
+| **Sign in**: every page requires a session; demo accounts listed | |
 
 ## Architecture
 
@@ -148,7 +150,7 @@ Each card shows a delta against the previous equal-length period. The **KPI Watc
 ## Security notes
 
 - Secrets live only in server env; `.env*` is git-ignored except `.env.example`.
-- Authentication: email + password checked with Node `scrypt` (salted, `timingSafeEqual`), the same `401 INVALID_CREDENTIALS` for an unknown email and a wrong password, and 5 sign-in attempts per minute per IP. Sessions are random 32-byte tokens stored in the `Session` table (revocable, `SESSION_TTL_HOURS`, default 24 h) and sent as an `HttpOnly; SameSite=Lax` `cp_session` cookie (`Secure` in production). The Edge middleware only checks that the cookie exists; the `(app)` layout and every API route validate the token against the database (401 `UNAUTHENTICATED`). Sign-in, sign-out and failed attempts are written to the audit log.
+- Authentication: email + password checked with Node `scrypt` (salted, `timingSafeEqual`), the same `401 INVALID_CREDENTIALS` for an unknown email and a wrong password, and 5 sign-in attempts per minute per IP. Sessions are random 32-byte tokens stored in the `Session` table (revocable, `SESSION_TTL_HOURS`, default 24 h) and sent as an `HttpOnly; SameSite=Lax` `cp_session` cookie (`Secure` whenever the request arrived over HTTPS, including behind a TLS-terminating proxy via `x-forwarded-proto`; D-30). The Edge middleware only checks that the cookie exists; the `(app)` layout and every API route validate the token against the database (401 `UNAUTHENTICATED`). Sign-in, sign-out and failed attempts are written to the audit log.
 - Receipts are stored outside `public/` and served by `/api/receipts/:id/:kind`. File names come from the DB, never the URL, and claim IDs are regex-validated (no path traversal). Responses set `nosniff` and a restrictive CSP.
 - Uploads are checked by magic bytes (PNG/JPEG/PDF), limited to 10 MB, and stored under random file names.
 - Audit endpoint: same-origin check, 5 requests/min/claim rate limit, request ID on every response and error, and errors returned as `{ error: { code, message, requestId } }` with no stack traces.
@@ -163,6 +165,7 @@ Each card shows a delta against the previous equal-length period. The **KPI Watc
 - PDF uploads need rasterization before OCR (not implemented); use PNG/JPEG for live OCR.
 - Posting to SAP is simulated: it records a MIRO document number and audit entries but does not call SAP.
 - There is no Playwright test suite. Playwright is only used by `pnpm shots` for screenshots; the golden path is covered by integration tests against a real DB plus a manual browser run (DECISIONS D-12).
+- There is no self-service sign-up. Accounts are provisioned (seeded in the demo, SCIM/HR in production); an approval system must not let arbitrary users create an account, let alone pick a role. An admin-managed Users screen is the intended next step (D-29).
 - Extraction confidence values are simulated: `fieldConfidence` is derived from `sha256(claimId + ':' + field)` mapped into [0.93, 0.995] (`src/lib/receipts/invoice.ts`). They are a UI fixture, not a calibrated probability. The seeded extraction is built from the document itself, so its true error rate is 0 — which also means R-14 can only fire on the deliberately seeded `lowOcr` samples (DECISIONS D-25).
 
 ## Production roadmap

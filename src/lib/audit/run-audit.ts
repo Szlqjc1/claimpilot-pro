@@ -45,6 +45,8 @@ const inFlight = new Set<string>();
 export type RunAuditOptions = {
   requestId: string;
   idempotencyKey?: string | null;
+  /** Human who triggered the audit; recorded in metadata, never as `actor` (that stays "AI-RPA Agent"). */
+  initiatedBy?: string;
   revalidate?: (paths: string[]) => void;
 };
 
@@ -190,7 +192,7 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
             timestamp: analyzedAt,
             ...entry,
             claimId,
-            metadata: JSON.stringify({ requestId: opts.requestId, riskScore: result.score, riskLevel: result.riskLevel, decision: result.decision, mode: run.mode, rules: result.findings.map((f) => f.ruleId) }),
+            metadata: JSON.stringify({ requestId: opts.requestId, initiatedBy: opts.initiatedBy ?? null, riskScore: result.score, riskLevel: result.riskLevel, decision: result.decision, mode: run.mode, rules: result.findings.map((f) => f.ruleId) }),
           },
         });
         await tx.aiRun.create({

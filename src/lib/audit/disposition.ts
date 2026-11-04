@@ -9,7 +9,7 @@ import { miroDocNo } from "./miro";
 
 export type PostResult = { claimId: string; status: "Posted"; postedAt: string; miroDocNo: string };
 
-/** `actor` is the signed-in reviewer: attributed on the Exceptions Resolved row and recorded as `postedBy` on the SAP row. */
+/** `actor` is the signed-in reviewer: attributed on the Exceptions Resolved row and recorded as `initiatedBy` on the SAP row. */
 export async function postClaim(claimId: string, opts: { requestId: string; actor: string; revalidate?: (paths: string[]) => void }): Promise<PostResult> {
   const claim = await prisma.claim.findUnique({ where: { claimId }, include: { vendor: true, exceptions: true } });
   if (!claim) throw new AuditError(404, "CLAIM_NOT_FOUND", `Claim ${claimId} not found`);
@@ -21,7 +21,7 @@ export async function postClaim(claimId: string, opts: { requestId: string; acto
   const now = new Date();
   const docNo = miroDocNo(now);
   const metadata = JSON.stringify({ requestId: opts.requestId });
-  const postMetadata = JSON.stringify({ requestId: opts.requestId, postedBy: opts.actor });
+  const postMetadata = JSON.stringify({ requestId: opts.requestId, initiatedBy: opts.actor });
   await prisma.$transaction(async (tx) => {
     // Status guard inside the transaction so concurrent posts cannot both succeed.
     const updated = await tx.claim.updateMany({ where: { claimId, status: "Analyzed" }, data: { status: "Posted", postedAt: now, miroDocNo: docNo } });

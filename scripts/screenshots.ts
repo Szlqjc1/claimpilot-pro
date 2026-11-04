@@ -1,5 +1,6 @@
 // Captures README screenshots and audit GIF frames from a running dev server.
 // Usage: start the app (`pnpm db:seed` for a fresh demo, then `pnpm dev`), then `pnpm shots`.
+// Requires AI_MODE="mock" and OCR_MODE="fixture" so the captures are deterministic.
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { chromium, type Page } from "playwright";
@@ -9,6 +10,8 @@ const BASE = process.env.SHOTS_BASE_URL ?? "http://localhost:3000";
 const OUT = path.resolve("docs/images");
 const FRAMES = path.join(OUT, "audit-frames");
 const CLAIM = "CLM-2026-0142";
+// Submitted by Elena Vasquez, so the reviewer may handle it; one R-11 exception (not a duplicate).
+const HANDLED = "CLM-2026-0143";
 
 async function probe(): Promise<boolean> {
   try {
@@ -37,9 +40,16 @@ async function main() {
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   try {
-    // Pages require a session: sign in as the demo admin (the cookie is shared with the page).
-    const admin = DEMO_ACCOUNTS.find((a) => a.role === "admin")!;
-    const login = await page.request.post(`${BASE}/api/auth/login`, { data: { email: admin.email, password: admin.password } });
+    // Signed out: every page redirects to /login.
+    await page.goto(`${BASE}/dashboard`);
+    await page.waitForURL("**/login**");
+    await settle(page);
+    await page.screenshot({ path: path.join(OUT, "login.png") });
+    console.log("✔ login.png");
+
+    // Pages require a session: sign in as the demo reviewer (the cookie is shared with the page).
+    const reviewer = DEMO_ACCOUNTS.find((a) => a.role === "reviewer")!;
+    const login = await page.request.post(`${BASE}/api/auth/login`, { data: { email: reviewer.email, password: reviewer.password } });
     if (!login.ok()) {
       console.error(`Demo sign-in failed (${login.status()}). Run \`pnpm db:seed\` to create the demo accounts.`);
       process.exit(1);
@@ -89,6 +99,24 @@ async function main() {
     await riskCard.screenshot({ path: path.join(OUT, "risk-panel.png") });
     console.log("✔ risk-panel.png");
 
+    // A claim the reviewer handled: audit, waive its one exception, post. Shows "by …" and the green Posted row.
+    const api = async (method: "POST" | "PATCH", url: string, data?: unknown) => {
+      const res = await page.request.fetch(`${BASE}${url}`, { method, data });
+      if (!res.ok()) throw new Error(`${method} ${url} → ${res.status()} ${await res.text()}`);
+      return res.json() as Promise<Record<string, unknown>>;
+    };
+    const audited = (await api("POST", `/api/claims/${HANDLED}/audit`)) as { exceptions: { exceptionId: string }[] };
+    for (const ex of audited.exceptions) {
+      await api("PATCH", `/api/claims/${HANDLED}/exceptions/${ex.exceptionId}`, { status: "Waived", note: "Lodging rate approved by SQ manager — city-wide event pricing." });
+    }
+    await api("POST", `/api/claims/${HANDLED}/post`);
+    await page.goto(`${BASE}/claims/${HANDLED}`);
+    await settle(page);
+    const exceptionsCard = page.locator("section").filter({ has: page.getByText("One row per rule finding") });
+    await exceptionsCard.scrollIntoViewIfNeeded();
+    await exceptionsCard.screenshot({ path: path.join(OUT, "exceptions-handled.png") });
+    console.log("✔ exceptions-handled.png");
+
     await page.goto(`${BASE}/audit`);
     await settle(page);
     await page.screenshot({ path: path.join(OUT, "audit-log.png") });
@@ -96,7 +124,7 @@ async function main() {
   } finally {
     await browser.close();
   }
-  console.log(`Done → ${OUT}. Run \`pnpm db:seed\` to reset ${CLAIM} to Pending.`);
+  console.log(`Done → ${OUT}. Run \`pnpm db:seed\` to reset ${CLAIM} and ${HANDLED}.`);
 }
 
 main().catch((err) => {

@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 import { DUMMY_HASH, verifyPassword } from "@/lib/auth/password";
 import { createSession } from "@/lib/auth/session";
 import { SESSION_COOKIE } from "@/lib/auth/constants";
-import { clientIp, isSameOrigin, jsonError, newRequestId, rateLimit } from "@/lib/api";
+import { clientIp, isSameOrigin, isSecureRequest, jsonError, newRequestId, rateLimit } from "@/lib/api";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -56,7 +56,7 @@ export async function POST(req: Request) {
     sameSite: "lax",
     path: "/",
     maxAge: Math.round((session.expiresAt.getTime() - Date.now()) / 1000),
-    secure: process.env.NODE_ENV === "production",
+    secure: isSecureRequest(req),
   });
   return res;
 }

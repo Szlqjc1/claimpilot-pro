@@ -22,6 +22,15 @@ export function isSameOrigin(req: Request): boolean {
   }
 }
 
+/**
+ * True when the request reached us over HTTPS. The first `x-forwarded-proto` hop wins (reverse proxies
+ * terminate TLS); otherwise the request URL's protocol. Drives the cookie `Secure` flag (DECISIONS D-30).
+ */
+export function isSecureRequest(req: Request): boolean {
+  const proto = req.headers.get("x-forwarded-proto")?.split(",")[0]?.trim() ?? new URL(req.url).protocol.replace(":", "");
+  return proto === "https";
+}
+
 /** Best-effort client IP for rate limiting and audit metadata. */
 export function clientIp(req: Request): string {
   const fwd = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();

@@ -7,6 +7,7 @@ import { X } from "lucide-react";
 import { formatEt } from "@/lib/domain/dates";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { auditActionTone, initiatedByOf } from "@/lib/audit/tone";
 
 type Row = { logId: string; timestamp: string; actor: string; action: string; details: string; claimId: string | null; metadata: string | null };
 
@@ -41,9 +42,15 @@ export function AuditLogTable({ rows }: { rows: Row[] }) {
           {rows.map((r) => (
             <TR key={r.logId}>
               <TD className="tabular whitespace-nowrap text-xs">{formatEt(r.timestamp)}</TD>
-              <TD className="whitespace-nowrap font-medium">{r.actor}</TD>
+              <TD className="whitespace-nowrap font-medium">
+                {r.actor}
+                {(() => {
+                  const by = initiatedByOf(r.metadata);
+                  return by && by !== r.actor ? <span className="block text-[11px] font-normal text-muted">initiated by {by}</span> : null;
+                })()}
+              </TD>
               <TD className="whitespace-nowrap">
-                <Badge tone={r.action.includes("Flagged") ? "red" : r.action.includes("Validated") ? "green" : r.action.includes("Failed") ? "amber" : "neutral"}>{r.action}</Badge>
+                <Badge tone={auditActionTone(r.action)}>{r.action}</Badge>
               </TD>
               <TD className="whitespace-nowrap font-mono text-xs">
                 {r.claimId ? (

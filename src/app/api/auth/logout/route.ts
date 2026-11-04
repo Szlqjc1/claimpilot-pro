@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { deleteSession, tokenFromCookieHeader } from "@/lib/auth/session";
 import { SESSION_COOKIE } from "@/lib/auth/constants";
-import { clientIp, isSameOrigin, jsonError, newRequestId } from "@/lib/api";
+import { clientIp, isSameOrigin, isSecureRequest, jsonError, newRequestId } from "@/lib/api";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -26,6 +26,6 @@ export async function POST(req: Request) {
   }
 
   const res = NextResponse.json({ signedOut: true }, { status: 200, headers: { "x-request-id": requestId } });
-  res.cookies.set(SESSION_COOKIE, "", { httpOnly: true, sameSite: "lax", path: "/", maxAge: 0, secure: process.env.NODE_ENV === "production" });
+  res.cookies.set(SESSION_COOKIE, "", { httpOnly: true, sameSite: "lax", path: "/", maxAge: 0, secure: isSecureRequest(req) });
   return res;
 }

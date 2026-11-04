@@ -10,7 +10,8 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: Request, { params }: { params: Promise<{ claimId: string }> }) {
   const requestId = newRequestId();
-  if (!(await requireUser({ api: true }))) return jsonError(401, "UNAUTHENTICATED", "Sign in to continue", requestId);
+  const user = await requireUser({ api: true });
+  if (!user) return jsonError(401, "UNAUTHENTICATED", "Sign in to continue", requestId);
   const { claimId: rawId } = await params;
   const parsed = claimIdSchema.safeParse(rawId);
   if (!parsed.success) return jsonError(400, "INVALID_CLAIM_ID", "Invalid claim ID", requestId);
@@ -25,6 +26,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ claimId
     const result = await runAudit(claimId, {
       requestId,
       idempotencyKey: key,
+      initiatedBy: user.name,
       revalidate: (paths) => paths.forEach((p) => revalidatePath(p)),
     });
     return NextResponse.json(result, { status: 200, headers: { "x-request-id": requestId } });

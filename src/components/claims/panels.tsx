@@ -57,7 +57,7 @@ export function LockedPlaceholder() {
   );
 }
 
-export type FindingRow = { exceptionId: string; ruleId: string; anomalyType: string; riskLevel: string; points: number; message: string; status: string; evidence: string | null };
+export type FindingRow = { exceptionId: string; ruleId: string; anomalyType: string; riskLevel: string; points: number; message: string; status: string; evidence: string | null; resolvedBy: string | null };
 
 export function RiskPanel({
   status,
@@ -219,6 +219,7 @@ export function ExceptionsTable({ findings, analyzed, claimId, canHandle }: { fi
                 </TD>
                 <TD>
                   <Badge tone={f.status === "Open" ? "amber" : f.status === "Resolved" ? "green" : "neutral"}>{f.status}</Badge>
+                  {f.resolvedBy && <span className="mt-1 block text-[11px] text-muted">by {f.resolvedBy}</span>}
                 </TD>
                 <TD>
                   {canHandle && f.status === "Open" ? (

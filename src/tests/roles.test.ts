@@ -68,7 +68,7 @@ describe("role enforcement (segregation of duties)", () => {
     expect(log.actor).toBe(reviewer.name);
   });
 
-  it("a reviewer posts the claim; summary row by the reviewer, SAP row records postedBy", async () => {
+  it("a reviewer posts the claim; summary row by the reviewer, SAP row records initiatedBy", async () => {
     current = reviewer;
     const res = await postReq(target.claimId);
     expect(res.status).toBe(200);
@@ -77,7 +77,7 @@ describe("role enforcement (segregation of duties)", () => {
     expect(resolved.actor).toBe(reviewer.name);
     const sap = await prisma.auditLog.findFirstOrThrow({ where: { claimId: target.claimId, action: "Posted to SAP" } });
     expect(sap.actor).toBe("SAP S/4HANA Integration");
-    expect(JSON.parse(sap.metadata!)).toMatchObject({ postedBy: reviewer.name });
+    expect(JSON.parse(sap.metadata!)).toMatchObject({ initiatedBy: reviewer.name });
   });
 
   it("a reviewer cannot post or resolve on a claim they submitted themselves → 403", async () => {

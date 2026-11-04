@@ -12,7 +12,7 @@ afterAll(() => prisma.$disconnect());
 describe("runAudit (integration, mock mode)", () => {
   it("clean claim CLM-2026-0142 writes the exact validated entry and status Analyzed", async () => {
     const revalidated: string[] = [];
-    const res = await runAudit("CLM-2026-0142", opts({ revalidate: (p) => revalidated.push(...p) }));
+    const res = await runAudit("CLM-2026-0142", opts({ initiatedBy: "Priya Natarajan", revalidate: (p) => revalidated.push(...p) }));
     expect(res.claim).toMatchObject({ status: "Analyzed", riskScore: 0, riskLevel: "Low", decision: "AUTO_APPROVE" });
     expect(res.auditLog).toEqual({ actor: "AI-RPA Agent", action: "Automotive Expense Validated", details: "Invoice matched with SAP project code successfully." });
     expect(res.aiRun.mode).toBe("mock");
@@ -25,6 +25,9 @@ describe("runAudit (integration, mock mode)", () => {
     const logs = await aiLogs("CLM-2026-0142");
     expect(logs).toHaveLength(1);
     expect(logs[0]).toMatchObject({ action: "Automotive Expense Validated", details: "Invoice matched with SAP project code successfully." });
+    // actor stays the agent; the human who triggered the run is recorded separately.
+    expect(logs[0].actor).toBe("AI-RPA Agent");
+    expect(JSON.parse(logs[0].metadata!)).toMatchObject({ initiatedBy: "Priya Natarajan" });
     expect(await prisma.exception.count({ where: { claimId: "CLM-2026-0142" } })).toBe(0);
   });
 

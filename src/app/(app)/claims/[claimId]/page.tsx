@@ -49,7 +49,7 @@ export default async function ClaimReviewPage({ params }: { params: Params }) {
   // UI mirror of the server-side checks (D-27): reviewer/admin, and never on your own claim.
   const user = await requireUser();
   const reviewBlock = !canReview(user) ? "Only a reviewer or admin can resolve exceptions and post to SAP." : claim.employee === user.name ? "You submitted this claim, so another reviewer must resolve and post it." : null;
-  const findings = claim.exceptions.map((e) => ({ exceptionId: e.exceptionId, ruleId: e.ruleId, anomalyType: e.anomalyType, riskLevel: e.riskLevel, points: e.points, message: e.message, status: e.status, evidence: e.evidence }));
+  const findings = claim.exceptions.map((e) => ({ exceptionId: e.exceptionId, ruleId: e.ruleId, anomalyType: e.anomalyType, riskLevel: e.riskLevel, points: e.points, message: e.message, status: e.status, evidence: e.evidence, resolvedBy: e.resolvedBy }));
 
   return (
     <article>
@@ -189,12 +189,14 @@ export default async function ClaimReviewPage({ params }: { params: Params }) {
               <h2 className="font-semibold">Post to SAP</h2>
               <p id="post-help" className="text-[13px] text-muted">
                 Open exceptions: <span className="tabular font-semibold text-ink">{openExceptions}</span>
-                {openExceptions > 0 ? " · Resolve or waive all exceptions first." : " · Ready to create the MIRO invoice document."}
+                {reviewBlock
+                  ? ` · ${reviewBlock}`
+                  : openExceptions > 0
+                    ? " · Resolve or waive all exceptions first."
+                    : " · Ready to create the MIRO invoice document."}
               </p>
             </div>
-            {reviewBlock ? (
-              <p className="max-w-sm text-[13px] text-muted">{reviewBlock}</p>
-            ) : (
+            {!reviewBlock && (
               <PostToSapButton claimId={claim.claimId} openExceptions={openExceptions} amountLabel={formatUsd(amountCents)} />
             )}
           </CardContent>
