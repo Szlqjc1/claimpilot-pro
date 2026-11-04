@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileStack, Inbox, ScrollText, BookOpenCheck, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, FileStack, Inbox, Scale, ScrollText, BookOpenCheck, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/claims", label: "Claims", icon: FileStack },
   { href: "/queue", label: "Queue", icon: Inbox },
+  { href: "/economics", label: "Economics", icon: Scale },
   { href: "/audit", label: "Audit Log", icon: ScrollText },
   { href: "/policies", label: "Policies & Data", icon: BookOpenCheck },
 ] as const;

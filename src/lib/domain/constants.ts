@@ -120,3 +120,13 @@ export const PROMPT_VERSION_EXTRACT = "extract-v1";
 export const PROMPT_VERSION_NARRATIVE = "risk-narrative-v1";
 
 export const DISPLAY_TIMEZONE = "America/Detroit";
+
+// ─── Review economics (docs/ECONOMICS.md, DECISIONS D-35) ────────────────────
+// These are ILLUSTRATIVE DEMO INPUTS, not measured estimates.
+
+/** Illustrative demo input: fully loaded cost of one human review (~15 min of an AP analyst), in cents. */
+export const REVIEW_COST_CENTS = 1800;
+/** Illustrative demo input: probability that a flagged finding is a real loss if paid unreviewed. */
+export const DEFAULT_ERROR_PROBABILITY = 0.02;
+/** Illustrative demo input: rules always reviewed, whatever the arithmetic (duplicate payment, bank-detail change). */
+export const CONSTRAINT_RULES = ["R-03", "R-17"] as const;

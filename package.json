@@ -19,7 +19,8 @@
     "db:studio": "prisma studio",
     "receipts:generate": "tsx scripts/generate-receipts.ts",
     "kpi:report": "tsx scripts/kpi-report.ts",
-    "shots": "tsx scripts/screenshots.ts"
+    "shots": "tsx scripts/screenshots.ts",
+    "cost:curve": "tsx --conditions=react-server scripts/cost-curve.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

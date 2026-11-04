@@ -1,0 +1,20 @@
+{
+  "captured": "2026-11-04, pnpm dev (AI_MODE=mock, OCR_MODE=fixture), freshly seeded DB, signed in as Priya Natarajan",
+  "page": "/economics",
+  "h1": "Economics",
+  "costCurveImageNaturalWidth": 720,
+  "aggregate": "Under this policy, 6 of 24 analyzed claims would be reviewed, costing $108.00, leaving $9.59 of expected loss on the table.",
+  "nav": ["Dashboard", "Claims", "Queue", "Economics", "Audit Log", "Policies & Data"],
+  "top10": [
+    "CLM-2026-0068 | Buckeye Fastener Supply | $55,952.44 | L $55,952.44 | p·L $1,119.05 | REVIEW | Constraint rule",
+    "CLM-2026-0080 | Buckeye Fastener Supply | $48,241.80 | L $48,241.80 | p·L $964.84 | REVIEW | Constraint rule",
+    "CLM-2026-0083 | Buckeye Freight Systems | $9,080.56 | L $9,080.56 | p·L $181.61 | REVIEW | Constraint rule",
+    "CLM-2026-0075 | Hexagon Metrology Services | $15,710.04 | L $5,710.04 | p·L $114.20 | REVIEW | p·L > c",
+    "CLM-2026-0067 | Toledo Conveyor & Maintenance | $12,938.00 | L $3,438.00 | p·L $68.76 | REVIEW | p·L > c",
+    "CLM-2026-0077 | Lone Star Robotics Integration | $7,547.40 | L $1,997.40 | p·L $39.95 | REVIEW | p·L > c",
+    "CLM-2026-0071 | Northline Travel Management | $2,929.00 | L $266.00 | p·L $5.32 | CLEAR | p·L ≤ c",
+    "CLM-2026-0088 | ProtoWorks Additive Manufacturing | $15,291.06 | L $213.37 | p·L $4.27 | CLEAR | p·L ≤ c",
+    "CLM-2026-0065 | Buckeye Fastener Supply | $51,983.36 | L $0.00 | p·L $0.00 | CLEAR | p·L ≤ c",
+    "CLM-2026-0066 | Buckeye Fastener Supply | $55,977.44 | L $0.00 | p·L $0.00 | CLEAR | p·L ≤ c"
+  ]
+}

@@ -238,9 +238,10 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
   }
 }
 
-type ClaimWithRefs = Prisma.ClaimGetPayload<{ include: { vendor: true; purchaseOrder: true; project: true } }>;
+export type ClaimWithRefs = Prisma.ClaimGetPayload<{ include: { vendor: true; purchaseOrder: true; project: true } }>;
 
-async function buildRiskInput(claim: ClaimWithRefs, extraction: Extraction): Promise<RiskInput> {
+/** Exported for the economics layer (src/lib/economics/assess.ts); same logic the audit uses. */
+export async function buildRiskInput(claim: ClaimWithRefs, extraction: Extraction): Promise<RiskInput> {
   const poNumber = claim.poNumber ?? extraction.poNumber;
   const po = claim.purchaseOrder ?? (poNumber ? await prisma.purchaseOrder.findUnique({ where: { poNumber } }) : null);
   const grnNumber = claim.grnNumber ?? extraction.grnNumber;

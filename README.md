@@ -132,6 +132,8 @@ The AI Structured Data and AI-Annotated Invoice blocks are **conditionally rende
 
 Eighteen deterministic rules (R-01…R-18) feed a score capped at 100. Bands are 0–24 Low, 25–59 Medium and 60+ High, with a severity floor: any High finding makes the claim High. The decision is High → ESCALATE, Medium → REVIEW, and Low → AUTO_APPROVE only with zero findings. The LLM may explain findings but never sets the score. Details and examples: [docs/RISK_RULES.md](docs/RISK_RULES.md). Thresholds live in `src/lib/domain/constants.ts` and `src/lib/seed/master.ts`.
 
+- **Review economics:** beside the score, an expected-loss layer decides whether reviewing a claim is worth it (`p·L > c`), ranks work by `p·L / c`, and treats R-03 and R-17 as always-review constraints. See [docs/ECONOMICS.md](docs/ECONOMICS.md), the `/economics` page, and `pnpm cost:curve` (writes `docs/cost-curve.csv` and `docs/images/cost-curve.svg`).
+
 ## KPIs
 
 All values are computed from the database (`src/lib/kpi/formulas.ts`), and the dashboard, `/api/kpis` and `pnpm kpi:report` share the same code.
