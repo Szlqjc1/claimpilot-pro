@@ -142,6 +142,7 @@ Each card shows a delta against the previous equal-length period. The **KPI Watc
 - PDF uploads need rasterization before OCR (not implemented); use PNG/JPEG for live OCR.
 - Posting to SAP is simulated: it records a MIRO document number and audit entries but does not call SAP.
 - There is no Playwright test suite. Playwright is only used by `pnpm shots` for screenshots; the golden path is covered by integration tests against a real DB plus a manual browser run (DECISIONS D-12).
+- Extraction confidence values are simulated: `fieldConfidence` is derived from `sha256(claimId + ':' + field)` mapped into [0.93, 0.995] (`src/lib/receipts/invoice.ts`). They are a UI fixture, not a calibrated probability. The seeded extraction is built from the document itself, so its true error rate is 0 — which also means R-14 can only fire on the deliberately seeded `lowOcr` samples (DECISIONS D-25).
 
 ## Production roadmap
 

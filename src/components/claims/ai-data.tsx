@@ -11,10 +11,10 @@ function ConfidenceChip({ field, value }: { field: string; value: number | undef
   const band = confidenceBand(value);
   const c = CONFIDENCE_COLORS[band];
   return (
-    <span className="tabular inline-flex items-center gap-1 rounded-full border px-1.5 text-[11px]" style={{ borderColor: c.stroke, color: c.text, background: c.fill }} title={`${FIELD_LABELS[field] ?? field} OCR confidence`}>
+    <span className="tabular inline-flex items-center gap-1 rounded-full border px-1.5 text-[11px]" style={{ borderColor: c.stroke, color: c.text, background: c.fill }} title="Simulated extraction quality (demo)">
       <span aria-hidden className="h-1.5 w-1.5 rounded-full" style={{ background: c.stroke }} />
       {value.toFixed(2)}
-      <span className="sr-only"> confidence ({band})</span>
+      <span className="sr-only"> {FIELD_LABELS[field] ?? field} simulated confidence ({band})</span>
     </span>
   );
 }

@@ -27,7 +27,7 @@ export function AnnotatedInvoice({ src, claimId }: { src: string; claimId: strin
           {/* eslint-disable-next-line @next/next/no-img-element -- generated SVG streamed from the receipts API */}
           <img src={src} alt={`AI-annotated invoice for ${claimId} with labeled field boxes`} className="mx-auto block w-full rounded bg-white" />
         </div>
-        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted">
+        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted" title="Simulated extraction quality (demo)">
           <span className="font-medium text-ink">Legend</span>
           {(["high", "medium", "low"] as const).map((b) => (
             <span key={b} className="inline-flex items-center gap-1.5">
