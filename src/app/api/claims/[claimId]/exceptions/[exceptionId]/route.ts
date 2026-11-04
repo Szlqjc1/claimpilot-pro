@@ -5,7 +5,8 @@ import { claimIdSchema } from "@/lib/domain/schemas";
 import { AuditError } from "@/lib/audit/run-audit";
 import { dispositionException } from "@/lib/audit/disposition";
 import { isSameOrigin, jsonError, newRequestId, rateLimit } from "@/lib/api";
-import { requireUser } from "@/lib/auth/session";
+import { canReview, requireUser } from "@/lib/auth/session";
+import { prisma } from "@/lib/db";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -18,7 +19,9 @@ const bodySchema = z.object({
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ claimId: string; exceptionId: string }> }) {
   const requestId = newRequestId();
-  if (!(await requireUser({ api: true }))) return jsonError(401, "UNAUTHENTICATED", "Sign in to continue", requestId);
+  const user = await requireUser({ api: true });
+  if (!user) return jsonError(401, "UNAUTHENTICATED", "Sign in to continue", requestId);
+  if (!canReview(user)) return jsonError(403, "FORBIDDEN", `Only a reviewer or admin can resolve or waive exceptions`, requestId);
   const p = await params;
   const claim = claimIdSchema.safeParse(p.claimId);
   if (!claim.success) return jsonError(400, "INVALID_CLAIM_ID", "Invalid claim ID", requestId);
@@ -26,6 +29,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ claimI
   if (!exception.success) return jsonError(400, "INVALID_EXCEPTION_ID", "Invalid exception ID", requestId);
   if (!isSameOrigin(req)) return jsonError(403, "CROSS_ORIGIN", "Cross-origin requests are not allowed", requestId);
   if (!rateLimit(`exception:${claim.data}`, 10)) return jsonError(429, "RATE_LIMITED", "Too many requests for this claim; try again in a minute", requestId);
+  // Segregation of duties: nobody may act on a claim they submitted themselves.
+  const owner = await prisma.claim.findUnique({ where: { claimId: claim.data }, select: { employee: true } });
+  if (owner && owner.employee === user.name) return jsonError(403, "FORBIDDEN", "You cannot resolve exceptions on a claim you submitted yourself", requestId);
 
   let raw: unknown;
   try {
@@ -41,6 +47,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ claimI
   try {
     const result = await dispositionException(claim.data, exception.data, body.data, {
       requestId,
+      actor: user.name,
       revalidate: (paths) => paths.forEach((path) => revalidatePath(path)),
     });
     return NextResponse.json(result, { status: 200, headers: { "x-request-id": requestId } });

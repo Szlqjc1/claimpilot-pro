@@ -3,12 +3,15 @@ import { prisma } from "@/lib/db";
 import { aiStatus } from "@/lib/ai/provider";
 import { PageHeader } from "@/components/shell/page-header";
 import { NewClaimForm } from "@/components/claims/new-claim-form";
+import { requireUser } from "@/lib/auth/session";
+import { resolveClaimant } from "@/lib/auth/claimant";
 
 export const metadata: Metadata = { title: "New Claim" };
 
 export default async function NewClaimPage() {
-  const [employees, projects, vendors] = await Promise.all([
-    prisma.employee.findMany({ where: { department: { not: "Corporate Audit" } }, orderBy: { name: "asc" } }),
+  const user = await requireUser();
+  const [claimant, projects, vendors] = await Promise.all([
+    resolveClaimant(user.name),
     prisma.project.findMany({ orderBy: { code: "asc" }, select: { code: true, name: true } }),
     prisma.vendor.findMany({ orderBy: { name: "asc" }, select: { name: true } }),
   ]);
@@ -21,7 +24,13 @@ export default async function NewClaimPage() {
           Live OCR is disabled in demo mode. Seeded claims use deterministic fixtures. Uploaded claims can be stored and reviewed, but the AI-RPA audit needs AI_MODE=live with OCR_MODE=tesseract.
         </p>
       )}
-      <NewClaimForm employees={employees.map((e) => ({ name: e.name, department: e.department }))} projects={projects} vendors={vendors.map((v) => v.name)} />
+      {claimant.ok ? (
+        <NewClaimForm claimant={{ name: claimant.employee, department: claimant.department }} projects={projects} vendors={vendors.map((v) => v.name)} />
+      ) : (
+        <p role="alert" className="max-w-3xl rounded-lg border border-amber-200 bg-amber-50 p-3 text-[13px] text-warning">
+          {claimant.reason} Sign in as a requester (for example Marcus Reed) to submit a claim.
+        </p>
+      )}
     </>
   );
 }

@@ -4,16 +4,15 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Upload } from "lucide-react";
 import { toast } from "sonner";
-import { CATEGORIES, DEPARTMENTS } from "@/lib/domain/constants";
+import { CATEGORIES } from "@/lib/domain/constants";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input, Label, Select } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-export function NewClaimForm({ employees, projects, vendors }: { employees: { name: string; department: string }[]; projects: { code: string; name: string }[]; vendors: string[] }) {
+export function NewClaimForm({ claimant, projects, vendors }: { claimant: { name: string; department: string }; projects: { code: string; name: string }[]; vendors: string[] }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [dept, setDept] = useState(employees[0]?.department ?? DEPARTMENTS[0]);
 
   return (
     <Card className="max-w-3xl">
@@ -36,21 +35,16 @@ export function NewClaimForm({ employees, projects, vendors }: { employees: { na
             }
           }}
         >
+          {/* Read-only: the server takes the claimant from the session, not from the form. */}
           <div>
-            <Label htmlFor="n-emp">Employee</Label>
-            <Select id="n-emp" name="employee" required onChange={(e) => setDept(employees.find((x) => x.name === e.target.value)?.department ?? dept)}>
-              {employees.map((e) => (
-                <option key={e.name}>{e.name}</option>
-              ))}
-            </Select>
+            <p className="mb-1 block text-xs font-medium text-muted">Employee</p>
+            <p className="flex h-9 items-center rounded-lg border border-line bg-slate-50 px-3 text-sm" aria-label={`Employee: ${claimant.name} (signed-in user)`}>
+              {claimant.name}
+            </p>
           </div>
           <div>
-            <Label htmlFor="n-dept">Department</Label>
-            <Select id="n-dept" name="department" value={dept} onChange={(e) => setDept(e.target.value)}>
-              {DEPARTMENTS.map((d) => (
-                <option key={d}>{d}</option>
-              ))}
-            </Select>
+            <p className="mb-1 block text-xs font-medium text-muted">Department</p>
+            <p className="flex h-9 items-center rounded-lg border border-line bg-slate-50 px-3 text-sm">{claimant.department}</p>
           </div>
           <div>
             <Label htmlFor="n-cat">Category</Label>

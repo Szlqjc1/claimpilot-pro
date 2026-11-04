@@ -38,7 +38,15 @@ Created by `pnpm db:seed` / `pnpm db:reset` and also listed on the `/login` page
 | `reviewer` | Priya Natarajan (Plant Controller) | `priya.natarajan@ironwood.example` | `Toledo-Controller-26` |
 | `requester` | Marcus Reed (R&D Engineering) | `marcus.reed@ironwood.example` | `CrashSled-Request-26` |
 
-All three roles currently have the same access; the `role` field is stored and shown but not yet enforced (DECISIONS D-26).
+What each role may do (DECISIONS D-27):
+
+| Role | May do | May not do |
+|---|---|---|
+| `requester` | Sign in, view everything, submit claims (always as themselves), run the AI-RPA audit | Resolve/waive exceptions or post to SAP (403) |
+| `reviewer` | Everything a requester can, plus resolve/waive exceptions and post to SAP | Resolve, waive or post on a claim they submitted themselves (403) |
+| `admin` | Same as reviewer; Dana Whitfield is in Corporate Audit, so she cannot submit expense claims | Act on their own claims (403) |
+
+Claims are always owned by the signed-in user: employee and department come from the Employee master record, never from the form. Resolving an exception records the reviewer's name on the exception (`resolvedBy`) and as the audit-log actor; posting records them on the "Exceptions Resolved" row and as `postedBy` in the "Posted to SAP" row's metadata.
 
 | Script | What it does |
 |---|---|
@@ -150,7 +158,7 @@ Each card shows a delta against the previous equal-length period. The **KPI Watc
 ## Known limitations
 
 - SQLite and an in-memory rate limiter / in-flight guard assume a single node process.
-- Authentication is local email/password only (no SSO, MFA, password reset or account lockout beyond rate limiting), and the `role` field is not yet used for authorization. Disposition and posting audit entries are still attributed to "AP Shared Services" rather than the signed-in user.
+- Authentication is local email/password only (no SSO, MFA, password reset or account lockout beyond rate limiting). Role enforcement is deliberately minimal: three server-side checks, not a permission matrix (D-27). Seeded historical audit rows remain attributed to "AP Shared Services".
 - In mock mode, uploads can be stored and reviewed but not audited. Tesseract boxes aren't mapped to fields, so annotated uploads show a "Fields extracted" panel instead of boxes.
 - PDF uploads need rasterization before OCR (not implemented); use PNG/JPEG for live OCR.
 - Posting to SAP is simulated: it records a MIRO document number and audit entries but does not call SAP.

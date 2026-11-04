@@ -1,7 +1,8 @@
 import { afterAll, describe, expect, it, vi } from "vitest";
 
 // The PATCH route checks the session; give it a signed-in reviewer instead of removing the check.
-vi.mock("@/lib/auth/session", () => ({
+vi.mock("@/lib/auth/session", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/auth/session")>()),
   requireUser: async () => ({ id: "U-TEST", name: "Test Reviewer", email: "reviewer@test.example", role: "reviewer" }),
 }));
 import { prisma } from "@/lib/db";
@@ -10,7 +11,7 @@ import { dispositionException, postClaim } from "@/lib/audit/disposition";
 import { PATCH } from "@/app/api/claims/[claimId]/exceptions/[exceptionId]/route";
 
 // Uses CLM-2026-0143 / 0148, which audit.test.ts does not touch.
-const opts = { requestId: "test" };
+const opts = { requestId: "test", actor: "Test Reviewer" };
 const CLAIM = "CLM-2026-0143";
 const EXC = "EXC-2026-0143-R-11";
 
@@ -61,8 +62,8 @@ describe("disposition and posting (integration)", () => {
 
     const logs = await prisma.auditLog.findMany({ where: { claimId: CLAIM }, orderBy: { timestamp: "asc" } });
     const actions = logs.map((l) => `${l.actor} / ${l.action}`);
-    expect(actions).toContain("AP Shared Services / Exception Waived");
-    expect(actions).toContain("AP Shared Services / Exceptions Resolved");
+    expect(actions).toContain("Test Reviewer / Exception Waived");
+    expect(actions).toContain("Test Reviewer / Exceptions Resolved");
     expect(actions).toContain("SAP S/4HANA Integration / Posted to SAP");
     const postLog = logs.find((l) => l.action === "Posted to SAP")!;
     expect(postLog.details).toBe("Invoice NTM-44719 posted (MIRO) for $3,240.00; payment run Net 60.");

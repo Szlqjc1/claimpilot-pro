@@ -9,7 +9,8 @@ import { miroDocNo } from "./miro";
 
 export type PostResult = { claimId: string; status: "Posted"; postedAt: string; miroDocNo: string };
 
-export async function postClaim(claimId: string, opts: { requestId: string; revalidate?: (paths: string[]) => void }): Promise<PostResult> {
+/** `actor` is the signed-in reviewer: attributed on the Exceptions Resolved row and recorded as `postedBy` on the SAP row. */
+export async function postClaim(claimId: string, opts: { requestId: string; actor: string; revalidate?: (paths: string[]) => void }): Promise<PostResult> {
   const claim = await prisma.claim.findUnique({ where: { claimId }, include: { vendor: true, exceptions: true } });
   if (!claim) throw new AuditError(404, "CLAIM_NOT_FOUND", `Claim ${claimId} not found`);
   if (claim.status === "Posted") throw new AuditError(409, "CLAIM_ALREADY_POSTED", "Claim is already posted to SAP", { currentStatus: claim.status });
@@ -20,6 +21,7 @@ export async function postClaim(claimId: string, opts: { requestId: string; reva
   const now = new Date();
   const docNo = miroDocNo(now);
   const metadata = JSON.stringify({ requestId: opts.requestId });
+  const postMetadata = JSON.stringify({ requestId: opts.requestId, postedBy: opts.actor });
   await prisma.$transaction(async (tx) => {
     // Status guard inside the transaction so concurrent posts cannot both succeed.
     const updated = await tx.claim.updateMany({ where: { claimId, status: "Analyzed" }, data: { status: "Posted", postedAt: now, miroDocNo: docNo } });
@@ -29,7 +31,7 @@ export async function postClaim(claimId: string, opts: { requestId: string; reva
         data: {
           logId: randomUUID(),
           timestamp: now,
-          actor: "AP Shared Services",
+          actor: opts.actor,
           action: "Exceptions Resolved",
           details: `${claim.exceptions.length} exception(s) resolved after reviewer sign-off; supplier documentation attached.`,
           claimId,
@@ -45,7 +47,7 @@ export async function postClaim(claimId: string, opts: { requestId: string; reva
         action: "Posted to SAP",
         details: `Invoice ${claim.invoiceNumber} posted (MIRO) for ${formatUsd(toCents(claim.amount))}; payment run ${claim.vendor?.paymentTerms ?? "Net 30"}.`,
         claimId,
-        metadata,
+        metadata: postMetadata,
       },
     });
   });
@@ -59,7 +61,7 @@ export async function dispositionException(
   claimId: string,
   exceptionId: string,
   input: { status: "Resolved" | "Waived"; note: string },
-  opts: { requestId: string; revalidate?: (paths: string[]) => void },
+  opts: { requestId: string; actor: string; revalidate?: (paths: string[]) => void },
 ): Promise<DispositionResult> {
   const [claim, exception] = await Promise.all([
     prisma.claim.findUnique({ where: { claimId }, select: { status: true } }),
@@ -71,12 +73,12 @@ export async function dispositionException(
   if (exception.status !== "Open") throw new AuditError(409, "EXCEPTION_ALREADY_HANDLED", `Exception is already ${exception.status}`, { currentStatus: exception.status });
 
   await prisma.$transaction(async (tx) => {
-    const updated = await tx.exception.updateMany({ where: { exceptionId, status: "Open" }, data: { status: input.status } });
+    const updated = await tx.exception.updateMany({ where: { exceptionId, status: "Open" }, data: { status: input.status, resolvedBy: opts.actor } });
     if (updated.count !== 1) throw new AuditError(409, "EXCEPTION_ALREADY_HANDLED", "Exception was handled by a concurrent request");
     await tx.auditLog.create({
       data: {
         logId: randomUUID(),
-        actor: "AP Shared Services",
+        actor: opts.actor,
         action: input.status === "Resolved" ? "Exception Resolved" : "Exception Waived",
         details: `${exception.ruleId} ${exception.anomalyType} ${input.status.toLowerCase()} — ${input.note}`,
         claimId,

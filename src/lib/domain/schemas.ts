@@ -158,9 +158,8 @@ export const claimFiltersSchema = z.object({
 });
 export type ClaimFilters = z.infer<typeof claimFiltersSchema>;
 
+// Employee and department are never taken from the form: the server derives them from the signed-in user.
 export const newClaimSchema = z.object({
-  employee: z.string().trim().min(2).max(80),
-  department: departmentSchema,
   projectCode: z.preprocess(emptyToUndefined, z.string().trim().max(40).optional()),
   category: categorySchema,
   amount: z

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { aiStatus } from "@/lib/ai/provider";
+import { canReview, requireUser } from "@/lib/auth/session";
 import { AlertTriangle, FolderKanban, Send } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { claimIdSchema, parseExtractedData } from "@/lib/domain/schemas";
@@ -45,6 +46,9 @@ export default async function ClaimReviewPage({ params }: { params: Params }) {
   const showAi = claim.status !== "Pending";
   const lastRun = claim.aiRuns[0] ?? null;
   const openExceptions = claim.exceptions.filter((e) => e.status === "Open").length;
+  // UI mirror of the server-side checks (D-27): reviewer/admin, and never on your own claim.
+  const user = await requireUser();
+  const reviewBlock = !canReview(user) ? "Only a reviewer or admin can resolve exceptions and post to SAP." : claim.employee === user.name ? "You submitted this claim, so another reviewer must resolve and post it." : null;
   const findings = claim.exceptions.map((e) => ({ exceptionId: e.exceptionId, ruleId: e.ruleId, anomalyType: e.anomalyType, riskLevel: e.riskLevel, points: e.points, message: e.message, status: e.status, evidence: e.evidence }));
 
   return (
@@ -188,7 +192,11 @@ export default async function ClaimReviewPage({ params }: { params: Params }) {
                 {openExceptions > 0 ? " · Resolve or waive all exceptions first." : " · Ready to create the MIRO invoice document."}
               </p>
             </div>
-            <PostToSapButton claimId={claim.claimId} openExceptions={openExceptions} amountLabel={formatUsd(amountCents)} />
+            {reviewBlock ? (
+              <p className="max-w-sm text-[13px] text-muted">{reviewBlock}</p>
+            ) : (
+              <PostToSapButton claimId={claim.claimId} openExceptions={openExceptions} amountLabel={formatUsd(amountCents)} />
+            )}
           </CardContent>
         </Card>
       )}
@@ -209,7 +217,7 @@ export default async function ClaimReviewPage({ params }: { params: Params }) {
         <AuditTimeline entries={claim.auditLogs} />
       </div>
       <div className="mt-6">
-        <ExceptionsTable findings={findings} analyzed={claim.status !== "Pending"} claimId={claim.claimId} canHandle={claim.status === "Analyzed"} />
+        <ExceptionsTable findings={findings} analyzed={claim.status !== "Pending"} claimId={claim.claimId} canHandle={claim.status === "Analyzed" && !reviewBlock} />
       </div>
     </article>
   );

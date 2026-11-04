@@ -60,6 +60,11 @@ export async function requireUser(opts?: { api: true }): Promise<SessionUser | n
   redirect("/login");
 }
 
+/** Reviewers and admins may resolve/waive exceptions and post to SAP (DECISIONS D-27). */
+export function canReview(user: { role: string }): boolean {
+  return user.role === "reviewer" || user.role === "admin";
+}
+
 /** Parse the session token from a raw Cookie header (route handlers that receive a plain Request). */
 export function tokenFromCookieHeader(header: string | null): string | null {
   if (!header) return null;

@@ -1,0 +1,94 @@
+{
+  "exportedAt": "2026-11-04T19:39:50.545Z",
+  "api": {
+    "requesterPost": {
+      "status": 403,
+      "body": {
+        "error": {
+          "code": "FORBIDDEN",
+          "message": "Only a reviewer or admin can post claims to SAP",
+          "requestId": "c6449845-10fc"
+        }
+      }
+    },
+    "reviewerPostOwn": {
+      "status": 403,
+      "body": {
+        "error": {
+          "code": "FORBIDDEN",
+          "message": "You cannot post a claim you submitted yourself",
+          "requestId": "4990f1c0-b3be"
+        }
+      }
+    }
+  },
+  "claim": {
+    "claimId": "CLM-2026-0067",
+    "status": "Posted",
+    "employee": "Tyler Brooks",
+    "postedAt": "2026-11-04T19:39:45.278Z",
+    "miroDocNo": "MIRO-20261104-C169BC"
+  },
+  "exceptions": [
+    {
+      "exceptionId": "EXC-2026-0067-R-08",
+      "claimId": "CLM-2026-0067",
+      "anomalyType": "Price Variance vs Benchmark",
+      "riskLevel": "Medium",
+      "ruleId": "R-08",
+      "points": 25,
+      "message": "SVC-MAINT-HR (Millwright labor hour) billed at $129.38 vs benchmark p50 $95.00 (+36.2%).",
+      "evidence": "{\"itemCode\":\"SVC-MAINT-HR\",\"unitPrice\":\"$129.38\",\"benchmarkP50\":\"$95.00\",\"variance\":\"36.2%\"}",
+      "status": "Resolved",
+      "resolvedBy": "Priya Natarajan",
+      "createdAt": "2026-07-20T13:14:00.000Z"
+    }
+  ],
+  "auditLog": [
+    {
+      "logId": "5cdb5652-33b4-40a0-ae17-2997c65ba3ca",
+      "timestamp": "2026-07-19T20:14:00.000Z",
+      "actor": "Tyler Brooks",
+      "action": "Claim Submitted",
+      "details": "Claim submitted by Tyler Brooks",
+      "claimId": "CLM-2026-0067",
+      "metadata": "{\"amount\":\"$12,938.00\",\"category\":\"MRO & Equipment Repair\",\"invoice\":\"TCM-11589\"}"
+    },
+    {
+      "logId": "b5468996-9f1f-43de-ad5d-ca3465c65d0c",
+      "timestamp": "2026-07-20T13:14:00.000Z",
+      "actor": "AI-RPA Agent",
+      "action": "Automotive Expense Flagged",
+      "details": "AI-RPA raised 1 exception(s): Price Variance vs Benchmark (Medium). Routed to Plant Controller.",
+      "claimId": "CLM-2026-0067",
+      "metadata": "{\"riskScore\":25,\"riskLevel\":\"Medium\",\"decision\":\"REVIEW\",\"mode\":\"mock\"}"
+    },
+    {
+      "logId": "7f3fc9b2-3ef7-45b7-bc76-52c1f30e0c17",
+      "timestamp": "2026-11-04T19:39:44.950Z",
+      "actor": "Priya Natarajan",
+      "action": "Exception Resolved",
+      "details": "R-08 Price Variance vs Benchmark resolved — Labor rate confirmed against the 2026 millwright contract addendum.",
+      "claimId": "CLM-2026-0067",
+      "metadata": "{\"requestId\":\"87dcd36e-35ef\"}"
+    },
+    {
+      "logId": "8d116b54-e504-45a7-808f-2d6705311105",
+      "timestamp": "2026-11-04T19:39:45.278Z",
+      "actor": "Priya Natarajan",
+      "action": "Exceptions Resolved",
+      "details": "1 exception(s) resolved after reviewer sign-off; supplier documentation attached.",
+      "claimId": "CLM-2026-0067",
+      "metadata": "{\"requestId\":\"9dcfa368-0dcd\"}"
+    },
+    {
+      "logId": "67dae7e8-b1f7-48eb-a3a0-4e03338bba79",
+      "timestamp": "2026-11-04T19:39:45.278Z",
+      "actor": "SAP S/4HANA Integration",
+      "action": "Posted to SAP",
+      "details": "Invoice TCM-11589 posted (MIRO) for $12,938.00; payment run Net 60.",
+      "claimId": "CLM-2026-0067",
+      "metadata": "{\"requestId\":\"9dcfa368-0dcd\",\"postedBy\":\"Priya Natarajan\"}"
+    }
+  ]
+}

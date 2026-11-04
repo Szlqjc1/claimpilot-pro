@@ -71,6 +71,7 @@ model Exception {
   message     String
   evidence    String?
   status      String   @default("Open") // Open | Resolved | Waived
+  resolvedBy  String? // user who resolved/waived it (null for seeded history)
   createdAt   DateTime @default(now())
 
   claim Claim @relation(fields: [claimId], references: [claimId], onDelete: Cascade)

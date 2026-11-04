@@ -8,6 +8,7 @@ import { sniffMime, writeReceiptFile } from "@/lib/receipts/storage";
 import { sha256 } from "@/lib/receipts/invoice";
 import { isSameOrigin, jsonError, newRequestId, rateLimit } from "@/lib/api";
 import { requireUser } from "@/lib/auth/session";
+import { resolveClaimant } from "@/lib/auth/claimant";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,7 +18,8 @@ const EXT: Record<string, string> = { "image/png": "png", "image/jpeg": "jpg", "
 /** P1 intake: multipart form → new Pending claim with the receipt stored outside public/. */
 export async function POST(req: Request) {
   const requestId = newRequestId();
-  if (!(await requireUser({ api: true }))) return jsonError(401, "UNAUTHENTICATED", "Sign in to continue", requestId);
+  const user = await requireUser({ api: true });
+  if (!user) return jsonError(401, "UNAUTHENTICATED", "Sign in to continue", requestId);
   if (!isSameOrigin(req)) return jsonError(403, "CROSS_ORIGIN", "Cross-origin requests are not allowed", requestId);
   if (!rateLimit("intake", 20)) return jsonError(429, "RATE_LIMITED", "Too many uploads; try again in a minute", requestId);
 
@@ -39,6 +41,10 @@ export async function POST(req: Request) {
   const mime = sniffMime(buf);
   if (!mime) return jsonError(422, "RECEIPT_UNSUPPORTED", "Only PNG, JPEG or PDF files are accepted (checked by file signature)", requestId);
 
+  // The claim owner is the signed-in user (Employee master), never a form field.
+  const claimant = await resolveClaimant(user.name);
+  if (!claimant.ok) return jsonError(403, "FORBIDDEN", claimant.reason, requestId);
+
   const f = fields.data;
   const year = new Date().getUTCFullYear();
   const last = await prisma.claim.findFirst({ where: { claimId: { startsWith: `CLM-${year}-` } }, orderBy: { claimId: "desc" }, select: { claimId: true } });
@@ -58,8 +64,8 @@ export async function POST(req: Request) {
     prisma.claim.create({
       data: {
         claimId,
-        employee: f.employee,
-        department: f.department,
+        employee: claimant.employee,
+        department: claimant.department,
         projectCode: f.projectCode ?? null,
         category: f.category,
         amount: f.amount,
@@ -77,7 +83,7 @@ export async function POST(req: Request) {
       },
     }),
     prisma.auditLog.create({
-      data: { logId: randomUUID(), timestamp: now, actor: f.employee, action: "Claim Submitted", details: `Claim submitted by ${f.employee}`, claimId, metadata: JSON.stringify({ requestId, upload: true, bytes: buf.length, mime }) },
+      data: { logId: randomUUID(), timestamp: now, actor: user.name, action: "Claim Submitted", details: `Claim submitted by ${claimant.employee}`, claimId, metadata: JSON.stringify({ requestId, upload: true, bytes: buf.length, mime }) },
     }),
   ]);
   ["/dashboard", "/claims", "/audit"].forEach((p) => revalidatePath(p));
