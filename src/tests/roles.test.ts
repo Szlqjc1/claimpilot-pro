@@ -73,7 +73,7 @@ describe("role enforcement (segregation of duties)", () => {
     const res = await postReq(target.claimId);
     expect(res.status).toBe(200);
     expect(((await res.json()) as { status: string }).status).toBe("Posted");
-    const resolved = await prisma.auditLog.findFirstOrThrow({ where: { claimId: target.claimId, action: "Exceptions Resolved" } });
+    const resolved = await prisma.auditLog.findFirstOrThrow({ where: { claimId: target.claimId, action: "Exceptions Cleared Before Posting" } });
     expect(resolved.actor).toBe(reviewer.name);
     const sap = await prisma.auditLog.findFirstOrThrow({ where: { claimId: target.claimId, action: "Posted to SAP" } });
     expect(sap.actor).toBe("SAP S/4HANA Integration");

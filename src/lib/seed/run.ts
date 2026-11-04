@@ -310,7 +310,7 @@ export async function seedDatabase(prisma: PrismaClient, opts: { log?: (msg: str
             logId: randomUUID(),
             timestamp: new Date(c.postedAt.getTime() - 2 * 3_600_000),
             actor: "AP Shared Services",
-            action: "Exceptions Resolved",
+            action: "Exceptions Cleared Before Posting",
             details: `${result.findings.length} exception(s) resolved after reviewer sign-off; supplier documentation attached.`,
             claimId: c.claimId,
             metadata: null,

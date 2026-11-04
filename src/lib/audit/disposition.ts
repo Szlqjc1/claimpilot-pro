@@ -9,7 +9,7 @@ import { miroDocNo } from "./miro";
 
 export type PostResult = { claimId: string; status: "Posted"; postedAt: string; miroDocNo: string };
 
-/** `actor` is the signed-in reviewer: attributed on the Exceptions Resolved row and recorded as `initiatedBy` on the SAP row. */
+/** `actor` is the signed-in reviewer: attributed on the Exceptions Cleared Before Posting row and recorded as `initiatedBy` on the SAP row. */
 export async function postClaim(claimId: string, opts: { requestId: string; actor: string; revalidate?: (paths: string[]) => void }): Promise<PostResult> {
   const claim = await prisma.claim.findUnique({ where: { claimId }, include: { vendor: true, exceptions: true } });
   if (!claim) throw new AuditError(404, "CLAIM_NOT_FOUND", `Claim ${claimId} not found`);
@@ -32,7 +32,7 @@ export async function postClaim(claimId: string, opts: { requestId: string; acto
           logId: randomUUID(),
           timestamp: now,
           actor: opts.actor,
-          action: "Exceptions Resolved",
+          action: "Exceptions Cleared Before Posting",
           details: `${claim.exceptions.length} exception(s) resolved after reviewer sign-off; supplier documentation attached.`,
           claimId,
           metadata,

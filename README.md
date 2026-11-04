@@ -46,7 +46,7 @@ What each role may do (DECISIONS D-27):
 | `reviewer` | Everything a requester can, plus resolve/waive exceptions and post to SAP | Resolve, waive or post on a claim they submitted themselves (403) |
 | `admin` | Same as reviewer; Dana Whitfield is in Corporate Audit, so she cannot submit expense claims | Act on their own claims (403) |
 
-Claims are always owned by the signed-in user: employee and department come from the Employee master record, never from the form. Resolving an exception records the reviewer's name on the exception (`resolvedBy`) and as the audit-log actor; posting records them on the "Exceptions Resolved" row and as `initiatedBy` in the "Posted to SAP" row's metadata. The AI-RPA audit row likewise records who ran it as `initiatedBy`, while its actor stays `AI-RPA Agent`.
+Claims are always owned by the signed-in user: employee and department come from the Employee master record, never from the form. Resolving an exception records the reviewer's name on the exception (`resolvedBy`) and as the audit-log actor; posting records them on the "Exceptions Cleared Before Posting" row and as `initiatedBy` in the "Posted to SAP" row's metadata. The AI-RPA audit row likewise records who ran it as `initiatedBy`, while its actor stays `AI-RPA Agent`.
 
 | Script | What it does |
 |---|---|
@@ -74,6 +74,8 @@ Captured with `pnpm shots` (Playwright, 1440×900, against a running server with
 | **Sign in**: every page requires a session; demo accounts listed | |
 | ![Queue](docs/images/queue.png) | |
 | **Queue**: assigned work by stage, plus an Unassigned section | |
+| ![Review cost curve](docs/images/cost-curve.svg) | |
+| **Review economics**: total cost vs review capacity; the minimum sits where marginal expected loss crosses the $18 review cost | |
 
 ## Architecture
 

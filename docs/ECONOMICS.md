@@ -94,6 +94,25 @@ writes `docs/cost-curve.csv` and `docs/images/cost-curve.svg`, and names the cap
 On the seeded data, reviewing nothing leaves about $2,498 of expected loss. Reviewing the top quarter
 (6 of 24 claims, $108 of review time) brings the total to about $118, and reviewing more only adds cost.
 
+### Where the minimum comes from
+
+Only **8 of the 24** Analyzed claims carry any priced exposure (`L > 0`); the other 16 are clean or have only
+non-monetisable findings. Past the 8th review the residual expected loss is `$0`, so every further review is
+pure cost. The knee sits exactly where the marginal claim's `p·L` crosses `c`:
+
+| Review | Expected loss saved | Review cost | Worth it? |
+|---|---:|---:|---|
+| 6th (22.5 % → 25 %) | $49.54 − $9.59 = **$39.95** | $18 | yes |
+| 7th (25 % → 27.5 %) | $9.59 − $4.27 = **$5.32** | $18 | no |
+
+The optimum is a property of this claim population and of `p`, not a universal percentage: a riskier
+portfolio (more claims with large `L`) pushes it to the right.
+
+**Sensitivity** (measured on the seeded data; `DEFAULT_ERROR_PROBABILITY` is one constant you can edit and
+re-run `pnpm cost:curve`): at `p = 0.005` the optimum drops to 4 reviews (15 %, the three constraint claims
+plus CLM-2026-0075); at `p = 0.05` it stays at 6, because the 7th claim's `L` is only $266 and is not worth $18
+until `p > 18 / 266 ≈ 0.068`.
+
 ## Assumptions and limits
 
 - **Review is perfect.** A reviewed claim is assumed to catch the error with certainty; real reviewers miss some.

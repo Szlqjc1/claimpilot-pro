@@ -55,7 +55,7 @@ All document text is wrapped in `<document>` tags, and the system prompt says *"
 After the AI-RPA audit, a reviewer closes the loop (`src/lib/audit/disposition.ts`):
 
 1. **Exception → resolve or waive.** `PATCH /api/claims/:id/exceptions/:exceptionId` with `{ status: "Resolved" | "Waived", note }` (10–500 chars). This is allowed only while the claim is `Analyzed` and the exception is `Open`; otherwise 409. One transaction updates the exception and appends `AP Shared Services · Exception Resolved/Waived` (`<ruleId> <anomaly> <status> — <note>`).
-2. **Post.** `POST /api/claims/:id/post` requires `Analyzed` and zero `Open` exceptions (`409 CLAIM_NOT_ANALYZED / CLAIM_ALREADY_POSTED / EXCEPTIONS_OPEN`). One transaction sets `Posted`, `postedAt` and `miroDocNo` (guarded by `updateMany where status = Analyzed`, so concurrent posts can't both win) and appends `AP Shared Services · Exceptions Resolved` (when the claim had exceptions) plus `SAP S/4HANA Integration · Posted to SAP`, with the same wording the seed uses for historical posted claims.
+2. **Post.** `POST /api/claims/:id/post` requires `Analyzed` and zero `Open` exceptions (`409 CLAIM_NOT_ANALYZED / CLAIM_ALREADY_POSTED / EXCEPTIONS_OPEN`). One transaction sets `Posted`, `postedAt` and `miroDocNo` (guarded by `updateMany where status = Analyzed`, so concurrent posts can't both win) and appends `AP Shared Services · Exceptions Cleared Before Posting` (when the claim had exceptions) plus `SAP S/4HANA Integration · Posted to SAP`, with the same wording the seed uses for historical posted claims.
 
 Every step writes to the append-only AuditLog with the request ID in `metadata`. Both routes use the shared same-origin check, rate limiter and `{ error: { code, message, requestId } }` envelope.
 

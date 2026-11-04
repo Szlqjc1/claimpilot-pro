@@ -13,8 +13,10 @@ describe("auditActionTone", () => {
   });
   it("Resolved | Waived → amber", () => {
     expect(auditActionTone("Exception Resolved")).toBe("amber");
-    expect(auditActionTone("Exceptions Resolved")).toBe("amber");
     expect(auditActionTone("Exception Waived")).toBe("amber");
+  });
+  it("Cleared (posting summary) → neutral, deliberately", () => {
+    expect(auditActionTone("Exceptions Cleared Before Posting")).toBe("neutral");
   });
   it("anything else → neutral", () => {
     expect(auditActionTone("Claim Submitted")).toBe("neutral");

@@ -63,7 +63,7 @@ describe("disposition and posting (integration)", () => {
     const logs = await prisma.auditLog.findMany({ where: { claimId: CLAIM }, orderBy: { timestamp: "asc" } });
     const actions = logs.map((l) => `${l.actor} / ${l.action}`);
     expect(actions).toContain("Test Reviewer / Exception Waived");
-    expect(actions).toContain("Test Reviewer / Exceptions Resolved");
+    expect(actions).toContain("Test Reviewer / Exceptions Cleared Before Posting");
     expect(actions).toContain("SAP S/4HANA Integration / Posted to SAP");
     const postLog = logs.find((l) => l.action === "Posted to SAP")!;
     expect(postLog.details).toBe("Invoice NTM-44719 posted (MIRO) for $3,240.00; payment run Net 60.");
