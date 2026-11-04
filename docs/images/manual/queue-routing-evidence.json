@@ -1,0 +1,71 @@
+{
+  "captured": "2026-11-04, pnpm dev (AI_MODE=mock, OCR_MODE=fixture), audits run in the UI as Priya Natarajan",
+  "ui": {
+    "CLM-2026-0147 header": "Assigned · Priya Natarajan (title: Plant Controller · Priya Natarajan)",
+    "CLM-2026-0144 header": "Assigned · Plant Controller (title: Plant Controller · unassigned — submitter is the role owner)",
+    "/queue Assigned to you > Needs disposition": [
+      "CLM-2026-0067",
+      "CLM-2026-0075",
+      "CLM-2026-0147"
+    ],
+    "/queue lists CLM-2026-0144 for Priya": false,
+    "nav": [
+      "Dashboard",
+      "Claims",
+      "Queue",
+      "Audit Log",
+      "Policies & Data"
+    ]
+  },
+  "claims": [
+    {
+      "claimId": "CLM-2026-0142",
+      "employee": "Marcus Reed",
+      "department": "R&D Engineering",
+      "status": "Pending",
+      "riskScore": null,
+      "decision": null,
+      "assignedRole": null,
+      "assignedTo": null,
+      "assignedAt": null
+    },
+    {
+      "claimId": "CLM-2026-0144",
+      "employee": "Priya Natarajan",
+      "department": "Plant Operations",
+      "status": "Analyzed",
+      "riskScore": 100,
+      "decision": "ESCALATE",
+      "assignedRole": "Plant Controller",
+      "assignedTo": null,
+      "assignedAt": "2026-11-04T22:15:09.319Z"
+    },
+    {
+      "claimId": "CLM-2026-0147",
+      "employee": "Tyler Brooks",
+      "department": "Plant Operations",
+      "status": "Analyzed",
+      "riskScore": 50,
+      "decision": "REVIEW",
+      "assignedRole": "Plant Controller",
+      "assignedTo": "Priya Natarajan",
+      "assignedAt": "2026-11-04T22:14:56.570Z"
+    }
+  ],
+  "auditRows": [
+    {
+      "claimId": "CLM-2026-0144",
+      "actor": "AI-RPA Agent",
+      "action": "Automotive Expense Flagged",
+      "details": "AI-RPA raised 3 exception(s): Amount Over Limit (High), Missing Factory Gate Pass (High), PO Balance Exceeded (High). Routed to Plant Controller.",
+      "metadata": "{\"requestId\":\"b25b70c3-1d19\",\"initiatedBy\":\"Priya Natarajan\",\"riskScore\":100,\"riskLevel\":\"High\",\"decision\":\"ESCALATE\",\"mode\":\"mock\",\"rules\":[\"R-04\",\"R-05\",\"R-07\"],\"assignedRole\":\"Plant Controller\",\"assignedTo\":null}"
+    },
+    {
+      "claimId": "CLM-2026-0147",
+      "actor": "AI-RPA Agent",
+      "action": "Automotive Expense Flagged",
+      "details": "AI-RPA raised 1 exception(s): Entertainment Policy Violation (Medium). Routed to Plant Controller.",
+      "metadata": "{\"requestId\":\"42eee664-4d26\",\"initiatedBy\":\"Priya Natarajan\",\"riskScore\":50,\"riskLevel\":\"Medium\",\"decision\":\"REVIEW\",\"mode\":\"mock\",\"rules\":[\"R-12\"],\"assignedRole\":\"Plant Controller\",\"assignedTo\":\"Priya Natarajan\"}"
+    }
+  ]
+}

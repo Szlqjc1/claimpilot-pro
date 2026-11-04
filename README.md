@@ -122,6 +122,8 @@ Full script: [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md).
 
 `Pending` → **🚀 Run AI-RPA Audit** → `Analyzed` → reviewer resolves or waives each exception (with a note) → **Post to SAP** → `Posted` (MIRO document number). Posting is blocked while any exception is still Open. Every step is appended to the audit log.
 
+**Routing:** a flagged claim is assigned by department → role (the same table that writes "Routed to …") → owner, the one employee with that title, and never to the claim's own submitter (the claim then stays assigned to the role with no owner, for someone else to pick up). Reviewers see their assigned claims plus an Unassigned section on `/queue`; requesters see their own submissions there, read-only (D-34).
+
 The AI Structured Data and AI-Annotated Invoice blocks are **conditionally rendered**: absent from the DOM while `Pending`, present once the claim is `Analyzed` or `Posted` (DECISIONS D-19).
 
 ## Risk rules

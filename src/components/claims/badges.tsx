@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle2, CircleDot, Clock, ShieldAlert, ShieldCheck } from "lucide-react";
+import { AlertTriangle, CheckCircle2, CircleDot, Clock, ShieldAlert, ShieldCheck, UserRoundCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 // Badges always carry a text label — color is never the only signal.
@@ -42,6 +42,15 @@ export function DecisionBadge({ decision }: { decision: string | null }) {
   return (
     <Badge tone={tone} className="font-mono tracking-tight">
       {decision}
+    </Badge>
+  );
+}
+
+/** Escalation assignment (D-34): the owner when there is one, otherwise the role nobody eligible owns. */
+export function AssignedBadge({ role, owner }: { role: string; owner: string | null }) {
+  return (
+    <Badge tone="navy" title={`${role} · ${owner ?? "unassigned — submitter is the role owner"}`}>
+      <UserRoundCheck className="h-3 w-3" aria-hidden /> Assigned · {owner ?? role}
     </Badge>
   );
 }

@@ -16,6 +16,7 @@ import { sha256 } from "@/lib/receipts/invoice";
 import { evaluateRisk } from "@/lib/risk/score";
 import { normalizeVendorName } from "@/lib/risk/rules";
 import type { RiskInput } from "@/lib/risk/types";
+import { resolveAssignment } from "@/lib/domain/routing";
 import { auditEntryFor } from "./wording";
 
 export class AuditError extends Error {
@@ -31,7 +32,7 @@ export class AuditError extends Error {
 }
 
 export type AuditResponse = {
-  claim: { claimId: string; status: string; riskScore: number; riskLevel: string; decision: string; analyzedAt: string };
+  claim: { claimId: string; status: string; riskScore: number; riskLevel: string; decision: string; analyzedAt: string; assignedRole: string | null; assignedTo: string | null };
   exceptions: { exceptionId: string; ruleId: string; anomalyType: string; riskLevel: string; points: number; message: string }[];
   auditLog: { actor: string; action: string; details: string };
   aiRun: { mode: string; provider: string; model: string; latencyMs: number; promptVersion: string };
@@ -122,6 +123,11 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
     // 7. Deterministic risk — the LLM never touches the score.
     const riskInput = await buildRiskInput(claim, extraction);
     const result = evaluateRisk(riskInput);
+    // Escalation routing (D-34): only flagged claims are assigned; never to the submitter.
+    const assignment =
+      result.findings.length > 0
+        ? resolveAssignment(claim.department, result.findings.length, await prisma.employee.findMany({ select: { name: true, title: true } }), claim.employee)
+        : null;
 
     // 8. Narrative explains findings only.
     const amountCents = toCents(claim.amount);
@@ -158,7 +164,7 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
       status: "Open",
     }));
     const response: AuditResponse = {
-      claim: { claimId, status: "Analyzed", riskScore: result.score, riskLevel: result.riskLevel, decision: result.decision, analyzedAt: analyzedAt.toISOString() },
+      claim: { claimId, status: "Analyzed", riskScore: result.score, riskLevel: result.riskLevel, decision: result.decision, analyzedAt: analyzedAt.toISOString(), assignedRole: assignment?.role ?? null, assignedTo: assignment?.owner ?? null },
       exceptions: exceptionRows.map(({ exceptionId, ruleId, anomalyType, riskLevel, points, message }) => ({ exceptionId, ruleId, anomalyType, riskLevel, points, message })),
       auditLog: entry,
       aiRun: { mode: run.mode, provider: run.provider, model: run.model, latencyMs, promptVersion: PROMPT_VERSION_EXTRACT },
@@ -182,6 +188,9 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
             decision: result.decision,
             receiptHash,
             ocrText: ocr.text,
+            assignedRole: assignment?.role ?? null,
+            assignedTo: assignment?.owner ?? null,
+            assignedAt: assignment ? analyzedAt : null,
           },
         });
         if (updated.count !== 1) throw new AuditError(409, "CLAIM_NOT_PENDING", "Claim was analyzed by a concurrent request", { currentStatus: "Analyzed" });
@@ -192,7 +201,7 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
             timestamp: analyzedAt,
             ...entry,
             claimId,
-            metadata: JSON.stringify({ requestId: opts.requestId, initiatedBy: opts.initiatedBy ?? null, riskScore: result.score, riskLevel: result.riskLevel, decision: result.decision, mode: run.mode, rules: result.findings.map((f) => f.ruleId) }),
+            metadata: JSON.stringify({ requestId: opts.requestId, initiatedBy: opts.initiatedBy ?? null, riskScore: result.score, riskLevel: result.riskLevel, decision: result.decision, mode: run.mode, rules: result.findings.map((f) => f.ruleId), assignedRole: assignment?.role ?? null, assignedTo: assignment?.owner ?? null }),
           },
         });
         await tx.aiRun.create({

@@ -11,6 +11,10 @@ export const EMPLOYEES: { name: string; department: Department | "Corporate Audi
   { name: "Tyler Brooks", department: "Plant Operations", title: "Maintenance Manager" },
   { name: "Sofia Marin", department: "Supplier Quality", title: "Supplier Audit Lead" },
   { name: "Dana Whitfield", department: "Corporate Audit", title: "Audit Director (demo user)" },
+  // Routing-role owners (D-34): every ROUTING role has exactly one owner. They submit no seeded claims.
+  { name: "Grace Whitaker", department: "R&D Engineering", title: "R&D Finance Partner" },
+  { name: "Hannah Lindqvist", department: "Supplier Quality", title: "Supplier Quality Manager" },
+  { name: "Omar Haddad", department: "Supply Chain", title: "Supply Chain Controller" },
 ];
 
 export type ProjectSeed = {

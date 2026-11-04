@@ -2,9 +2,10 @@ import { rm } from "node:fs/promises";
 import { afterAll, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
 import { AuditError, runAudit } from "@/lib/audit/run-audit";
-import { receiptPath } from "@/lib/receipts/storage";
+import { readReceiptFile, receiptPath, writeReceiptFile } from "@/lib/receipts/storage";
 
 const opts = (extra: Partial<Parameters<typeof runAudit>[1]> = {}) => ({ requestId: "test", ...extra });
+let original0147: Buffer | null = null;
 const aiLogs = (claimId: string) => prisma.auditLog.findMany({ where: { claimId, actor: "AI-RPA Agent" } });
 
 afterAll(() => prisma.$disconnect());
@@ -29,6 +30,9 @@ describe("runAudit (integration, mock mode)", () => {
     expect(logs[0].actor).toBe("AI-RPA Agent");
     expect(JSON.parse(logs[0].metadata!)).toMatchObject({ initiatedBy: "Priya Natarajan" });
     expect(await prisma.exception.count({ where: { claimId: "CLM-2026-0142" } })).toBe(0);
+    // No findings → no escalation routing (D-34).
+    expect(claim).toMatchObject({ assignedRole: null, assignedTo: null, assignedAt: null });
+    expect(res.claim).toMatchObject({ assignedRole: null, assignedTo: null });
   });
 
   it("second call returns 409 and writes nothing", async () => {
@@ -53,6 +57,12 @@ describe("runAudit (integration, mock mode)", () => {
     expect(JSON.parse(ex[2].evidence!)).toMatchObject({ remaining: "$41,200.00", shortfall: "$15,600.00" });
     const logs = await aiLogs("CLM-2026-0144");
     expect(logs.some((l) => l.details.includes("matched with SAP project code successfully"))).toBe(false);
+    // Plant Operations → Plant Controller, whose owner (Priya Natarajan) submitted this claim → no owner (D-34).
+    expect(res.claim).toMatchObject({ assignedRole: "Plant Controller", assignedTo: null });
+    const routed = await prisma.claim.findUniqueOrThrow({ where: { claimId: "CLM-2026-0144" } });
+    expect(routed).toMatchObject({ employee: "Priya Natarajan", assignedRole: "Plant Controller", assignedTo: null });
+    expect(routed.assignedAt).not.toBeNull();
+    expect(JSON.parse(logs[0].metadata!)).toMatchObject({ assignedRole: "Plant Controller", assignedTo: null });
   });
 
   it("same Idempotency-Key replays the original result without new rows", async () => {
@@ -74,6 +84,7 @@ describe("runAudit (integration, mock mode)", () => {
   });
 
   it("missing receipt → 422, claim stays Pending, no partial exceptions or AI log", async () => {
+    original0147 = await readReceiptFile("CLM-2026-0147", "original.svg");
     await rm(receiptPath("CLM-2026-0147", "original.svg"));
     await expect(runAudit("CLM-2026-0147", opts())).rejects.toMatchObject({ status: 422, code: "RECEIPT_MISSING" });
     const claim = await prisma.claim.findUniqueOrThrow({ where: { claimId: "CLM-2026-0147" } });
@@ -82,6 +93,16 @@ describe("runAudit (integration, mock mode)", () => {
     expect(await prisma.exception.count({ where: { claimId: "CLM-2026-0147" } })).toBe(0);
     expect(await aiLogs("CLM-2026-0147")).toHaveLength(0);
     expect(await prisma.auditLog.count({ where: { claimId: "CLM-2026-0147", action: "Audit Failed" } })).toBe(1);
+  });
+
+  it("CLM-2026-0147 (Plant Operations, submitted by Tyler Brooks) is routed to Plant Controller / Priya Natarajan", async () => {
+    // Restore the receipt removed by the previous test; same file, so the order is fixed.
+    expect(original0147).not.toBeNull();
+    await writeReceiptFile("CLM-2026-0147", "original.svg", original0147!);
+    const res = await runAudit("CLM-2026-0147", opts());
+    expect(res.claim).toMatchObject({ riskScore: 50, riskLevel: "Medium", decision: "REVIEW", assignedRole: "Plant Controller", assignedTo: "Priya Natarajan" });
+    expect(res.auditLog.details).toMatch(/Routed to Plant Controller\.$/);
+    expect(await prisma.claim.findUniqueOrThrow({ where: { claimId: "CLM-2026-0147" } })).toMatchObject({ employee: "Tyler Brooks", assignedRole: "Plant Controller", assignedTo: "Priya Natarajan" });
   });
 
   it("unknown claim → 404", async () => {

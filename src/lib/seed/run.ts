@@ -13,6 +13,7 @@ import { miroDocNo } from "@/lib/audit/miro";
 import { evaluateRisk } from "@/lib/risk/score";
 import type { HistoryClaim, RiskInput, RiskResult } from "@/lib/risk/types";
 import type { ReceiptFixture } from "@/lib/domain/schemas";
+import { resolveAssignment } from "@/lib/domain/routing";
 import { BENCHMARKS, EMPLOYEES, OPEN_GRNS, OPEN_POS, POLICIES, PROJECTS, VENDORS, policyFor, vendorByName, type PoSeed } from "./master";
 import { HERO_CLAIMS } from "./heroes";
 import { generateHistorical } from "./historical";
@@ -327,6 +328,7 @@ export async function seedDatabase(prisma: PrismaClient, opts: { log?: (msg: str
       }
     }
 
+    const assignment = result ? resolveAssignment(c.department, result.findings.length, EMPLOYEES, c.employee) : null;
     claimRows.push({
       claimId: c.claimId,
       employee: c.employee,
@@ -356,6 +358,9 @@ export async function seedDatabase(prisma: PrismaClient, opts: { log?: (msg: str
       postedAt: c.status === "Posted" ? (c.postedAt ?? null) : null,
       miroDocNo: c.status === "Posted" && c.postedAt ? miroDocNo(c.postedAt, hash) : null,
       ocrText: result ? fixture.ocrText : null,
+      assignedRole: assignment?.role ?? null,
+      assignedTo: assignment?.owner ?? null,
+      assignedAt: assignment ? analyzedAt : null,
     });
   }
 
