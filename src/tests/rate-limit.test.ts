@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { prisma } from "@/lib/db";
 import { DEMO_ACCOUNTS, seedDemoUsers } from "@/lib/auth/demo-accounts";
-import { RATE_LIMIT_MAX_KEYS, rateLimit, rateLimitKeyCount } from "@/lib/api";
+import { RATE_LIMIT_MAX_KEYS, rateLimit, rateLimitKeyCount, resetRateLimitsForTests } from "@/lib/api";
 import { POST as login } from "@/app/api/auth/login/route";
 
 // Login throttling across spoofable client identity (DECISIONS D-32).
@@ -41,7 +41,7 @@ describe("login throttling", () => {
     expect(statuses.slice(5)).toEqual(Array(7).fill(429));
   });
 
-  it("global ceiling: the 101st attempt in the window is refused (checked at the 120th)", () => {
+  it("sliding window: the (limit + 1)th call in the window is refused (checked at the 120th)", () => {
     const key = `login:global-test-${suffix()}`;
     const results = Array.from({ length: 120 }, () => rateLimit(key, 100));
     expect(results.slice(0, 100).every(Boolean)).toBe(true);
@@ -76,5 +76,44 @@ describe("login throttling", () => {
     const tag = suffix();
     for (let i = 0; i <= RATE_LIMIT_MAX_KEYS + 10; i++) rateLimit(`live-${tag}-${i}`, 5, 60_000);
     expect(rateLimitKeyCount()).toBeLessThanOrEqual(RATE_LIMIT_MAX_KEYS);
+  });
+
+  it("global login ceiling is 1000/min: the first 1000 pass, the 1001st is refused", () => {
+    const key = `login:global-${suffix()}`;
+    const results = Array.from({ length: 1001 }, () => rateLimit(key, 1000));
+    expect(results.slice(0, 1000).every(Boolean)).toBe(true);
+    expect(results[1000]).toBe(false);
+  });
+
+  it("a hot bucket survives eviction: its counter is not reset by a flood of one-shot keys", () => {
+    resetRateLimitsForTests(); // the hot key is then the oldest-inserted key, the first to go under FIFO eviction
+    const tag = suffix();
+    const hot = `hot:${tag}`;
+    let i = 0;
+    let sawEviction = false;
+    // Fill well past the cap so at least one LRU eviction runs, hitting the hot key every 50 insertions.
+    while (i < RATE_LIMIT_MAX_KEYS * 1.2) {
+      if (i % 50 === 0) rateLimit(hot, 10);
+      const before = rateLimitKeyCount();
+      rateLimit(`oneshot-${tag}-${i++}`, 5);
+      if (rateLimitKeyCount() < before) sawEviction = true;
+    }
+    expect(sawEviction).toBe(true);
+    expect(rateLimit(hot, 10)).toBe(false); // > 10 hits this minute, still counted
+    expect(rateLimitKeyCount()).toBeLessThanOrEqual(RATE_LIMIT_MAX_KEYS);
+  });
+
+  it("eviction is LRU: insert A then B, hit A again, then evict → B goes before A", () => {
+    resetRateLimitsForTests();
+    const tag = suffix();
+    const A = `lru-a-${tag}`;
+    const B = `lru-b-${tag}`;
+    rateLimit(A, 1);
+    rateLimit(B, 1);
+    for (let i = 0; rateLimitKeyCount() < RATE_LIMIT_MAX_KEYS; i++) rateLimit(`filler-${tag}-${i}`, 1);
+    expect(rateLimit(A, 1)).toBe(false); // refreshes A's recency; B is now the least recently used
+    rateLimit(`overflow-${tag}`, 1); // map is now one over the cap; the next call sweeps
+    expect(rateLimit(A, 1)).toBe(false); // A kept its count
+    expect(rateLimit(B, 1)).toBe(true); // B was evicted, so it starts over
   });
 });

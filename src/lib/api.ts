@@ -49,10 +49,12 @@ export const RATE_LIMIT_MAX_KEYS = 5_000;
  *
  * Trade-off: one O(n) pass, only while the map is over the cap. Pass 1 drops buckets whose hits are
  * all outside their window (they carry no information). If live buckets alone still exceed the cap,
- * pass 2 drops the oldest-inserted keys (Map iteration order) down to 90% of the cap, so a sustained
- * flood pays the sweep once per ~500 new keys instead of on every request. Dropping a live bucket
- * forgets its count, i.e. briefly un-throttles that key; on login the global ceiling is checked first
- * and caps how fast new keys can be created, which keeps an attacker from evicting a target's bucket.
+ * pass 2 drops least-recently-used keys down to 90% of the cap, so a sustained flood pays the sweep
+ * once per ~500 new keys instead of on every request. rateLimit() re-inserts a key on every hit, so
+ * Map iteration order is recency order and eviction is LRU: a bucket that is actively being hit (e.g.
+ * an account under attack) stays at the back and survives. Dropping a live bucket still forgets its
+ * count, so an attacker who floods distinct keys *slows* the throttle (they must out-pace the hot key)
+ * rather than being able to preserve or reset a specific bucket deliberately (DECISIONS D-33).
  */
 function evictBuckets(now: number): void {
   if (buckets.size <= RATE_LIMIT_MAX_KEYS) return;
@@ -72,6 +74,8 @@ export function rateLimit(key: string, limit = 5, windowMs = 60_000): boolean {
   const now = Date.now();
   evictBuckets(now);
   const hits = (buckets.get(key)?.hits ?? []).filter((t) => now - t < windowMs);
+  // delete + set moves the key to the back of the Map: iteration order is recency order (LRU eviction).
+  buckets.delete(key);
   if (hits.length >= limit) {
     buckets.set(key, { hits, windowMs });
     return false;
@@ -79,6 +83,11 @@ export function rateLimit(key: string, limit = 5, windowMs = 60_000): boolean {
   hits.push(now);
   buckets.set(key, { hits, windowMs });
   return true;
+}
+
+/** Test hook: forget every bucket, so a test can reason about eviction order from an empty map. */
+export function resetRateLimitsForTests(): void {
+  buckets.clear();
 }
 
 /** Test hook: current number of rate-limit keys held in memory. */

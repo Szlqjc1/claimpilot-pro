@@ -41,8 +41,9 @@ export async function POST(req: Request) {
     return jsonError(429, "RATE_LIMITED", "Too many sign-in attempts; try again in a minute", requestId);
   };
 
-  // 1. Global ceiling: caps total guessing even when every request spoofs a new IP.
-  if (!rateLimit("login:global", 100)) return throttled("global", "login:global");
+  // 1. Global ceiling: exists only to bound CPU (each non-throttled attempt costs a DB lookup plus one
+  //    scrypt), so it is set well above real usage. Brute force is stopped by the account bucket (D-33).
+  if (!rateLimit("login:global", 1000)) return throttled("global", "login:global");
   // 2. Per IP: coarse throttle; X-Forwarded-For is client-supplied, so this one alone is spoofable.
   if (!rateLimit(`login:ip:${ip}`, 5)) return throttled("ip", `login:ip:${ip}`);
 
