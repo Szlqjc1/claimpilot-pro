@@ -18,7 +18,8 @@
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
     "receipts:generate": "tsx scripts/generate-receipts.ts",
-    "kpi:report": "tsx scripts/kpi-report.ts"
+    "kpi:report": "tsx scripts/kpi-report.ts",
+    "shots": "tsx scripts/screenshots.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -52,6 +53,7 @@
     "@types/react-dom": "^19.1.9",
     "eslint": "^9.36.0",
     "eslint-config-next": "^15.5.4",
+    "playwright": "^1.64.1",
     "prisma": "^6.16.0",
     "tailwindcss": "^4.1.13",
     "tsx": "^4.20.5",

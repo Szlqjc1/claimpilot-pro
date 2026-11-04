@@ -1,5 +1,9 @@
 # ClaimPilot PRO
 
+[![CI](https://github.com/OWNER/REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/REPO/actions/workflows/ci.yml)
+
+<!-- Replace OWNER/REPO with the GitHub repository once a remote exists. -->
+
 AI-RPA expense review for **Ironwood Safety Systems, Inc.**, a fictional Tier-1 automotive safety supplier (airbag modules, seatbelt assemblies, pretensioners) headquartered in Auburn Hills, MI, with plants in Toledo OH, Chattanooga TN, San Antonio TX and cross-border supply from Monterrey.
 
 Ironwood processes ~1,400 supplier invoices a month. Manual review averages 4.2 days, duplicate invoices slip through, and project-code mismatches turn into audit findings. ClaimPilot PRO combines OCR, LLM extraction, deterministic rules and SAP master data (PO ↔ GRN/gate pass ↔ invoice) to clear clean invoices in hours, with explainable, auditable risk decisions.
@@ -31,7 +35,21 @@ Open http://localhost:3000. `pnpm install` creates `.env` from `.env.example` (m
 | `pnpm test` | Vitest: risk engine, KPI formulas, schemas/money, audit integration (own `prisma/test.db`) |
 | `pnpm lint` / `pnpm typecheck` / `pnpm build` | Quality gates |
 | `pnpm kpi:report` | Prints seed KPIs and checks them against the target ranges |
+| `pnpm shots` | Captures `docs/images/*` from a running `pnpm dev` (needs `npx playwright install chromium` once) |
 | `pnpm receipts:generate` | Regenerates receipt SVGs + fixtures without touching the DB |
+
+## Screenshots
+
+Captured with `pnpm shots` (Playwright, 1440×900, against `pnpm dev` in Demo AI mode after `pnpm db:seed`). Frames for an audit GIF are in `docs/images/audit-frames/` (idle → running → done).
+
+| | |
+|---|---|
+| ![Claims dashboard](docs/images/dashboard.png) | ![Claim review before the audit](docs/images/claim-pending.png) |
+| **Dashboard**: KPIs, watchlist, charts, claims list | **Claim review, Pending**: AI panels are not in the DOM |
+| ![Claim review after the audit](docs/images/claim-analyzed.png) | ![Risk assessment](docs/images/risk-panel.png) |
+| **Claim review, Analyzed**: structured data + annotated invoice | **Risk panel**: "How this was calculated" expanded |
+| ![Audit log](docs/images/audit-log.png) | |
+| **Audit log**: append-only trail | |
 
 ## Architecture
 
@@ -64,6 +82,7 @@ Stack: Next.js 15 (App Router, React 19, TypeScript strict), Tailwind CSS 4 with
 - **Mock (default):** seeded claims use deterministic fixtures generated with each receipt. No network. The badge reads *Demo AI*.
 - **Live:** set `AI_MODE="live"` and `DEEPSEEK_API_KEY="…"` in `.env`, then restart `pnpm dev`. For seeded claims, the fixture OCR text is sent to DeepSeek for structuring and the risk narrative. For uploads, set `OCR_MODE="tesseract"` (PNG/JPEG; Tesseract fetches its English model on first use).
 - **OCR first.** The default DeepSeek chat model is **text-only**, so images are never sent. OCR produces text and geometry; DeepSeek structures the text. Adding a vision model would go behind the same adapter (`src/lib/ai/`).
+- The environment is validated at server start (`src/lib/env.ts`): a typo such as `AI_MODE="Live"`, a non-numeric `MAX_UPLOAD_MB`, or live mode without a key stops the server with one clear `[env] Invalid configuration — …` line instead of silently running in mock mode.
 - Live mode with no key returns `503 AI provider is not configured`. If DeepSeek fails on a seeded claim, the audit falls back to the fixture (`AiRun.mode = fallback`) and shows a warning banner. If it fails on an upload, the response is `502` and the claim stays Pending.
 - The key is never exposed to the browser (no `NEXT_PUBLIC_*`, all DeepSeek calls go through `server-only` modules) and is never logged.
 
@@ -77,7 +96,11 @@ Full script: [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md).
 | **CLM-2026-0144** (Lone Star Robotics, $56,800) | 100 · High · ESCALATE | `AI-RPA Agent` · `Automotive Expense Flagged` · `AI-RPA raised 3 exception(s): Amount Over Limit (High), Missing Factory Gate Pass (High), PO Balance Exceeded (High). Routed to Plant Controller.` |
 | CLM-2026-0143 / 0145 / 0146 / 0147 / 0148 | 25 Medium · 60 High · 65 High · 50 Medium · 65 High | Flagged |
 
-The AI Structured Data and AI-Annotated Invoice blocks are **conditionally rendered** (absent from the DOM) unless `Status === "Analyzed"`, as the spec requires. In production they should also render for `Posted` claims.
+### Claim lifecycle
+
+`Pending` → **🚀 Run AI-RPA Audit** → `Analyzed` → reviewer resolves or waives each exception (with a note) → **Post to SAP** → `Posted` (MIRO document number). Posting is blocked while any exception is still Open. Every step is appended to the audit log.
+
+The AI Structured Data and AI-Annotated Invoice blocks are **conditionally rendered**: absent from the DOM while `Pending`, present once the claim is `Analyzed` or `Posted` (DECISIONS D-19).
 
 ## Risk rules
 
@@ -117,8 +140,8 @@ Each card shows a delta against the previous equal-length period. The **KPI Watc
 - The demo has no authentication. The user chip is fixed to Dana Whitfield (Corporate Audit).
 - In mock mode, uploads can be stored and reviewed but not audited. Tesseract boxes aren't mapped to fields, so annotated uploads show a "Fields extracted" panel instead of boxes.
 - PDF uploads need rasterization before OCR (not implemented); use PNG/JPEG for live OCR.
-- There is no exception resolution or SAP posting workflow; seeded Posted claims model its outcome.
-- Playwright isn't included. The golden path is covered by an integration test against a real DB plus a manual browser run (DECISIONS D-12).
+- Posting to SAP is simulated: it records a MIRO document number and audit entries but does not call SAP.
+- There is no Playwright test suite. Playwright is only used by `pnpm shots` for screenshots; the golden path is covered by integration tests against a real DB plus a manual browser run (DECISIONS D-12).
 
 ## Production roadmap
 

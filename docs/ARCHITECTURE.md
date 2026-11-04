@@ -50,6 +50,19 @@ All document text is wrapped in `<document>` tags, and the system prompt says *"
 - **Append-only audit log:** there are no update or delete routes for `AuditLog`.
 - **Revalidation:** `/dashboard`, `/claims`, `/claims/:id` and `/audit` are revalidated after a successful audit.
 
+## Human disposition and posting
+
+After the AI-RPA audit, a reviewer closes the loop (`src/lib/audit/disposition.ts`):
+
+1. **Exception → resolve or waive.** `PATCH /api/claims/:id/exceptions/:exceptionId` with `{ status: "Resolved" | "Waived", note }` (10–500 chars). This is allowed only while the claim is `Analyzed` and the exception is `Open`; otherwise 409. One transaction updates the exception and appends `AP Shared Services · Exception Resolved/Waived` (`<ruleId> <anomaly> <status> — <note>`).
+2. **Post.** `POST /api/claims/:id/post` requires `Analyzed` and zero `Open` exceptions (`409 CLAIM_NOT_ANALYZED / CLAIM_ALREADY_POSTED / EXCEPTIONS_OPEN`). One transaction sets `Posted`, `postedAt` and `miroDocNo` (guarded by `updateMany where status = Analyzed`, so concurrent posts can't both win) and appends `AP Shared Services · Exceptions Resolved` (when the claim had exceptions) plus `SAP S/4HANA Integration · Posted to SAP`, with the same wording the seed uses for historical posted claims.
+
+Every step writes to the append-only AuditLog with the request ID in `metadata`. Both routes use the shared same-origin check, rate limiter and `{ error: { code, message, requestId } }` envelope.
+
+## Configuration validation
+
+`src/lib/env.ts` defines the environment contract in Zod. `src/instrumentation.ts` validates it once at server start and exits with a single clear line on error, e.g. `AI_MODE=Live`, or live mode without `DEEPSEEK_API_KEY`. `aiConfig()` reads the validated values (DECISIONS D-21, D-22).
+
 ## Data model
 
 The three required tables use the exact business column names through Prisma `@map` (`Claims.Claim_ID`, `Employee`, …, `Exceptions.Anomaly_Type`, `Risk_Level`, `AuditLog.Timestamp`, `Actor`, `Action`, `Details`). Enum-like strings are validated against `src/lib/domain/constants.ts`. Money is stored as `Decimal` and handled in integer cents. Times are stored in UTC and displayed in `America/Detroit` (ET).
