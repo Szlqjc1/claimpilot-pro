@@ -12,6 +12,8 @@ const FRAMES = path.join(OUT, "audit-frames");
 const CLAIM = "CLM-2026-0142";
 // Submitted by Elena Vasquez, so the reviewer may handle it; one R-11 exception (not a duplicate).
 const HANDLED = "CLM-2026-0143";
+// Plant Operations, submitted by Tyler Brooks → routed to Priya, so her "Needs disposition" group has an item.
+const ROUTED = "CLM-2026-0147";
 
 async function probe(): Promise<boolean> {
   try {
@@ -47,8 +49,8 @@ async function main() {
     await page.screenshot({ path: path.join(OUT, "login.png") });
     console.log("✔ login.png");
 
-    // Pages require a session: sign in as the demo reviewer (the cookie is shared with the page).
-    const reviewer = DEMO_ACCOUNTS.find((a) => a.role === "reviewer")!;
+    // Pages require a session: sign in as Priya Natarajan, the reviewer docs/DEMO_SCRIPT.md uses (the cookie is shared with the page).
+    const reviewer = DEMO_ACCOUNTS.find((a) => a.email === "priya.natarajan@ironwood.example")!;
     const login = await page.request.post(`${BASE}/api/auth/login`, { data: { email: reviewer.email, password: reviewer.password } });
     if (!login.ok()) {
       console.error(`Demo sign-in failed (${login.status()}). Run \`pnpm db:seed\` to create the demo accounts.`);
@@ -121,10 +123,16 @@ async function main() {
     await settle(page);
     await page.screenshot({ path: path.join(OUT, "audit-log.png") });
     console.log("✔ audit-log.png");
+
+    await api("POST", `/api/claims/${ROUTED}/audit`);
+    await page.goto(`${BASE}/queue`);
+    await settle(page);
+    await page.screenshot({ path: path.join(OUT, "queue.png") });
+    console.log("✔ queue.png");
   } finally {
     await browser.close();
   }
-  console.log(`Done → ${OUT}. Run \`pnpm db:seed\` to reset ${CLAIM} and ${HANDLED}.`);
+  console.log(`Done → ${OUT}. Run \`pnpm db:seed\` to reset ${CLAIM}, ${HANDLED} and ${ROUTED}.`);
 }
 
 main().catch((err) => {

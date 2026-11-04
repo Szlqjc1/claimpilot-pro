@@ -1,16 +1,11 @@
-import { afterAll, describe, expect, it } from "vitest";
+import { randomUUID } from "node:crypto";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
 import { groupQueue, loadQueue, type QueueGroups, type QueueRow } from "@/lib/queue";
 
-// /queue grouping (DECISIONS D-34). Claim ids below are ones no other test file moves between groups:
-// 0075 (Priya's, one open R-finding), 0077 (submitted by Priya, role unowned), 0142 (Marcus, clean or Pending),
-// 0144 (submitted by Priya), 0148 (Sofia, stays Pending). 0067 / 0088 / 0143 / 0147 are changed by other files.
-const reviewer = { name: "Priya Natarajan", role: "reviewer" };
-const requester = { name: "Marcus Reed", role: "requester" };
+// /queue grouping (DECISIONS D-34). Self-contained: this file inserts and deletes its own claims
+// (ids TST-<tag>-…) and never relies on seeded claim ids, so other test files cannot break it.
 const ids = (g: QueueGroups) => ({ pending: g.pending.map((r) => r.claimId), disposition: g.disposition.map((r) => r.claimId), ready: g.ready.map((r) => r.claimId) });
-const all = (g: QueueGroups) => [...g.pending, ...g.disposition, ...g.ready];
-
-afterAll(() => prisma.$disconnect());
 
 describe("groupQueue (pure)", () => {
   const row = (claimId: string, status: string, openExceptions: number, day: number): QueueRow => ({
@@ -23,35 +18,90 @@ describe("groupQueue (pure)", () => {
   });
 });
 
-describe("loadQueue against the seeded DB", () => {
-  it("reviewer: assigned-to-me groups plus an Unassigned section, never their own submissions", async () => {
+describe("loadQueue (own fixture)", () => {
+  const tag = randomUUID().slice(0, 8);
+  const prefix = `TST-${tag}-`;
+  const reviewer = { name: `Queue Test Reviewer ${tag}`, role: "reviewer" };
+  const submitter = { name: `Queue Test Submitter ${tag}`, role: "requester" };
+  const id = (n: string) => `${prefix}${n}`;
+  const mine = (g: QueueGroups) => {
+    const f = (rows: QueueRow[]) => rows.map((r) => r.claimId).filter((c) => c.startsWith(prefix));
+    return { pending: f(g.pending), disposition: f(g.disposition), ready: f(g.ready) };
+  };
+
+  type Spec = { n: string; status: string; employee: string; assignedTo: string | null; day: number; exceptions?: ("Open" | "Resolved")[] };
+  const fixture: Spec[] = [
+    { n: "01", status: "Pending", employee: submitter.name, assignedTo: reviewer.name, day: 1 }, //                assigned → pending
+    { n: "02", status: "Analyzed", employee: submitter.name, assignedTo: reviewer.name, day: 2, exceptions: ["Open", "Resolved"] }, // → disposition
+    { n: "03", status: "Analyzed", employee: submitter.name, assignedTo: reviewer.name, day: 3, exceptions: ["Resolved"] }, //        → ready
+    { n: "04", status: "Analyzed", employee: submitter.name, assignedTo: null, day: 4, exceptions: ["Open"] }, //                     unassigned → disposition
+    { n: "05", status: "Pending", employee: submitter.name, assignedTo: null, day: 5 }, //                                            unassigned → pending
+    { n: "06", status: "Analyzed", employee: reviewer.name, assignedTo: reviewer.name, day: 6, exceptions: ["Open"] }, //             own submission: hidden
+    { n: "07", status: "Pending", employee: reviewer.name, assignedTo: null, day: 7 }, //                                             own submission: hidden
+    { n: "08", status: "Posted", employee: submitter.name, assignedTo: reviewer.name, day: 8 }, //                                    posted: hidden
+  ];
+
+  beforeAll(async () => {
+    for (const c of fixture) {
+      await prisma.claim.create({
+        data: {
+          claimId: id(c.n),
+          employee: c.employee,
+          department: "Plant Operations",
+          category: "MRO & Equipment Repair",
+          amount: "100.00",
+          status: c.status,
+          originalReceipt: `/api/receipts/${id(c.n)}/original`,
+          vendorName: "Queue Test Vendor",
+          source: "test",
+          submittedAt: new Date(Date.UTC(2026, 9, c.day)),
+          assignedRole: c.assignedTo ? "Plant Controller" : null,
+          assignedTo: c.assignedTo,
+          exceptions: {
+            create: (c.exceptions ?? []).map((status, i) => ({
+              exceptionId: `EXC-${tag}-${c.n}-${i}`,
+              anomalyType: "Test Finding",
+              riskLevel: "Low",
+              ruleId: `R-0${i + 1}`,
+              points: 5,
+              message: "Fixture exception",
+              status,
+            })),
+          },
+        },
+      });
+    }
+  });
+  afterAll(async () => {
+    await prisma.claim.deleteMany({ where: { claimId: { startsWith: prefix } } }); // exceptions cascade
+    await prisma.$disconnect();
+  });
+
+  it("reviewer: 'Assigned to you' holds exactly their assigned claims, by stage, never their own", async () => {
     const q = await loadQueue(reviewer);
     if (q.mode !== "reviewer") throw new Error("expected reviewer queue");
-    expect(ids(q.mine).disposition).toContain("CLM-2026-0075");
-    expect(all(q.mine).every((r) => r.assignedTo === reviewer.name)).toBe(true);
-    expect(q.mine.pending).toEqual([]); // assignment happens at audit time
-    expect(all(q.unassigned).every((r) => r.assignedTo === null && r.employee !== reviewer.name)).toBe(true);
-    expect(ids(q.unassigned).pending).toContain("CLM-2026-0148");
-    expect([...ids(q.unassigned).pending, ...ids(q.unassigned).ready]).toContain("CLM-2026-0142");
-    const everywhere = [...all(q.mine), ...all(q.unassigned)].map((r) => r.claimId);
-    expect(everywhere).not.toContain("CLM-2026-0144");
-    expect(everywhere).not.toContain("CLM-2026-0077");
-    expect(all(q.mine).concat(all(q.unassigned)).every((r) => r.status === "Pending" || r.status === "Analyzed")).toBe(true);
+    // Nothing outside the fixture is assigned to this synthetic name, so this is exact without filtering.
+    expect(ids(q.mine)).toEqual({ pending: [id("01")], disposition: [id("02")], ready: [id("03")] });
   });
 
-  it("admin sees the unowned Plant Controller claim Priya submitted (CLM-2026-0077) in Unassigned", async () => {
-    const q = await loadQueue({ name: "Dana Whitfield", role: "admin" });
+  it("reviewer: Unassigned shows other people's unowned claims by stage, not their own submissions", async () => {
+    const q = await loadQueue(reviewer);
     if (q.mode !== "reviewer") throw new Error("expected reviewer queue");
-    expect(ids(q.unassigned).disposition).toContain("CLM-2026-0077");
-    expect(all(q.mine)).toEqual([]);
+    // Seeded unassigned claims also appear here; look only at this file's fixture.
+    expect(mine(q.unassigned)).toEqual({ pending: [id("05")], disposition: [id("04")], ready: [] });
   });
 
-  it("requester: only their own submissions, no Unassigned section", async () => {
-    const q = await loadQueue(requester);
+  it("own submissions and posted claims never appear for the reviewer", async () => {
+    const q = await loadQueue(reviewer);
+    if (q.mode !== "reviewer") throw new Error("expected reviewer queue");
+    const shown = [...Object.values(ids(q.mine)), ...Object.values(ids(q.unassigned))].flat();
+    for (const hidden of ["06", "07", "08"]) expect(shown).not.toContain(id(hidden));
+  });
+
+  it("requester: only their own submissions, by stage, posted excluded, no Unassigned section", async () => {
+    const q = await loadQueue(submitter);
     expect(q.mode).toBe("requester");
-    expect(all(q.mine).length).toBeGreaterThan(0);
-    expect(all(q.mine).every((r) => r.employee === requester.name)).toBe(true);
-    expect(all(q.mine).map((r) => r.claimId)).toContain("CLM-2026-0142");
     expect("unassigned" in q).toBe(false);
+    expect(ids(q.mine)).toEqual({ pending: [id("01"), id("05")], disposition: [id("02"), id("04")], ready: [id("03")] });
   });
 });

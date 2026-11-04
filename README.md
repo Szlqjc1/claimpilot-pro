@@ -60,7 +60,7 @@ Claims are always owned by the signed-in user: employee and department come from
 
 ## Screenshots
 
-Captured with `pnpm shots` (Playwright, 1440×900, against a running server with `AI_MODE="mock"` and `OCR_MODE="fixture"` after `pnpm db:seed`). The script captures `/login` while signed out, then signs in as the demo reviewer (Priya Natarajan). Frames for an audit GIF are in `docs/images/audit-frames/` (idle → running → done).
+Captured with `pnpm shots` (Playwright, 1440×900, against a running server with `AI_MODE="mock"` and `OCR_MODE="fixture"` after `pnpm db:seed`). The script captures `/login` while signed out, then signs in as Priya Natarajan (reviewer), the account `docs/DEMO_SCRIPT.md` uses, and audits CLM-2026-0147 so her queue has routed work. Frames for an audit GIF are in `docs/images/audit-frames/` (idle → running → done).
 
 | | |
 |---|---|
@@ -72,6 +72,8 @@ Captured with `pnpm shots` (Playwright, 1440×900, against a running server with
 | **Audit log**: append-only trail; system rows show who initiated them | **Exceptions**: a handled exception shows who handled it |
 | ![Sign-in page](docs/images/login.png) | |
 | **Sign in**: every page requires a session; demo accounts listed | |
+| ![Queue](docs/images/queue.png) | |
+| **Queue**: assigned work by stage, plus an Unassigned section | |
 
 ## Architecture
 

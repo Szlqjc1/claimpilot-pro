@@ -32,7 +32,7 @@ describe("runAudit (integration, mock mode)", () => {
     expect(await prisma.exception.count({ where: { claimId: "CLM-2026-0142" } })).toBe(0);
     // No findings → no escalation routing (D-34).
     expect(claim).toMatchObject({ assignedRole: null, assignedTo: null, assignedAt: null });
-    expect(res.claim).toMatchObject({ assignedRole: null, assignedTo: null });
+    expect(res.claim).toMatchObject({ assignedRole: null, assignedTo: null, assignmentExcluded: false });
   });
 
   it("second call returns 409 and writes nothing", async () => {
@@ -58,11 +58,12 @@ describe("runAudit (integration, mock mode)", () => {
     const logs = await aiLogs("CLM-2026-0144");
     expect(logs.some((l) => l.details.includes("matched with SAP project code successfully"))).toBe(false);
     // Plant Operations → Plant Controller, whose owner (Priya Natarajan) submitted this claim → no owner (D-34).
-    expect(res.claim).toMatchObject({ assignedRole: "Plant Controller", assignedTo: null });
+    expect(res.claim).toMatchObject({ assignedRole: "Plant Controller", assignedTo: null, assignmentExcluded: true });
     const routed = await prisma.claim.findUniqueOrThrow({ where: { claimId: "CLM-2026-0144" } });
     expect(routed).toMatchObject({ employee: "Priya Natarajan", assignedRole: "Plant Controller", assignedTo: null });
     expect(routed.assignedAt).not.toBeNull();
-    expect(JSON.parse(logs[0].metadata!)).toMatchObject({ assignedRole: "Plant Controller", assignedTo: null });
+    // Governance evidence: "no owner because the owner submitted it", not "nobody holds the role".
+    expect(JSON.parse(logs[0].metadata!)).toMatchObject({ assignedRole: "Plant Controller", assignedTo: null, assignmentExcluded: true });
   });
 
   it("same Idempotency-Key replays the original result without new rows", async () => {
@@ -100,7 +101,9 @@ describe("runAudit (integration, mock mode)", () => {
     expect(original0147).not.toBeNull();
     await writeReceiptFile("CLM-2026-0147", "original.svg", original0147!);
     const res = await runAudit("CLM-2026-0147", opts());
-    expect(res.claim).toMatchObject({ riskScore: 50, riskLevel: "Medium", decision: "REVIEW", assignedRole: "Plant Controller", assignedTo: "Priya Natarajan" });
+    expect(res.claim).toMatchObject({ riskScore: 50, riskLevel: "Medium", decision: "REVIEW", assignedRole: "Plant Controller", assignedTo: "Priya Natarajan", assignmentExcluded: false });
+    const [log0147] = await aiLogs("CLM-2026-0147");
+    expect(JSON.parse(log0147.metadata!)).toMatchObject({ assignedRole: "Plant Controller", assignedTo: "Priya Natarajan", assignmentExcluded: false });
     expect(res.auditLog.details).toMatch(/Routed to Plant Controller\.$/);
     expect(await prisma.claim.findUniqueOrThrow({ where: { claimId: "CLM-2026-0147" } })).toMatchObject({ employee: "Tyler Brooks", assignedRole: "Plant Controller", assignedTo: "Priya Natarajan" });
   });

@@ -69,11 +69,12 @@ async function loadRows(where: Prisma.ClaimWhereInput): Promise<QueueRow[]> {
 
 /**
  * Reviewer/admin: claims assigned to them, plus an Unassigned section (assignedTo null) so somebody picks
- * those up. Their own submissions are left out of Unassigned, because D-27 forbids them acting on those.
+ * those up. Their own submissions are left out of both sections, because D-27 forbids them acting on those
+ * (resolveAssignment never assigns a submitter; the filter is defence in depth for hand-edited data).
  * Requester: only their own submissions, read-only.
  */
 export async function loadQueue(user: { name: string; role: string }): Promise<Queue> {
   if (!canReview(user)) return { mode: "requester", mine: groupQueue(await loadRows({ employee: user.name })) };
-  const [mine, unassigned] = await Promise.all([loadRows({ assignedTo: user.name }), loadRows({ assignedTo: null, employee: { not: user.name } })]);
+  const [mine, unassigned] = await Promise.all([loadRows({ assignedTo: user.name, employee: { not: user.name } }), loadRows({ assignedTo: null, employee: { not: user.name } })]);
   return { mode: "reviewer", mine: groupQueue(mine), unassigned: groupQueue(unassigned) };
 }

@@ -32,7 +32,7 @@ export class AuditError extends Error {
 }
 
 export type AuditResponse = {
-  claim: { claimId: string; status: string; riskScore: number; riskLevel: string; decision: string; analyzedAt: string; assignedRole: string | null; assignedTo: string | null };
+  claim: { claimId: string; status: string; riskScore: number; riskLevel: string; decision: string; analyzedAt: string; assignedRole: string | null; assignedTo: string | null; assignmentExcluded: boolean };
   exceptions: { exceptionId: string; ruleId: string; anomalyType: string; riskLevel: string; points: number; message: string }[];
   auditLog: { actor: string; action: string; details: string };
   aiRun: { mode: string; provider: string; model: string; latencyMs: number; promptVersion: string };
@@ -164,7 +164,7 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
       status: "Open",
     }));
     const response: AuditResponse = {
-      claim: { claimId, status: "Analyzed", riskScore: result.score, riskLevel: result.riskLevel, decision: result.decision, analyzedAt: analyzedAt.toISOString(), assignedRole: assignment?.role ?? null, assignedTo: assignment?.owner ?? null },
+      claim: { claimId, status: "Analyzed", riskScore: result.score, riskLevel: result.riskLevel, decision: result.decision, analyzedAt: analyzedAt.toISOString(), assignedRole: assignment?.role ?? null, assignedTo: assignment?.owner ?? null, assignmentExcluded: assignment?.excludedSubmitter ?? false },
       exceptions: exceptionRows.map(({ exceptionId, ruleId, anomalyType, riskLevel, points, message }) => ({ exceptionId, ruleId, anomalyType, riskLevel, points, message })),
       auditLog: entry,
       aiRun: { mode: run.mode, provider: run.provider, model: run.model, latencyMs, promptVersion: PROMPT_VERSION_EXTRACT },
@@ -201,7 +201,7 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
             timestamp: analyzedAt,
             ...entry,
             claimId,
-            metadata: JSON.stringify({ requestId: opts.requestId, initiatedBy: opts.initiatedBy ?? null, riskScore: result.score, riskLevel: result.riskLevel, decision: result.decision, mode: run.mode, rules: result.findings.map((f) => f.ruleId), assignedRole: assignment?.role ?? null, assignedTo: assignment?.owner ?? null }),
+            metadata: JSON.stringify({ requestId: opts.requestId, initiatedBy: opts.initiatedBy ?? null, riskScore: result.score, riskLevel: result.riskLevel, decision: result.decision, mode: run.mode, rules: result.findings.map((f) => f.ruleId), assignedRole: assignment?.role ?? null, assignedTo: assignment?.owner ?? null, assignmentExcluded: assignment?.excludedSubmitter ?? false }),
           },
         });
         await tx.aiRun.create({
