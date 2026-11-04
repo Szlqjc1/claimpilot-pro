@@ -9,7 +9,7 @@ ClaimPilot PRO: a Next.js 15 + Prisma/SQLite AI-RPA expense-review demo (fiction
 
 ## Invariants (do not break)
 - Exact strings: button `🚀 Run AI-RPA Audit`; H1 `AI-RPA Automotive Expense Inspection`; label `Original OEM/Supplier Invoice`; clean audit entry `AI-RPA Agent` / `Automotive Expense Validated` / `Invoice matched with SAP project code successfully.` (zero findings only).
-- AI Structured Data + AI-Annotated Invoice are conditionally rendered only when `status === "Analyzed"`.
+- AI Structured Data + AI-Annotated Invoice are conditionally rendered whenever the claim is not Pending (`status !== "Pending"`, i.e. Analyzed or Posted). See DECISIONS D-19.
 - Risk scoring (`src/lib/risk`) is pure and deterministic; the LLM never sets the score. Hero results are in `src/tests/risk.test.ts`; fix rules or seed, not the test.
 - Mapped column names on `Claims`, `Exceptions`, `AuditLog` must stay exact. The audit log is append-only.
 - Money: Prisma Decimal in the DB, integer cents in code (`toCents`). Store UTC, display ET.

@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { DecisionBadge, RiskBadge } from "./badges";
+import { ExceptionActions } from "./exception-actions";
 
 /** "AI-Annotated Invoice" — image connected to AI_Analyzed_Receipt. Rendered only for Status === "Analyzed". */
 export function AnnotatedInvoice({ src, claimId }: { src: string; claimId: string }) {
@@ -172,7 +173,7 @@ function Evidence({ json }: { json: string | null }) {
   );
 }
 
-export function ExceptionsTable({ findings, analyzed }: { findings: FindingRow[]; analyzed: boolean }) {
+export function ExceptionsTable({ findings, analyzed, claimId, canHandle }: { findings: FindingRow[]; analyzed: boolean; claimId: string; canHandle: boolean }) {
   return (
     <Card>
       <CardHeader>
@@ -197,6 +198,7 @@ export function ExceptionsTable({ findings, analyzed }: { findings: FindingRow[]
               <TH className="text-right">Points</TH>
               <TH>Message &amp; evidence</TH>
               <TH>Status</TH>
+              <TH>Actions</TH>
             </TR>
           </THead>
           <TBody>
@@ -217,6 +219,13 @@ export function ExceptionsTable({ findings, analyzed }: { findings: FindingRow[]
                 </TD>
                 <TD>
                   <Badge tone={f.status === "Open" ? "amber" : f.status === "Resolved" ? "green" : "neutral"}>{f.status}</Badge>
+                </TD>
+                <TD>
+                  {canHandle && f.status === "Open" ? (
+                    <ExceptionActions claimId={claimId} exceptionId={f.exceptionId} anomalyType={f.anomalyType} message={f.message} />
+                  ) : (
+                    <span className="text-xs text-slate-400">—</span>
+                  )}
                 </TD>
               </TR>
             ))}

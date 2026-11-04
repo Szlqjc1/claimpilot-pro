@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { AlertTriangle, FolderKanban } from "lucide-react";
+import { AlertTriangle, FolderKanban, Send } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { claimIdSchema, parseExtractedData } from "@/lib/domain/schemas";
 import { formatUsd, toCents } from "@/lib/domain/money";
@@ -12,6 +12,7 @@ import { ReceiptViewer } from "@/components/claims/receipt-viewer";
 import { AiStructuredData } from "@/components/claims/ai-data";
 import { AnnotatedInvoice, AuditTimeline, ExceptionsTable, LockedPlaceholder, RiskPanel } from "@/components/claims/panels";
 import { AuditButton } from "@/components/claims/audit-button";
+import { PostToSapButton } from "@/components/claims/post-to-sap";
 
 export const dynamic = "force-dynamic";
 
@@ -38,9 +39,10 @@ export default async function ClaimReviewPage({ params }: { params: Params }) {
   if (!claim) notFound();
 
   const amountCents = toCents(claim.amount);
-  // Exact visibility rule from the spec: AI blocks exist in the DOM only when Status === "Analyzed".
-  const showAi = claim.status === "Analyzed";
+  // AI blocks exist in the DOM only once the claim has been analyzed (Analyzed or Posted) — DECISIONS D-19.
+  const showAi = claim.status !== "Pending";
   const lastRun = claim.aiRuns[0] ?? null;
+  const openExceptions = claim.exceptions.filter((e) => e.status === "Open").length;
   const findings = claim.exceptions.map((e) => ({ exceptionId: e.exceptionId, ruleId: e.ruleId, anomalyType: e.anomalyType, riskLevel: e.riskLevel, points: e.points, message: e.message, status: e.status, evidence: e.evidence }));
 
   return (
@@ -162,12 +164,38 @@ export default async function ClaimReviewPage({ params }: { params: Params }) {
         </CardContent>
       </Card>
 
+      {claim.status === "Analyzed" && (
+        <Card className="no-print mt-4">
+          <CardContent className="flex flex-col gap-4 py-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="font-semibold">Post to SAP</h2>
+              <p id="post-help" className="text-[13px] text-muted">
+                Open exceptions: <span className="tabular font-semibold text-ink">{openExceptions}</span>
+                {openExceptions > 0 ? " · Resolve or waive all exceptions first." : " · Ready to create the MIRO invoice document."}
+              </p>
+            </div>
+            <PostToSapButton claimId={claim.claimId} openExceptions={openExceptions} amountLabel={formatUsd(amountCents)} />
+          </CardContent>
+        </Card>
+      )}
+      {claim.status === "Posted" && (
+        <Card className="no-print mt-4">
+          <CardContent className="flex flex-wrap items-center gap-3 py-4">
+            <Send className="h-4 w-4 text-success" aria-hidden />
+            <h2 className="font-semibold">Posted to SAP</h2>
+            <p className="text-[13px] text-muted">
+              Posted {formatEt(claim.postedAt)} · <span className="font-mono text-ink">{claim.miroDocNo ?? "—"}</span>
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[0.9fr_1.1fr]">
         <RiskPanel status={claim.status} score={claim.riskScore} level={claim.riskLevel} decision={claim.decision} findings={findings} narrative={lastRun?.narrative ?? null} />
         <AuditTimeline entries={claim.auditLogs} />
       </div>
       <div className="mt-6">
-        <ExceptionsTable findings={findings} analyzed={claim.status !== "Pending"} />
+        <ExceptionsTable findings={findings} analyzed={claim.status !== "Pending"} claimId={claim.claimId} canHandle={claim.status === "Analyzed"} />
       </div>
     </article>
   );

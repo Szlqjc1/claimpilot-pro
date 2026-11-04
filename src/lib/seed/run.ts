@@ -9,6 +9,7 @@ import { receiptsRoot, writeReceiptFile } from "@/lib/receipts/storage";
 import { annotateReceipt } from "@/lib/ai/annotate";
 import { templateNarrative } from "@/lib/ai/narrative";
 import { auditEntryFor } from "@/lib/audit/wording";
+import { miroDocNo } from "@/lib/audit/miro";
 import { evaluateRisk } from "@/lib/risk/score";
 import type { HistoryClaim, RiskInput, RiskResult } from "@/lib/risk/types";
 import type { ReceiptFixture } from "@/lib/domain/schemas";
@@ -352,6 +353,8 @@ export async function seedDatabase(prisma: PrismaClient, opts: { log?: (msg: str
       riskScore: result?.score ?? null,
       riskLevel: result?.riskLevel ?? null,
       decision: result?.decision ?? null,
+      postedAt: c.status === "Posted" ? (c.postedAt ?? null) : null,
+      miroDocNo: c.status === "Posted" && c.postedAt ? miroDocNo(c.postedAt, hash) : null,
       ocrText: result ? fixture.ocrText : null,
     });
   }
