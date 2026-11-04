@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Runtime data written by the app (receipts, uploads, SQLite) is not CSS source. Without this,
+   every audit write triggers a dev rebuild that orphans the post-audit router.refresh(). */
+@source not "../../storage";
+@source not "../../storage-test";
+@source not "../../prisma";
+
 @theme {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
