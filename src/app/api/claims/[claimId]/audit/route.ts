@@ -3,12 +3,14 @@ import { revalidatePath } from "next/cache";
 import { claimIdSchema } from "@/lib/domain/schemas";
 import { AuditError, runAudit } from "@/lib/audit/run-audit";
 import { isSameOrigin, jsonError, newRequestId, rateLimit } from "@/lib/api";
+import { requireUser } from "@/lib/auth/session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request, { params }: { params: Promise<{ claimId: string }> }) {
   const requestId = newRequestId();
+  if (!(await requireUser({ api: true }))) return jsonError(401, "UNAUTHENTICATED", "Sign in to continue", requestId);
   const { claimId: rawId } = await params;
   const parsed = claimIdSchema.safeParse(rawId);
   if (!parsed.success) return jsonError(400, "INVALID_CLAIM_ID", "Invalid claim ID", requestId);

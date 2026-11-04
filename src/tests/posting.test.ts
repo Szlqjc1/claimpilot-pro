@@ -1,4 +1,9 @@
-import { afterAll, describe, expect, it } from "vitest";
+import { afterAll, describe, expect, it, vi } from "vitest";
+
+// The PATCH route checks the session; give it a signed-in reviewer instead of removing the check.
+vi.mock("@/lib/auth/session", () => ({
+  requireUser: async () => ({ id: "U-TEST", name: "Test Reviewer", email: "reviewer@test.example", role: "reviewer" }),
+}));
 import { prisma } from "@/lib/db";
 import { runAudit } from "@/lib/audit/run-audit";
 import { dispositionException, postClaim } from "@/lib/audit/disposition";

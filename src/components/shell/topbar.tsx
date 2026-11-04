@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Search, Cpu } from "lucide-react";
+import { Search, Cpu, LogOut } from "lucide-react";
 import type { AiStatus } from "@/lib/ai/provider";
+import { ROLE_LABELS } from "@/lib/auth/constants";
 import { Badge } from "@/components/ui/badge";
 import { MobileNav } from "./mobile-nav";
 import { NAV } from "./nav";
@@ -20,8 +22,27 @@ function crumbs(pathname: string) {
   return out;
 }
 
-export function Topbar({ ai }: { ai: AiStatus }) {
+function initials(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((p) => p[0]!.toUpperCase())
+    .slice(0, 2)
+    .join("");
+}
+
+export function Topbar({ ai, user }: { ai: AiStatus; user: { name: string; role: string } }) {
   const pathname = usePathname();
+  const [signingOut, setSigningOut] = useState(false);
+  const signOut = async () => {
+    setSigningOut(true);
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } finally {
+      // Full navigation so no cached authenticated view survives.
+      window.location.assign("/login");
+    }
+  };
   const items = crumbs(pathname);
   const tone = ai.mode === "mock" ? "neutral" : ai.configured ? "green" : "red";
   return (
@@ -65,13 +86,24 @@ export function Topbar({ ai }: { ai: AiStatus }) {
       </Badge>
       <div className="hidden items-center gap-2 border-l border-line pl-3 sm:flex">
         <span aria-hidden className="grid h-8 w-8 place-items-center rounded-full bg-navy-900 text-xs font-semibold text-white">
-          DW
+          {initials(user.name)}
         </span>
         <span className="text-[13px] leading-tight">
-          <span className="block font-medium">Dana Whitfield</span>
-          <span className="block text-muted">Corporate Audit</span>
+          <span className="block font-medium">{user.name}</span>
+          <span className="block text-muted">{ROLE_LABELS[user.role] ?? user.role}</span>
         </span>
       </div>
+      <button
+        type="button"
+        onClick={signOut}
+        disabled={signingOut}
+        aria-busy={signingOut}
+        className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-line px-2.5 text-[13px] font-medium text-ink hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-info disabled:opacity-60"
+      >
+        <LogOut className="h-4 w-4" aria-hidden />
+        <span className="hidden sm:inline">Sign out</span>
+        <span className="sr-only sm:hidden">Sign out</span>
+      </button>
     </header>
   );
 }

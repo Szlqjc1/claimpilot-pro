@@ -7,6 +7,7 @@ import { aiConfig } from "@/lib/ai/provider";
 import { sniffMime, writeReceiptFile } from "@/lib/receipts/storage";
 import { sha256 } from "@/lib/receipts/invoice";
 import { isSameOrigin, jsonError, newRequestId, rateLimit } from "@/lib/api";
+import { requireUser } from "@/lib/auth/session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,6 +17,7 @@ const EXT: Record<string, string> = { "image/png": "png", "image/jpeg": "jpg", "
 /** P1 intake: multipart form → new Pending claim with the receipt stored outside public/. */
 export async function POST(req: Request) {
   const requestId = newRequestId();
+  if (!(await requireUser({ api: true }))) return jsonError(401, "UNAUTHENTICATED", "Sign in to continue", requestId);
   if (!isSameOrigin(req)) return jsonError(403, "CROSS_ORIGIN", "Cross-origin requests are not allowed", requestId);
   if (!rateLimit("intake", 20)) return jsonError(429, "RATE_LIMITED", "Too many uploads; try again in a minute", requestId);
 

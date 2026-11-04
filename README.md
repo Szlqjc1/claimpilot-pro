@@ -26,7 +26,19 @@ pnpm db:reset
 pnpm dev
 ```
 
-Open http://localhost:3000. `pnpm install` creates `.env` from `.env.example` (mock AI mode), so no API key and no internet connection are needed.
+Open http://localhost:3000 and sign in with one of the demo accounts below. `pnpm install` creates `.env` from `.env.example` (mock AI mode), so no API key and no internet connection are needed.
+
+### Demo accounts
+
+Created by `pnpm db:seed` / `pnpm db:reset` and also listed on the `/login` page. Fictional users, demo credentials only.
+
+| Role | Name | Email | Password |
+|---|---|---|---|
+| `admin` | Dana Whitfield (Corporate Audit) | `dana.whitfield@ironwood.example` | `Ironwood-Audit-2026` |
+| `reviewer` | Priya Natarajan (Plant Controller) | `priya.natarajan@ironwood.example` | `Toledo-Controller-26` |
+| `requester` | Marcus Reed (R&D Engineering) | `marcus.reed@ironwood.example` | `CrashSled-Request-26` |
+
+All three roles currently have the same access; the `role` field is stored and shown but not yet enforced (DECISIONS D-26).
 
 | Script | What it does |
 |---|---|
@@ -40,7 +52,7 @@ Open http://localhost:3000. `pnpm install` creates `.env` from `.env.example` (m
 
 ## Screenshots
 
-Captured with `pnpm shots` (Playwright, 1440×900, against `pnpm dev` in Demo AI mode after `pnpm db:seed`). Frames for an audit GIF are in `docs/images/audit-frames/` (idle → running → done).
+Captured with `pnpm shots` (Playwright, 1440×900, against `pnpm dev` in Demo AI mode after `pnpm db:seed`; the script signs in as the demo admin). Frames for an audit GIF are in `docs/images/audit-frames/` (idle → running → done).
 
 | | |
 |---|---|
@@ -128,6 +140,7 @@ Each card shows a delta against the previous equal-length period. The **KPI Watc
 ## Security notes
 
 - Secrets live only in server env; `.env*` is git-ignored except `.env.example`.
+- Authentication: email + password checked with Node `scrypt` (salted, `timingSafeEqual`), the same `401 INVALID_CREDENTIALS` for an unknown email and a wrong password, and 5 sign-in attempts per minute per IP. Sessions are random 32-byte tokens stored in the `Session` table (revocable, `SESSION_TTL_HOURS`, default 24 h) and sent as an `HttpOnly; SameSite=Lax` `cp_session` cookie (`Secure` in production). The Edge middleware only checks that the cookie exists; the `(app)` layout and every API route validate the token against the database (401 `UNAUTHENTICATED`). Sign-in, sign-out and failed attempts are written to the audit log.
 - Receipts are stored outside `public/` and served by `/api/receipts/:id/:kind`. File names come from the DB, never the URL, and claim IDs are regex-validated (no path traversal). Responses set `nosniff` and a restrictive CSP.
 - Uploads are checked by magic bytes (PNG/JPEG/PDF), limited to 10 MB, and stored under random file names.
 - Audit endpoint: same-origin check, 5 requests/min/claim rate limit, request ID on every response and error, and errors returned as `{ error: { code, message, requestId } }` with no stack traces.
@@ -137,7 +150,7 @@ Each card shows a delta against the previous equal-length period. The **KPI Watc
 ## Known limitations
 
 - SQLite and an in-memory rate limiter / in-flight guard assume a single node process.
-- The demo has no authentication. The user chip is fixed to Dana Whitfield (Corporate Audit).
+- Authentication is local email/password only (no SSO, MFA, password reset or account lockout beyond rate limiting), and the `role` field is not yet used for authorization. Disposition and posting audit entries are still attributed to "AP Shared Services" rather than the signed-in user.
 - In mock mode, uploads can be stored and reviewed but not audited. Tesseract boxes aren't mapped to fields, so annotated uploads show a "Fields extracted" panel instead of boxes.
 - PDF uploads need rasterization before OCR (not implemented); use PNG/JPEG for live OCR.
 - Posting to SAP is simulated: it records a MIRO document number and audit entries but does not call SAP.

@@ -5,7 +5,7 @@ const base = { DATABASE_URL: "file:./dev.db" };
 
 describe("environment validation", () => {
   it("applies defaults", () => {
-    expect(readEnv(base)).toMatchObject({ AI_MODE: "mock", OCR_MODE: "fixture", MAX_UPLOAD_MB: 10, DEEPSEEK_MODEL: "deepseek-chat" });
+    expect(readEnv(base)).toMatchObject({ AI_MODE: "mock", OCR_MODE: "fixture", MAX_UPLOAD_MB: 10, DEEPSEEK_MODEL: "deepseek-chat", SESSION_TTL_HOURS: 24 });
   });
   it("is case-sensitive: AI_MODE=Live is rejected, not treated as mock", () => {
     expect(() => readEnv({ ...base, AI_MODE: "Live" })).toThrow(/AI_MODE/);

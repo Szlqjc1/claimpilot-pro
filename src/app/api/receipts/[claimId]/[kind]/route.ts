@@ -2,12 +2,14 @@ import { prisma } from "@/lib/db";
 import { claimIdSchema, receiptKindSchema } from "@/lib/domain/schemas";
 import { mimeForFile, readReceiptFile } from "@/lib/receipts/storage";
 import { jsonError, newRequestId } from "@/lib/api";
+import { requireUser } from "@/lib/auth/session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request, { params }: { params: Promise<{ claimId: string; kind: string }> }) {
   const requestId = newRequestId();
+  if (!(await requireUser({ api: true }))) return jsonError(401, "UNAUTHENTICATED", "Sign in to continue", requestId);
   const p = await params;
   const id = claimIdSchema.safeParse(p.claimId);
   const kind = receiptKindSchema.safeParse(p.kind);

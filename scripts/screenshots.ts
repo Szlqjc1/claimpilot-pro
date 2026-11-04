@@ -3,6 +3,7 @@
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { chromium, type Page } from "playwright";
+import { DEMO_ACCOUNTS } from "../src/lib/auth/demo-accounts";
 
 const BASE = process.env.SHOTS_BASE_URL ?? "http://localhost:3000";
 const OUT = path.resolve("docs/images");
@@ -11,7 +12,7 @@ const CLAIM = "CLM-2026-0142";
 
 async function probe(): Promise<boolean> {
   try {
-    const res = await fetch(`${BASE}/api/kpis`, { signal: AbortSignal.timeout(5_000) });
+    const res = await fetch(`${BASE}/login`, { signal: AbortSignal.timeout(5_000) });
     return res.ok;
   } catch {
     return false;
@@ -36,6 +37,14 @@ async function main() {
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   try {
+    // Pages require a session: sign in as the demo admin (the cookie is shared with the page).
+    const admin = DEMO_ACCOUNTS.find((a) => a.role === "admin")!;
+    const login = await page.request.post(`${BASE}/api/auth/login`, { data: { email: admin.email, password: admin.password } });
+    if (!login.ok()) {
+      console.error(`Demo sign-in failed (${login.status()}). Run \`pnpm db:seed\` to create the demo accounts.`);
+      process.exit(1);
+    }
+
     await page.goto(`${BASE}/dashboard`);
     await settle(page);
     await page.screenshot({ path: path.join(OUT, "dashboard.png") });

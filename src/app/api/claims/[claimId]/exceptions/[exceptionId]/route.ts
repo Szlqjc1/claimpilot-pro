@@ -5,6 +5,7 @@ import { claimIdSchema } from "@/lib/domain/schemas";
 import { AuditError } from "@/lib/audit/run-audit";
 import { dispositionException } from "@/lib/audit/disposition";
 import { isSameOrigin, jsonError, newRequestId, rateLimit } from "@/lib/api";
+import { requireUser } from "@/lib/auth/session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,6 +18,7 @@ const bodySchema = z.object({
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ claimId: string; exceptionId: string }> }) {
   const requestId = newRequestId();
+  if (!(await requireUser({ api: true }))) return jsonError(401, "UNAUTHENTICATED", "Sign in to continue", requestId);
   const p = await params;
   const claim = claimIdSchema.safeParse(p.claimId);
   if (!claim.success) return jsonError(400, "INVALID_CLAIM_ID", "Invalid claim ID", requestId);

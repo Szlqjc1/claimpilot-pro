@@ -1,0 +1,60 @@
+{
+  "exportedAt": "2026-11-04T19:27:54.038Z",
+  "activeSessions": 0,
+  "auditLog": [
+    {
+      "logId": "0c324a7c-95f6-4fad-a682-2a471d1b8101",
+      "timestamp": "2026-11-04T19:26:59.107Z",
+      "actor": "Authentication",
+      "action": "Sign-in Failed",
+      "details": "Failed sign-in attempt for priya.natarajan@ironwood.example.",
+      "claimId": null,
+      "metadata": "{\"requestId\":\"eee8fb23-171b\",\"ip\":\"::1\"}"
+    },
+    {
+      "logId": "8b188b8f-4397-4c43-a16b-e59a0797f8b3",
+      "timestamp": "2026-11-04T19:27:06.202Z",
+      "actor": "Priya Natarajan",
+      "action": "User Signed In",
+      "details": "Priya Natarajan signed in (reviewer).",
+      "claimId": null,
+      "metadata": "{\"requestId\":\"48595b7f-8ae0\",\"ip\":\"::1\"}"
+    },
+    {
+      "logId": "27c73491-60df-4888-9d07-c45f6dc829a9",
+      "timestamp": "2026-11-04T19:27:22.907Z",
+      "actor": "Priya Natarajan",
+      "action": "User Signed Out",
+      "details": "Priya Natarajan signed out.",
+      "claimId": null,
+      "metadata": "{\"requestId\":\"e76b0e12-ac31\",\"ip\":\"::1\"}"
+    },
+    {
+      "logId": "8f7cd441-27fb-4785-b9e2-ca16c73876e3",
+      "timestamp": "2026-11-04T19:27:51.166Z",
+      "actor": "Authentication",
+      "action": "Sign-in Failed",
+      "details": "Failed sign-in attempt for priya.natarajan@ironwood.example.",
+      "claimId": null,
+      "metadata": "{\"requestId\":\"77d15163-9f1f\",\"ip\":\"::1\"}"
+    },
+    {
+      "logId": "97682483-c925-4f4f-b45d-1ed22b600d36",
+      "timestamp": "2026-11-04T19:27:51.582Z",
+      "actor": "Priya Natarajan",
+      "action": "User Signed In",
+      "details": "Priya Natarajan signed in (reviewer).",
+      "claimId": null,
+      "metadata": "{\"requestId\":\"38cef7a9-c70f\",\"ip\":\"::1\"}"
+    },
+    {
+      "logId": "429b787a-3393-4eca-b67b-8aa769b6703f",
+      "timestamp": "2026-11-04T19:27:53.316Z",
+      "actor": "Priya Natarajan",
+      "action": "User Signed Out",
+      "details": "Priya Natarajan signed out.",
+      "claimId": null,
+      "metadata": "{\"requestId\":\"703fb4d3-9191\",\"ip\":\"::1\"}"
+    }
+  ]
+}

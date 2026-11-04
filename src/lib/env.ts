@@ -13,6 +13,7 @@ export const envSchema = z.object({
   DEEPSEEK_API_KEY: z.preprocess((v) => (typeof v === "string" ? v.trim() || undefined : v), z.string().optional()),
   DEEPSEEK_BASE_URL: z.preprocess(emptyToUndefined, z.string().url().default("https://api.deepseek.com")),
   DEEPSEEK_MODEL: z.preprocess(emptyToUndefined, z.string().min(1).default("deepseek-chat")),
+  SESSION_TTL_HOURS: z.preprocess(emptyToUndefined, z.coerce.number().int().positive().max(720).default(24)),
 });
 
 /** Startup contract: the shape above plus cross-field rules. */

@@ -212,3 +212,24 @@ model AiRun {
 
   @@index([claimId])
 }
+
+// ─── Authentication ──────────────────────────────────────────────────
+model User {
+  id           String    @id
+  email        String    @unique
+  name         String
+  role         String // requester | reviewer | admin
+  passwordHash String // "salt:hash" (scrypt, hex)
+  createdAt    DateTime  @default(now())
+  sessions     Session[]
+}
+
+model Session {
+  token     String   @id // randomBytes(32).toString("base64url")
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}

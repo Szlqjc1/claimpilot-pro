@@ -22,6 +22,12 @@ export function isSameOrigin(req: Request): boolean {
   }
 }
 
+/** Best-effort client IP for rate limiting and audit metadata. */
+export function clientIp(req: Request): string {
+  const fwd = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  return (fwd || req.headers.get("x-real-ip") || "unknown").slice(0, 64);
+}
+
 const buckets = new Map<string, number[]>();
 
 /** Simple in-memory sliding window: `limit` requests per `windowMs` per key. */
