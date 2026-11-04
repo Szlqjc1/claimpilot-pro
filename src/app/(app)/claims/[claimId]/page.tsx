@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { aiStatus } from "@/lib/ai/provider";
 import { AlertTriangle, FolderKanban, Send } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { claimIdSchema, parseExtractedData } from "@/lib/domain/schemas";
@@ -63,6 +65,18 @@ export default async function ClaimReviewPage({ params }: { params: Params }) {
           </p>
         </div>
       </header>
+
+      {claim.source === "upload" && aiStatus().mode === "mock" && claim.status === "Pending" && (
+        <div role="alert" className="mb-4 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-[13px] text-warning">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+          <p>
+            This upload cannot be audited in Demo AI mode (live OCR disabled). Use a seeded claim to see the full flow.{" "}
+            <Link href="/claims/CLM-2026-0142" className="font-medium underline underline-offset-2">
+              Open CLM-2026-0142 →
+            </Link>
+          </p>
+        </div>
+      )}
 
       {showAi && lastRun?.mode === "fallback" && (
         <div role="alert" className="mb-4 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-[13px] text-warning">

@@ -1,4 +1,5 @@
 import "server-only";
+import { readEnv } from "@/lib/env";
 
 // Server-only AI configuration. Nothing here is ever sent to the browser except aiStatus().
 
@@ -11,15 +12,16 @@ export type AiConfig = {
   maxUploadBytes: number;
 };
 
+/** Reads the validated environment (src/lib/env.ts); an invalid value throws instead of silently falling back. */
 export function aiConfig(): AiConfig {
-  const key = process.env.DEEPSEEK_API_KEY?.trim();
+  const env = readEnv();
   return {
-    mode: process.env.AI_MODE === "live" ? "live" : "mock",
-    apiKey: key ? key : null,
-    baseUrl: (process.env.DEEPSEEK_BASE_URL ?? "https://api.deepseek.com").replace(/\/+$/, ""),
-    model: process.env.DEEPSEEK_MODEL ?? "deepseek-chat",
-    ocrMode: process.env.OCR_MODE === "tesseract" ? "tesseract" : "fixture",
-    maxUploadBytes: Math.max(1, Number(process.env.MAX_UPLOAD_MB ?? 10)) * 1024 * 1024,
+    mode: env.AI_MODE,
+    apiKey: env.DEEPSEEK_API_KEY ?? null,
+    baseUrl: env.DEEPSEEK_BASE_URL.replace(/\/+$/, ""),
+    model: env.DEEPSEEK_MODEL,
+    ocrMode: env.OCR_MODE,
+    maxUploadBytes: env.MAX_UPLOAD_MB * 1024 * 1024,
   };
 }
 
