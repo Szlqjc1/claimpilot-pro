@@ -1,0 +1,14 @@
+[
+ {
+  "timestamp": "2026-11-04T21:47:56.954Z",
+  "actor": "Authentication",
+  "details": "Throttled sign-in attempt for priya.natarajan@ironwood.example.",
+  "metadata": "{\"requestId\":\"6edec93d-b201\",\"ip\":\"198.18.0.11\",\"bucket\":\"account\"}"
+ },
+ {
+  "timestamp": "2026-11-04T21:47:57.450Z",
+  "actor": "Authentication",
+  "details": "Throttled sign-in attempt for user6@ironwood.example.",
+  "metadata": "{\"requestId\":\"1be1e3af-8001\",\"ip\":\"192.0.2.50\",\"bucket\":\"ip\"}"
+ }
+]

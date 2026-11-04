@@ -21,9 +21,31 @@ export async function POST(req: Request) {
   const requestId = newRequestId();
   if (!isSameOrigin(req)) return jsonError(403, "CROSS_ORIGIN", "Cross-origin requests are not allowed", requestId);
   const ip = clientIp(req);
-  if (!rateLimit(`login:${ip}`, 5)) return jsonError(429, "RATE_LIMITED", "Too many sign-in attempts; try again in a minute", requestId);
 
-  let raw: unknown;
+  // Throttling (DECISIONS D-32). All checks run before the user lookup and before scrypt, and all
+  // answer the same 429. Only the account bucket is keyed on something the client cannot rotate freely.
+  let raw: unknown = undefined;
+  const throttled = async (bucket: "global" | "ip" | "account", key: string, email?: string) => {
+    // At most one audit row per bucket key per minute, so a flood cannot turn into a flood of writes.
+    if (rateLimit(`login:throttle-log:${key}`, 1)) {
+      if (email === undefined) {
+        // Best effort, only when logging: the body has not been read yet for the global/IP buckets.
+        const parsed = await req.json().catch(() => null);
+        const candidate = (parsed as { email?: unknown } | null)?.email;
+        email = typeof candidate === "string" ? candidate.trim().toLowerCase().slice(0, 254) : "an unknown account";
+      }
+      await prisma.auditLog.create({
+        data: { logId: randomUUID(), actor: "Authentication", action: "Sign-in Throttled", details: `Throttled sign-in attempt for ${email}.`, metadata: JSON.stringify({ requestId, ip, bucket }) },
+      });
+    }
+    return jsonError(429, "RATE_LIMITED", "Too many sign-in attempts; try again in a minute", requestId);
+  };
+
+  // 1. Global ceiling: caps total guessing even when every request spoofs a new IP.
+  if (!rateLimit("login:global", 100)) return throttled("global", "login:global");
+  // 2. Per IP: coarse throttle; X-Forwarded-For is client-supplied, so this one alone is spoofable.
+  if (!rateLimit(`login:ip:${ip}`, 5)) return throttled("ip", `login:ip:${ip}`);
+
   try {
     raw = await req.json();
   } catch {
@@ -33,6 +55,10 @@ export async function POST(req: Request) {
   if (!body.success) return jsonError(400, "VALIDATION_FAILED", "Enter a valid email address and password.", requestId);
 
   const { email, password } = body.data;
+  // 3. Per account, on the submitted (normalized) email, whether or not the account exists: cannot be
+  //    spoofed and reveals nothing about which emails are real. 10/min so nobody can lock out a real user for long.
+  if (!rateLimit(`login:acct:${email}`, 10)) return throttled("account", `login:acct:${email}`, email);
+
   const user = await prisma.user.findUnique({ where: { email } });
   // Always run scrypt so unknown emails and wrong passwords take similar time and get the same answer.
   const ok = verifyPassword(password, user?.passwordHash ?? DUMMY_HASH) && user !== null;

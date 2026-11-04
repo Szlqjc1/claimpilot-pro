@@ -37,17 +37,51 @@ export function clientIp(req: Request): string {
   return (fwd || req.headers.get("x-real-ip") || "unknown").slice(0, 64);
 }
 
-const buckets = new Map<string, number[]>();
+type Bucket = { hits: number[]; windowMs: number };
+const buckets = new Map<string, Bucket>();
 
-/** Simple in-memory sliding window: `limit` requests per `windowMs` per key. */
+/** Above this many keys, rateLimit() sweeps expired buckets (DECISIONS D-32). */
+export const RATE_LIMIT_MAX_KEYS = 5_000;
+
+/**
+ * Bound the bucket map. Keys can now contain attacker-chosen text (the submitted email), so an
+ * unbounded map is a memory-exhaustion vector.
+ *
+ * Trade-off: one O(n) pass, only while the map is over the cap. Pass 1 drops buckets whose hits are
+ * all outside their window (they carry no information). If live buckets alone still exceed the cap,
+ * pass 2 drops the oldest-inserted keys (Map iteration order) down to 90% of the cap, so a sustained
+ * flood pays the sweep once per ~500 new keys instead of on every request. Dropping a live bucket
+ * forgets its count, i.e. briefly un-throttles that key; on login the global ceiling is checked first
+ * and caps how fast new keys can be created, which keeps an attacker from evicting a target's bucket.
+ */
+function evictBuckets(now: number): void {
+  if (buckets.size <= RATE_LIMIT_MAX_KEYS) return;
+  for (const [key, b] of buckets) {
+    if (b.hits.every((t) => now - t >= b.windowMs)) buckets.delete(key);
+  }
+  if (buckets.size <= RATE_LIMIT_MAX_KEYS) return;
+  const target = Math.floor(RATE_LIMIT_MAX_KEYS * 0.9);
+  for (const key of buckets.keys()) {
+    if (buckets.size <= target) break;
+    buckets.delete(key);
+  }
+}
+
+/** Simple in-memory sliding window: `limit` requests per `windowMs` per key. Single process only. */
 export function rateLimit(key: string, limit = 5, windowMs = 60_000): boolean {
   const now = Date.now();
-  const hits = (buckets.get(key) ?? []).filter((t) => now - t < windowMs);
+  evictBuckets(now);
+  const hits = (buckets.get(key)?.hits ?? []).filter((t) => now - t < windowMs);
   if (hits.length >= limit) {
-    buckets.set(key, hits);
+    buckets.set(key, { hits, windowMs });
     return false;
   }
   hits.push(now);
-  buckets.set(key, hits);
+  buckets.set(key, { hits, windowMs });
   return true;
+}
+
+/** Test hook: current number of rate-limit keys held in memory. */
+export function rateLimitKeyCount(): number {
+  return buckets.size;
 }
