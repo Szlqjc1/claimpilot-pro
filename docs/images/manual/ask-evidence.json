@@ -1,0 +1,64 @@
+{
+  "captured": "2026-11-04, pnpm dev (AI_MODE=mock, OCR_MODE=fixture), freshly seeded DB, signed in as Priya Natarajan",
+  "network": "AI_MODE=mock: answerQuestion returns the template before any model call (src/lib/ask/answer.ts); all three answers carried source \"template\" (Template badge). The browser made no request to DeepSeek; server-side calls are covered by the mock-mode tests, not by this capture.",
+  "answers": {
+    "Why was CLM-2026-0144 flagged?": "Template · CLM-2026-0144 is a $56,800.00 MRO & Equipment Repair claim from Lone Star Robotics Integration, submitted by Priya Natarajan (Plant Operations) on 2026-10-29. Status: Pending. It has not been audited yet, so there are no findings.",
+    "How much did we spend with Lone Star Robotics?": "Template · Last 12 months: $120,936.08 across 5 claims from Lone Star Robotics Integration. Latest submission 2026-10-29; largest category MRO & Equipment Repair.",
+    "What should I review first?": "Template · Highest risk scores: CLM-2026-0068 (60), CLM-2026-0083 (60), CLM-2026-0080 (50), CLM-2026-0067 (25), CLM-2026-0077 (25). Review first by expected loss per review dollar: CLM-2026-0068 ($1,119.05), CLM-2026-0080 ($964.84), CLM-2026-0083 ($181.61), all always-review."
+  },
+  "auditRowsForQuestions": [
+    {
+      "actor": "Priya Natarajan",
+      "action": "AI Answer",
+      "details": "Why was CLM-2026-0144 flagged?",
+      "metadata": "{\"requestId\":\"d636116e-f126\",\"kind\":\"claim_status\",\"source\":\"template\",\"citations\":[\"CLM-2026-0144\"]}"
+    },
+    {
+      "actor": "Priya Natarajan",
+      "action": "AI Answer",
+      "details": "How much did we spend with Lone Star Robotics?",
+      "metadata": "{\"requestId\":\"0abbfe8e-f3cb\",\"kind\":\"vendor_spend\",\"source\":\"template\",\"citations\":[]}"
+    },
+    {
+      "actor": "Priya Natarajan",
+      "action": "AI Answer",
+      "details": "What should I review first?",
+      "metadata": "{\"requestId\":\"32acc659-adf5\",\"kind\":\"top_risks\",\"source\":\"template\",\"citations\":[\"CLM-2026-0068\",\"CLM-2026-0083\",\"CLM-2026-0080\",\"CLM-2026-0067\",\"CLM-2026-0077\"]}"
+    }
+  ],
+  "auditBadges_CLM_2026_0075": {
+    "rows": [
+      {
+        "actor": "SAP S/4HANA Integration",
+        "action": "Posted to SAP",
+        "details": "Invoice HMS-11001 posted (MIRO) for $15,710.04; payment run Net 60."
+      },
+      {
+        "actor": "Priya Natarajan",
+        "action": "Exceptions Cleared Before Posting",
+        "details": "1 exception(s) resolved after reviewer sign-off; supplier documentation attached."
+      },
+      {
+        "actor": "Priya Natarajan",
+        "action": "Exception Resolved",
+        "details": "R-15 Approval Threshold Breach resolved — Director approval obtained; signed approval attached."
+      },
+      {
+        "actor": "AI-RPA Agent",
+        "action": "Automotive Expense Flagged",
+        "details": "AI-RPA raised 1 exception(s): Approval Threshold Breach (Medium). Routed to Plant Controller."
+      },
+      {
+        "actor": "Tyler Brooks",
+        "action": "Claim Submitted",
+        "details": "Claim submitted by Tyler Brooks"
+      }
+    ],
+    "badgeTones": {
+      "Posted to SAP": "green (emerald)",
+      "Exceptions Cleared Before Posting": "neutral (slate)",
+      "Exception Resolved": "amber",
+      "Automotive Expense Flagged": "red"
+    }
+  }
+}

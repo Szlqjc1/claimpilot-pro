@@ -2,7 +2,7 @@ import "server-only";
 import { z } from "zod";
 import { normalizeExtraction, type Extraction } from "@/lib/domain/schemas";
 import { aiConfig } from "./provider";
-import { EXTRACTION_SYSTEM_PROMPT, NARRATIVE_SYSTEM_PROMPT, REPAIR_PROMPT } from "./prompts";
+import { ASK_SYSTEM_PROMPT, EXTRACTION_SYSTEM_PROMPT, NARRATIVE_SYSTEM_PROMPT, REPAIR_PROMPT } from "./prompts";
 
 // DeepSeek OpenAI-compatible chat completions via fetch. Text only — no image_url.
 
@@ -160,3 +160,24 @@ export async function explainKpiWithDeepSeek(kpiJson: string, requestId: string)
   if (!parsed.success) throw new ProviderError("Explanation failed validation", "schema");
   return parsed.data.explanation;
 }
+
+/** Grounded Q&A: the model only phrases the retrieved facts; src/lib/ask/answer.ts validates the result. */
+export async function askWithDeepSeek(question: string, factsJson: string, requestId: string): Promise<string> {
+  const res = await chat(
+    [
+      { role: "system", content: ASK_SYSTEM_PROMPT },
+      { role: "user", content: ["<question>", question, "</question>", "<facts>", factsJson, "</facts>"].join("\n") },
+    ],
+    { temperature: 0, maxTokens: 300, requestId },
+  );
+  const parsed = z.object({ answer: z.string().min(1).max(1200) }).safeParse((() => {
+    try {
+      return parseJson(res.content);
+    } catch {
+      return null;
+    }
+  })());
+  if (!parsed.success) throw new ProviderError("Answer failed validation", "schema");
+  return parsed.data.answer;
+}
+
