@@ -111,7 +111,7 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
     } else {
       if (!cfg.apiKey) throw new AuditError(503, "AI_NOT_CONFIGURED", "AI provider is not configured");
       if (fixture) ocr = ocrFromFixture(fixture);
-      else if (cfg.ocrMode === "tesseract" && (mime === "image/png" || mime === "image/jpeg")) ocr = await ocrWithTesseract(receipt);
+      else if (cfg.ocrMode === "tesseract" && (mime === "image/png" || mime === "image/jpeg")) ocr = await ocrWithTesseract(receipt, mime);
       else throw new AuditError(422, "OCR_UNAVAILABLE", "No OCR source for this receipt. Enable OCR_MODE=tesseract for PNG/JPEG uploads.");
       try {
         const live = await extractWithDeepSeek(ocr.text, { category: claim.category }, opts.requestId);
@@ -141,6 +141,7 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
       }
     }
     warnings.push(...extraction.warnings);
+    if (ocr.prep?.warning) warnings.push(ocr.prep.warning);
     // D-37: deterministic grounding is part of the extraction stage, attached before scoring (R-14 reads it).
     extraction = { ...extraction, fieldChecks: groundExtraction(extraction, ocr.text) };
 
@@ -205,7 +206,9 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
       extractionDiff,
       fieldChecks: { scored: groundExtraction(extraction, ocr.text), model: modelExtraction ? groundExtraction(modelExtraction, ocr.text) : null },
       modelConfidence: modelExtraction ? { note: "model-reported, uncalibrated", fieldConfidence: modelExtraction.fieldConfidence } : null,
-      stageMetrics: { ocrSource: ocr.source, ocrConfidence: ocr.confidence, extract: stage.extract, narrative: stage.narrative, totalLatencyMs: latencyMs },
+      stageMetrics: { ocrSource: ocr.source, ocrConfidence: ocr.confidence, ocrPrep: ocr.prep ?? null, extract: stage.extract, narrative: stage.narrative, totalLatencyMs: latencyMs },
+      // Task 7b B5: word-level OCR for uploads (Tesseract), data only; null for fixture OCR.
+      ocrWords: ocr.words ?? null,
     };
 
     // 10. One transaction: claim update, exceptions, audit log, AI run. All or nothing.

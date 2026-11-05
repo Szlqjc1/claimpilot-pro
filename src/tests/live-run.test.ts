@@ -139,3 +139,34 @@ describe("item 4: confidence on a scored extraction is the OCR layer's, never th
   });
 });
 
+describe("Task 7b B5: word-level OCR is persisted for uploads (data only)", () => {
+  it("runDetail.ocrWords and the preprocessing record come from the OCR result; the score is unaffected", async () => {
+    process.env.OCR_MODE = "tesseract";
+    try {
+      const ref = (await loadFixture("CLM-2026-0142"))!;
+      const claimId = `CLM-8${String(Date.now()).slice(-3)}-${String(Math.floor(Math.random() * 9000) + 1000)}`;
+      await prisma.claim.create({
+        data: {
+          claimId, employee: "Marcus Reed", department: "R&D Engineering", category: "R&D Track Testing", amount: "14500.00", status: "Pending",
+          originalReceipt: `/api/receipts/${claimId}/original`, vendorName: "Midwest Proving Grounds LLC", source: "upload", submittedAt: new Date("2026-10-30T12:00:00Z"),
+          receiptName: "upload.png", receiptMime: "image/png",
+        },
+      });
+      await writeReceiptFile(claimId, "upload.png", Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0]));
+      const words = [{ text: "MPG-88214", confidence: 0.93, bbox: { field: "word", x: 0.6, y: 0.1, w: 0.1, h: 0.02, page: 1 } }];
+      const prep = { preprocessed: false, skewDeg: null, threshold: null, method: null, inkRatio: null, psm: "default" };
+      tesseract = (async () => ({ text: ref.ocrText, confidence: 0.9, boxes: [], source: "tesseract", words, prep })) as unknown as typeof tesseract;
+      extract = async () => ({ extraction: ref.extraction, usage: { inputTokens: 1, outputTokens: 1 }, latencyMs: 1, model: "deepseek-chat", repaired: false });
+
+      const res = await runAudit(claimId, { requestId: "test-live-7b" });
+      const run = await prisma.aiRun.findFirstOrThrow({ where: { claimId }, orderBy: { createdAt: "desc" } });
+      const detail = run.runDetail as { ocrWords: unknown; stageMetrics: { ocrPrep: unknown } };
+      expect(detail.ocrWords).toEqual(words);
+      expect(detail.stageMetrics.ocrPrep).toEqual(prep);
+      expect(res.exceptions.map((e) => e.ruleId)).not.toContain("R-14");
+    } finally {
+      process.env.OCR_MODE = "fixture";
+    }
+  });
+});
+

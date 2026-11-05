@@ -26,15 +26,24 @@ export type Degradation = { seed: number; blurSigma: number; rotateDeg: number; 
 
 const range = (r: () => number, lo: number, hi: number, digits = 2) => Number((lo + (hi - lo) * r()).toFixed(digits));
 
-/** Degradation parameters for one document, within the ranges agreed for the benchmark (Task 7). */
-export function degradationFor(seed: number): Degradation {
+export type DegradationProfile = "harsh" | "realistic";
+
+/** Parameter ranges per profile. `harsh` is exactly Task 7's (kept reproducible); `realistic` is Task 7b A1. */
+export const PROFILE_RANGES: Record<DegradationProfile, { blur: [number, number]; rotate: number; jpeg: [number, number]; scale: [number, number]; contrast: [number, number] }> = {
+  harsh: { blur: [0.5, 2], rotate: 2, jpeg: [40, 70], scale: [0.5, 0.7], contrast: [0.85, 1.15] },
+  realistic: { blur: [0.2, 1], rotate: 1, jpeg: [70, 85], scale: [0.8, 1], contrast: [0.95, 1.05] },
+};
+
+/** Degradation parameters for one document. The draw order is fixed, so `harsh` reproduces Task 7 exactly. */
+export function degradationFor(seed: number, profile: DegradationProfile = "harsh"): Degradation {
   const r = mulberry32(seed);
+  const p = PROFILE_RANGES[profile];
   return {
     seed,
-    blurSigma: range(r, 0.5, 2),
-    rotateDeg: range(r, -2, 2),
-    jpegQuality: Math.round(range(r, 40, 70, 0)),
-    scale: range(r, 0.5, 0.7),
-    contrast: range(r, 0.85, 1.15), // mild
+    blurSigma: range(r, p.blur[0], p.blur[1]),
+    rotateDeg: range(r, -p.rotate, p.rotate),
+    jpegQuality: Math.round(range(r, p.jpeg[0], p.jpeg[1], 0)),
+    scale: range(r, p.scale[0], p.scale[1]),
+    contrast: range(r, p.contrast[0], p.contrast[1]),
   };
 }

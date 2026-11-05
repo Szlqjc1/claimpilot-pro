@@ -62,6 +62,23 @@ describe("degradation PRNG", () => {
     }
   });
 
+  it("the realistic profile stays inside its ranges, and harsh is unchanged by the profile parameter", () => {
+    for (let i = 0; i < 2000; i++) {
+      const seed = hashSeed("realistic", i);
+      const d = degradationFor(seed, "realistic");
+      expect(d.blurSigma).toBeGreaterThanOrEqual(0.2);
+      expect(d.blurSigma).toBeLessThanOrEqual(1);
+      expect(Math.abs(d.rotateDeg)).toBeLessThanOrEqual(1);
+      expect(d.jpegQuality).toBeGreaterThanOrEqual(70);
+      expect(d.jpegQuality).toBeLessThanOrEqual(85);
+      expect(d.scale).toBeGreaterThanOrEqual(0.8);
+      expect(d.scale).toBeLessThanOrEqual(1);
+      expect(d.contrast).toBeGreaterThanOrEqual(0.95);
+      expect(d.contrast).toBeLessThanOrEqual(1.05);
+      expect(degradationFor(seed)).toEqual(degradationFor(seed, "harsh"));
+    }
+  });
+
   it("mulberry32 output is roughly uniform", () => {
     const r = mulberry32(7);
     const xs = Array.from({ length: 20000 }, r);
