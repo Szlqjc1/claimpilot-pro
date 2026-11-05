@@ -17,6 +17,8 @@ import { evaluateRisk } from "@/lib/risk/score";
 import { normalizeVendorName } from "@/lib/risk/rules";
 import type { RiskInput } from "@/lib/risk/types";
 import { resolveAssignment } from "@/lib/domain/routing";
+import { groundExtraction } from "@/lib/ai/grounding";
+import { diffExtractions, type ExtractionDiff } from "./extraction-diff";
 import { auditEntryFor } from "./wording";
 
 export class AuditError extends Error {
@@ -100,6 +102,7 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
       narrative: null,
     };
     let modelExtraction: Extraction | null = null;
+    let extractionDiff: ExtractionDiff | null = null;
 
     if (cfg.mode === "mock") {
       if (!fixture) throw new AuditError(422, "OCR_DISABLED", "Live OCR is disabled in demo mode. Seeded claims use deterministic fixtures.");
@@ -114,10 +117,19 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
         const live = await extractWithDeepSeek(ocr.text, { category: claim.category }, opts.requestId);
         modelExtraction = live.extraction;
         stage.extract = { latencyMs: live.latencyMs, ...live.usage, repaired: live.repaired };
-        // Geometry comes from the OCR layer, never from the LLM.
-        extraction = { ...live.extraction, boundingBoxes: ocr.boxes };
         run = { mode: "live", provider: "deepseek", model: live.model, inputTokens: live.usage.inputTokens, outputTokens: live.usage.outputTokens };
         if (live.repaired) warnings.push("Extraction JSON needed one repair pass.");
+        if (fixture) {
+          // Seeded claim (D-37, Q1(d)): the fixture is the known answer and is what gets scored; the model runs as
+          // a shadow, and any field-level disagreement is recorded and surfaced, never scored.
+          extraction = fixture.extraction;
+          extractionDiff = diffExtractions(fixture.extraction, live.extraction);
+          const differing = Object.entries(extractionDiff).filter(([, d]) => !d.match).map(([f]) => f);
+          if (differing.length) warnings.push(`Model extraction differs from the reference on ${differing.length} field(s): ${differing.join(", ")}. Scored on the reference extraction.`);
+        } else {
+          // Upload: no known answer, so the model's extraction is scored. Geometry comes from the OCR layer, never the LLM.
+          extraction = { ...live.extraction, boundingBoxes: ocr.boxes };
+        }
       } catch (err) {
         if (!(err instanceof ProviderError)) throw err;
         if (!fixture) throw new AuditError(502, "AI_PROVIDER_FAILED", `AI extraction failed: ${err.message}. Claim left Pending; retry later.`);
@@ -183,9 +195,11 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
     };
     const confidences = Object.values(extraction.fieldConfidence);
     // Provenance (D-37): which extraction was scored. Written on the claim (list views) and the run (history).
-    const extractionSource = run.mode === "live" ? "model" : run.mode === "fallback" ? "fallback" : "fixture";
+    const extractionSource = run.mode === "fallback" ? "fallback" : run.mode === "live" && !fixture ? "model" : "fixture";
     const runDetail = {
       modelExtraction,
+      extractionDiff,
+      fieldChecks: { scored: groundExtraction(extraction, ocr.text), model: modelExtraction ? groundExtraction(modelExtraction, ocr.text) : null },
       modelConfidence: modelExtraction ? { note: "model-reported, uncalibrated", fieldConfidence: modelExtraction.fieldConfidence } : null,
       stageMetrics: { ocrSource: ocr.source, ocrConfidence: ocr.confidence, extract: stage.extract, narrative: stage.narrative, totalLatencyMs: latencyMs },
     };

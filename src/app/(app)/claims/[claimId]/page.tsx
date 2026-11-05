@@ -6,6 +6,7 @@ import { canReview, requireUser } from "@/lib/auth/session";
 import { AlertTriangle, FolderKanban, Send } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { claimIdSchema, parseExtractedData } from "@/lib/domain/schemas";
+import { FIELD_LABELS } from "@/lib/domain/fields";
 import { formatUsd, toCents } from "@/lib/domain/money";
 import { formatEt } from "@/lib/domain/dates";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -45,6 +46,9 @@ export default async function ClaimReviewPage({ params }: { params: Params }) {
   // AI blocks exist in the DOM only once the claim has been analyzed (Analyzed or Posted) — DECISIONS D-19.
   const showAi = claim.status !== "Pending";
   const lastRun = claim.aiRuns[0] ?? null;
+  // D-37: fields where the live model disagreed with the reference extraction (seeded claims, shadow run).
+  const diff = (lastRun?.runDetail as { extractionDiff?: Record<string, { match: boolean }> | null } | null)?.extractionDiff ?? null;
+  const differing = diff ? Object.entries(diff).filter(([, d]) => !d.match).map(([f]) => FIELD_LABELS[f] ?? f) : [];
   const openExceptions = claim.exceptions.filter((e) => e.status === "Open").length;
   // UI mirror of the server-side checks (D-27): reviewer/admin, and never on your own claim.
   const user = await requireUser();
@@ -87,6 +91,14 @@ export default async function ClaimReviewPage({ params }: { params: Params }) {
         <div role="alert" className="mb-4 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-[13px] text-warning">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
           DeepSeek was unavailable for this audit; the deterministic fixture extraction was used (AI run mode: Fallback).
+        </div>
+      )}
+
+      {showAi && differing.length > 0 && (
+        <div role="alert" data-testid="extraction-diff-banner" className="mb-4 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-[13px] text-warning">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+          Model extraction differs from the reference on {differing.length} field{differing.length === 1 ? "" : "s"}: {differing.join(", ")}. The score uses the reference
+          extraction; the model&apos;s values are kept in the AI run record.
         </div>
       )}
 
