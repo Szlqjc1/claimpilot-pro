@@ -103,7 +103,7 @@ async function main() {
     await annotated.locator("img").evaluate((img: HTMLImageElement) => (img.complete ? null : new Promise((r) => img.addEventListener("load", r, { once: true }))));
     await annotated.screenshot({ path: path.join(OUT, "annotated-invoice.png") });
     console.log("✔ annotated-invoice.png");
-    await unstick.evaluate((el) => el.remove());
+    await unstick.evaluate((el) => el.parentNode?.removeChild(el));
     await page.evaluate(() => window.scrollTo(0, 0));
 
     await page.getByText("How this was calculated").click();
