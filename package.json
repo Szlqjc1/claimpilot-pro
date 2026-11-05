@@ -20,7 +20,9 @@
     "receipts:generate": "tsx scripts/generate-receipts.ts",
     "kpi:report": "tsx scripts/kpi-report.ts",
     "shots": "tsx scripts/screenshots.ts",
-    "cost:curve": "tsx --conditions=react-server scripts/cost-curve.ts"
+    "cost:curve": "tsx --conditions=react-server scripts/cost-curve.ts",
+    "bench:degrade": "tsx scripts/degrade.ts",
+    "bench:grounding": "tsx scripts/grounding-bench.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

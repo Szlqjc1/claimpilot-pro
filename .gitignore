@@ -23,3 +23,6 @@ playwright-report/
 
 # Tesseract language data (downloaded at runtime)
 eng.traineddata
+
+# Grounding benchmark OCR cache (pnpm bench:grounding)
+.bench-cache/
