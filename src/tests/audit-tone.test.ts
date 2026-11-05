@@ -15,6 +15,9 @@ describe("auditActionTone", () => {
     expect(auditActionTone("Exception Resolved")).toBe("amber");
     expect(auditActionTone("Exception Waived")).toBe("amber");
   });
+  it("Dismissed (the rule was wrong) → neutral, deliberately", () => {
+    expect(auditActionTone("Exception Dismissed")).toBe("neutral");
+  });
   it("Cleared (posting summary) → neutral, deliberately", () => {
     expect(auditActionTone("Exceptions Cleared Before Posting")).toBe("neutral");
   });

@@ -7,13 +7,14 @@ import { dispositionException } from "@/lib/audit/disposition";
 import { isSameOrigin, jsonError, newRequestId, rateLimit } from "@/lib/api";
 import { canReview, requireUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
+import { DISPOSITIONS } from "@/lib/domain/constants";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const exceptionIdSchema = z.string().regex(/^EXC-\d{4}-\d{4}-R-\d{2}$/, "Invalid exception ID");
 const bodySchema = z.object({
-  status: z.enum(["Resolved", "Waived"]),
+  status: z.enum(DISPOSITIONS),
   note: z.string().trim().min(10).max(500),
 });
 
@@ -21,7 +22,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ claimI
   const requestId = newRequestId();
   const user = await requireUser({ api: true });
   if (!user) return jsonError(401, "UNAUTHENTICATED", "Sign in to continue", requestId);
-  if (!canReview(user)) return jsonError(403, "FORBIDDEN", `Only a reviewer or admin can resolve or waive exceptions`, requestId);
+  if (!canReview(user)) return jsonError(403, "FORBIDDEN", `Only a reviewer or admin can resolve, waive or dismiss exceptions`, requestId);
   const p = await params;
   const claim = claimIdSchema.safeParse(p.claimId);
   if (!claim.success) return jsonError(400, "INVALID_CLAIM_ID", "Invalid claim ID", requestId);

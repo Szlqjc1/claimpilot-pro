@@ -7,8 +7,10 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/input";
+import { DISPOSITIONS, DISPOSITION_MEANING, type Disposition } from "@/lib/domain/constants";
 
-type Disposition = "Resolved" | "Waived";
+const VERB: Record<Disposition, string> = { Resolved: "Resolve", Waived: "Waive", Dismissed: "Dismiss" };
+const TITLE: Record<Disposition, string> = { Resolved: "Resolve exception", Waived: "Waive exception", Dismissed: "Not an exception" };
 type ErrorBody = { error?: { code: string; message: string; requestId: string } };
 
 const MIN = 10;
@@ -41,7 +43,7 @@ export function ExceptionActions({ claimId, exceptionId, anomalyType, message }:
         if (res.status === 409) router.refresh();
         return;
       }
-      toast.success(`${anomalyType} ${mode.toLowerCase()}`);
+      toast.success(mode === "Dismissed" ? `${anomalyType} dismissed as not an exception` : `${anomalyType} ${mode.toLowerCase()}`);
       setMode(null);
       setNote("");
       router.refresh();
@@ -61,15 +63,25 @@ export function ExceptionActions({ claimId, exceptionId, anomalyType, message }:
         <Button size="sm" variant="ghost" onClick={() => setMode("Waived")}>
           Waive<span className="sr-only"> {anomalyType}</span>
         </Button>
+        <Button size="sm" variant="ghost" className="text-muted" onClick={() => setMode("Dismissed")}>
+          Not an exception<span className="sr-only"> ({anomalyType})</span>
+        </Button>
       </div>
       <Dialog.Root open={mode !== null} onOpenChange={(o) => !o && !busy && (setMode(null), setError(null))}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-40 bg-black/40" />
           <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[calc(100%-32px)] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-5 shadow-xl">
             <Dialog.Title className="text-base font-semibold">
-              {mode === "Waived" ? "Waive" : "Resolve"} exception: {anomalyType}
+              {mode ? TITLE[mode] : ""}: {anomalyType}
             </Dialog.Title>
             <Dialog.Description className="mt-1 text-[13px] text-muted">{message}</Dialog.Description>
+            <ul className="mt-3 space-y-1 rounded-lg border border-line bg-slate-50 p-3 text-xs" aria-label="What each choice records">
+              {DISPOSITIONS.map((d) => (
+                <li key={d} className={d === mode ? "font-semibold text-ink" : "text-muted"}>
+                  <span className="inline-block w-28">{TITLE[d]}</span> {DISPOSITION_MEANING[d]}
+                </li>
+              ))}
+            </ul>
             <form
               className="mt-4"
               onSubmit={(e) => {
@@ -77,7 +89,7 @@ export function ExceptionActions({ claimId, exceptionId, anomalyType, message }:
                 void submit();
               }}
             >
-              <Label htmlFor={`note-${exceptionId}`}>Resolution note</Label>
+              <Label htmlFor={`note-${exceptionId}`}>{mode === "Dismissed" ? "Why is this not an exception?" : "Resolution note"}</Label>
               <textarea
                 id={`note-${exceptionId}`}
                 value={note}
@@ -87,7 +99,7 @@ export function ExceptionActions({ claimId, exceptionId, anomalyType, message }:
                 maxLength={MAX}
                 rows={4}
                 aria-describedby={`note-count-${exceptionId}`}
-                placeholder="What was checked, and the supporting document or approval reference."
+                placeholder={mode === "Dismissed" ? "What you checked and why the rule was wrong here (e.g. the invoice number on the scan matches)." : "What was checked, and the supporting document or approval reference."}
                 className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-info"
               />
               <p id={`note-count-${exceptionId}`} aria-live="polite" className={`mt-1 text-xs tabular ${valid || length === 0 ? "text-muted" : "text-danger"}`}>
@@ -106,7 +118,7 @@ export function ExceptionActions({ claimId, exceptionId, anomalyType, message }:
                 </Dialog.Close>
                 <Button type="submit" variant="primary" disabled={!valid || busy} aria-busy={busy}>
                   {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
-                  {mode === "Waived" ? "Waive exception" : "Resolve exception"}
+                  {mode ? (mode === "Dismissed" ? "Dismiss as not an exception" : `${VERB[mode]} exception`) : ""}
                 </Button>
               </div>
             </form>

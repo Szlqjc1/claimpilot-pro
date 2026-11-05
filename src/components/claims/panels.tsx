@@ -226,7 +226,7 @@ export function ExceptionsTable({ findings, analyzed, claimId, canHandle }: { fi
                   </details>
                 </TD>
                 <TD>
-                  <Badge tone={f.status === "Open" ? "amber" : f.status === "Resolved" ? "green" : "neutral"}>{f.status}</Badge>
+                  <Badge tone={f.status === "Open" ? "orange" : f.status === "Resolved" ? "green" : f.status === "Waived" ? "amber" : "neutral"}>{f.status === "Dismissed" ? "Dismissed · not an exception" : f.status}</Badge>
                   {f.resolvedBy && <span className="mt-1 block text-[11px] text-muted">by {f.resolvedBy}</span>}
                 </TD>
                 <TD>

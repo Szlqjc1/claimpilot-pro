@@ -4,6 +4,8 @@ export type AuditTone = "red" | "green" | "amber" | "neutral";
 export function auditActionTone(action: string): AuditTone {
   // Posting summary is bookkeeping, not a decision: neutral on purpose (checked first so no later branch catches it).
   if (action.includes("Cleared")) return "neutral";
+  // A dismissal records that the rule was wrong; it is information, not a risk decision (D-39).
+  if (action.includes("Dismissed")) return "neutral";
   if (action.includes("Flagged")) return "red";
   if (action.includes("Validated") || action.includes("Posted")) return "green";
   if (action.includes("Failed")) return "amber";

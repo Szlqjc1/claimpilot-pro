@@ -52,8 +52,24 @@ export type RiskLevel = (typeof RISK_LEVELS)[number];
 export const DECISIONS = ["AUTO_APPROVE", "REVIEW", "ESCALATE"] as const;
 export type Decision = (typeof DECISIONS)[number];
 
-export const EXCEPTION_STATUSES = ["Open", "Resolved", "Waived"] as const;
+export const EXCEPTION_STATUSES = ["Open", "Resolved", "Waived", "Dismissed"] as const;
 export type ExceptionStatus = (typeof EXCEPTION_STATUSES)[number];
+/**
+ * A reviewer's disposition of an exception: ONE dimension, not status × reason (D-39), so impossible pairs such as
+ * "resolved but a false alarm" cannot exist in the data.
+ */
+export const DISPOSITIONS = ["Resolved", "Waived", "Dismissed"] as const;
+export type Disposition = (typeof DISPOSITIONS)[number];
+export const DISPOSITION_MEANING: Record<Disposition, string> = {
+  Resolved: "Real issue, corrected (e.g. the missing document or the right value was obtained).",
+  Waived: "Real issue, accepted for a business reason (e.g. an approved exception to policy).",
+  Dismissed: "The rule was wrong here: a false alarm, nothing to correct or accept.",
+};
+export const DISPOSITION_ACTION: Record<Disposition, string> = {
+  Resolved: "Exception Resolved",
+  Waived: "Exception Waived",
+  Dismissed: "Exception Dismissed",
+};
 
 export const AI_RUN_MODES = ["mock", "live", "fallback"] as const;
 export type AiRunMode = (typeof AI_RUN_MODES)[number];

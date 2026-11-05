@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ProvenanceBadge } from "@/components/claims/badges";
+import { alertPrecision } from "@/lib/economics/precision";
 
 export const metadata: Metadata = { title: "Economics" };
 export const dynamic = "force-dynamic";
@@ -20,7 +21,7 @@ const usd = (cents: number) => formatUsd(Math.round(cents));
 
 export default async function EconomicsPage() {
   await requireUser();
-  const claims = await assessClaims();
+  const [claims, precision] = await Promise.all([assessClaims(), alertPrecision()]);
   const top = [...claims].sort((a, b) => b.priority - a.priority || b.exposureCents - a.exposureCents).slice(0, 10);
   const reviewed = claims.filter((c) => c.action === "REVIEW");
   const onModel = claims.filter((c) => c.extractionSource === "model").length;
@@ -139,6 +140,51 @@ export default async function EconomicsPage() {
                     <Badge tone={c.action === "REVIEW" ? "amber" : "green"}>{c.action}</Badge>
                   </TD>
                   <TD className="whitespace-nowrap text-[13px]">{REASON_LABEL[c.reason]}</TD>
+                </TR>
+              ))}
+            </TBody>
+          </Table>
+        )}
+      </Card>
+
+      <Card className="mt-6" data-testid="alert-precision">
+        <CardHeader>
+          <div>
+            <CardTitle>Alert precision by rule</CardTitle>
+            <CardDescription>
+              Reviewer dispositions, aggregated by rule only. Confirmed = Resolved (real, corrected) + Waived (real, accepted). Dismissal % = dismissed ÷ decided; open alerts are not
+              counted. This measures precision, not recall: an error no rule flagged never reaches a reviewer.
+            </CardDescription>
+          </div>
+        </CardHeader>
+        {precision.every((r) => r.dismissed + r.confirmed === 0) ? (
+          <CardContent>
+            <p className="text-[13px] text-muted">No dispositions recorded yet.</p>
+          </CardContent>
+        ) : (
+          <Table>
+            <THead>
+              <TR>
+                <TH>Rule</TH>
+                <TH className="text-right">Alerts</TH>
+                <TH className="text-right">Dismissed</TH>
+                <TH className="text-right">Confirmed</TH>
+                <TH className="text-right">Dismissal %</TH>
+              </TR>
+            </THead>
+            <TBody>
+              {precision.map((r) => (
+                <TR key={r.ruleId}>
+                  <TD className="whitespace-nowrap">
+                    <span className="font-mono text-xs">{r.ruleId}</span> <span className="text-[13px] text-muted">{r.anomalyType}</span>
+                  </TD>
+                  <TD className="tabular text-right">
+                    {r.alerts}
+                    {r.open > 0 && <span className="block text-[11px] text-muted">{r.open} open</span>}
+                  </TD>
+                  <TD className="tabular text-right">{r.dismissed}</TD>
+                  <TD className="tabular text-right">{r.confirmed}</TD>
+                  <TD className="tabular text-right font-medium">{r.dismissalRate === null ? "—" : `${Math.round(r.dismissalRate * 100)} %`}</TD>
                 </TR>
               ))}
             </TBody>

@@ -275,7 +275,14 @@ export async function seedDatabase(prisma: PrismaClient, opts: { log?: (msg: str
           points: f.points,
           message: f.message,
           evidence: JSON.stringify(f.evidence),
-          status: exStatus === "Resolved" && f.riskLevel === "Low" ? "Waived" : exStatus,
+          // Historical dispositions (D-39): a Low-severity R-14 that is the posted claim's only finding was an OCR false
+          // alarm → Dismissed; other Low findings were real and accepted → Waived; the rest were corrected → Resolved.
+          status:
+            exStatus !== "Resolved" || f.riskLevel !== "Low"
+              ? exStatus
+              : f.ruleId === "R-14" && result!.findings.length === 1
+                ? "Dismissed"
+                : "Waived",
           createdAt: analyzedAt!,
         }),
       );

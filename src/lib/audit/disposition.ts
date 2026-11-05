@@ -1,4 +1,5 @@
 import "server-only";
+import { DISPOSITION_ACTION, type Disposition } from "@/lib/domain/constants";
 import { randomUUID } from "node:crypto";
 import { prisma } from "@/lib/db";
 import { formatUsd, toCents } from "@/lib/domain/money";
@@ -55,12 +56,12 @@ export async function postClaim(claimId: string, opts: { requestId: string; acto
   return { claimId, status: "Posted", postedAt: now.toISOString(), miroDocNo: docNo };
 }
 
-export type DispositionResult = { exceptionId: string; status: "Resolved" | "Waived" };
+export type DispositionResult = { exceptionId: string; status: Disposition };
 
 export async function dispositionException(
   claimId: string,
   exceptionId: string,
-  input: { status: "Resolved" | "Waived"; note: string },
+  input: { status: Disposition; note: string },
   opts: { requestId: string; actor: string; revalidate?: (paths: string[]) => void },
 ): Promise<DispositionResult> {
   const [claim, exception] = await Promise.all([
@@ -79,10 +80,10 @@ export async function dispositionException(
       data: {
         logId: randomUUID(),
         actor: opts.actor,
-        action: input.status === "Resolved" ? "Exception Resolved" : "Exception Waived",
+        action: DISPOSITION_ACTION[input.status],
         details: `${exception.ruleId} ${exception.anomalyType} ${input.status.toLowerCase()} — ${input.note}`,
         claimId,
-        metadata: JSON.stringify({ requestId: opts.requestId }),
+        metadata: JSON.stringify({ requestId: opts.requestId, disposition: input.status }),
       },
     });
   });

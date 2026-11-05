@@ -1,0 +1,32 @@
+{
+  "captured": "2026-11-05, pnpm dev (AI_MODE=mock), freshly seeded DB, signed in as Priya Natarajan (reviewer)",
+  "action": "CLM-2026-0075 · R-15 Approval Threshold Breach → 'Not an exception' with note 'Director sign-off is on the second page of the scan; the approval level matches the amount.'",
+  "dialog": {
+    "title": "Not an exception: Approval Threshold Breach",
+    "label": "Why is this not an exception?",
+    "submit": "Dismiss as not an exception",
+    "meanings": ["Resolve exception — real issue, corrected", "Waive exception — real issue, accepted", "Not an exception — the rule was wrong here (highlighted)"]
+  },
+  "after": {
+    "exceptionBadge": "Dismissed · not an exception (neutral) · by Priya Natarajan",
+    "postToSapBar": "Open exceptions: 0 · Ready to create the MIRO invoice document."
+  },
+  "economicsAlertPrecision": [
+    "R-01 Missing Project Code | 3 | 0 | 3 | 0 %",
+    "R-03 Duplicate Supplier Invoice | 3 (2 open) | 0 | 1 | 0 %",
+    "R-04 Amount Over Limit | 2 | 0 | 2 | 0 %",
+    "R-05 Missing Factory Gate Pass | 3 | 0 | 3 | 0 %",
+    "R-06 Vendor Not Approved | 1 | 0 | 1 | 0 %",
+    "R-07 PO Balance Exceeded | 2 | 0 | 2 | 0 %",
+    "R-08 Price Variance vs Benchmark | 4 (2 open) | 0 | 2 | 0 %",
+    "R-09 Split Invoice Suspected | 1 | 0 | 1 | 0 %",
+    "R-10 Tax Calculation Mismatch | 2 (1 open) | 0 | 1 | 0 %",
+    "R-11 Travel Policy Violation | 3 (1 open) | 0 | 2 | 0 %",
+    "R-12 Entertainment Policy Violation | 2 | 0 | 2 | 0 %",
+    "R-13 Invoice Date Anomaly | 1 | 0 | 1 | 0 %",
+    "R-14 Low OCR Confidence | 4 (1 open) | 3 | 0 | 100 %",
+    "R-15 Approval Threshold Breach | 4 | 1 | 3 | 25 %  (the 1 dismissal is the one made above; seeded value is 0 dismissed, 0 %)",
+    "R-17 Bank Detail Change | 1 (1 open) | 0 | 0 | —",
+    "R-18 Capitalization Mismatch | 2 | 0 | 2 | 0 %"
+  ]
+}
