@@ -68,6 +68,8 @@ export const extractionSchema = z.object({
   taxRate: z.number().min(0).max(1).nullable(),
   approval: z.object({ name: z.string().min(1), level: z.string().min(1) }).nullable(),
   fieldConfidence: z.record(z.string(), confidence),
+  /** D-37: deterministic grounding against the OCR text, attached before scoring (never produced by the model). */
+  fieldChecks: z.record(z.string(), z.enum(["found", "not_found", "not_extracted"])).optional(),
   boundingBoxes: z.array(boundingBoxSchema).default([]),
   warnings: z.array(z.string()).default([]),
 });

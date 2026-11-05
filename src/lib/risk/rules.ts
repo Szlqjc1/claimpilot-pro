@@ -381,15 +381,32 @@ export const RULES: Rule[] = [
   {
     id: "R-14",
     evaluate: ({ extraction }) => {
-      const low = CRITICAL_FIELDS.filter((f) => (extraction.fieldConfidence[f] ?? 1) < 0.75);
-      if (low.length === 0) return null;
+      // D-37. Two triggers, both from the OCR layer, never from the model's self-reported confidence:
+      //   (1) a non-null critical value that is not in the OCR text (fieldChecks "not_found", attached before scoring);
+      //   (2) the OCR layer's confidence for a non-null critical value is below 0.75.
+      // A null / absent value ("not_extracted") never fires R-14.
+      const value = (f: (typeof CRITICAL_FIELDS)[number]) => (f === "vendorName" ? extraction.vendor?.name : extraction[f]);
+      const present = CRITICAL_FIELDS.filter((f) => {
+        const v = value(f);
+        return v !== null && v !== undefined && !(typeof v === "string" && v.trim() === "") && extraction.fieldChecks?.[f] !== "not_extracted";
+      });
+      const ungrounded = present.filter((f) => extraction.fieldChecks?.[f] === "not_found");
+      const low = present.filter((f) => (extraction.fieldConfidence[f] ?? 1) < 0.75);
+      const flagged = present.filter((f) => ungrounded.includes(f) || low.includes(f));
+      if (flagged.length === 0) return null;
+      const parts: string[] = [];
+      if (low.length) parts.push(`Low OCR confidence on ${low.join(", ")}`);
+      if (ungrounded.length) parts.push(`${parts.length ? "e" : "E"}xtracted value not found in the OCR text for ${ungrounded.join(", ")}`);
       return {
         ruleId: "R-14",
         anomalyType: "Low OCR Confidence",
         riskLevel: "Low",
-        points: Math.min(30, 15 * low.length),
-        message: `Low OCR confidence on ${low.join(", ")}; verify against the original.`,
-        evidence: Object.fromEntries(low.map((f) => [f, extraction.fieldConfidence[f]])),
+        points: Math.min(30, 15 * flagged.length),
+        message: `${parts.join("; ")}; verify against the original.`,
+        evidence: {
+          ...Object.fromEntries(low.map((f) => [f, extraction.fieldConfidence[f]])),
+          ...(ungrounded.length ? { notInOcrText: ungrounded } : {}),
+        },
       };
     },
   },

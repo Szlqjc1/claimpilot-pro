@@ -141,6 +141,8 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
       }
     }
     warnings.push(...extraction.warnings);
+    // D-37: deterministic grounding is part of the extraction stage, attached before scoring (R-14 reads it).
+    extraction = { ...extraction, fieldChecks: groundExtraction(extraction, ocr.text) };
 
     // 7. Deterministic risk — the LLM never touches the score.
     const riskInput = await buildRiskInput(claim, extraction);

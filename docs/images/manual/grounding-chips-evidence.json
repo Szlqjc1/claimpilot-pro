@@ -1,0 +1,19 @@
+{
+  "captured": "2026-11-05, pnpm dev (AI_MODE=mock, OCR_MODE=fixture), freshly seeded DB, signed in as Priya Natarajan; CLM-2026-0144 audited in the UI",
+  "header": ["Analyzed", "High · 100", "Assigned · Plant Controller"],
+  "chips": {
+    "vendorName": "✓ found · OCR 0.96",
+    "invoiceNumber": "✓ found · OCR 0.93",
+    "invoiceDate": "✓ found · OCR 0.94",
+    "poNumber": "✓ found · OCR 0.94",
+    "grnNumber": "— not extracted",
+    "projectCode": "✓ found · OCR 0.94",
+    "subtotal": "✓ found · OCR 0.98",
+    "salesTax": "✓ found · OCR 0.99",
+    "total": "✓ found · OCR 0.98"
+  },
+  "legend": ["✓ Found in OCR text, OCR ≥ 0.90", "OCR 0.75 – 0.89", "✗ Not found in OCR text, or OCR < 0.75"],
+  "extractionDiffBanner": false,
+  "provenanceBadge": false,
+  "note": "Mock mode scores the reference extraction, so no diff banner and no provenance chip are expected."
+}

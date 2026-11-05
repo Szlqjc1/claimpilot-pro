@@ -19,7 +19,7 @@ The risk engine (`src/lib/risk/`) is **pure, synchronous and deterministic**. `e
 | R-11 | Travel: lodging > $184/night, airfare > $650, non-economy fare, per diem > $74 | 25 | Medium | Travel Policy Violation | **CLM-0143**: lodging $250/night |
 | R-12 | Entertainment: > $150/head (+25), alcohol (+10), no attendee list (+15) | ≤ 50 | Medium | Entertainment Policy Violation | **CLM-0147**: $306/head + wine + no list = 50 |
 | R-13 | Invoice dated after submission, after project end, or a weekend business meal | 15 | Low | Invoice Date Anomaly | Saturday dinner |
-| R-14 | Critical-field OCR confidence < 0.75 (15 each, capped at 30) | 15–30 | Low | Low OCR Confidence | Total read at 0.68 |
+| R-14 | A **non-null** critical field (vendor, invoice #, invoice date, PO, total) that either (1) is **not found in the OCR text** (deterministic grounding, `src/lib/ai/grounding.ts`), or (2) has **OCR-layer confidence < 0.75** (fixture value for seeded claims, Tesseract page confidence for uploads). 15 per flagged field, capped at 30. A null / absent value never fires it. The model's self-reported confidence is **never** used. Grounding cannot catch an OCR misread that the extractor copies faithfully (the value is in the text and wrong); that class is left to R-10 / R-07 / R-08 and human review (D-37) | 15–30 | Low | Low OCR Confidence | Total read at 0.68 |
 | R-15 | Approval missing or below the matrix level (<$10k Manager, <$50k Director, <$250k VP, else CFO) | 20 | Medium | Approval Threshold Breach | $22k signed by a Manager |
 | R-16 | Currency not USD | 15 | Low | Currency/FX Mismatch | — |
 | R-17 | Remit-to bank differs from the vendor master | 50 | High | Bank Detail Change | Historical "Fifth Coast Bank ••6672" |

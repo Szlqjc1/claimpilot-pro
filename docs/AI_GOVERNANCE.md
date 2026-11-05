@@ -8,7 +8,7 @@ ClaimPilot PRO uses a language model in a payment-approval system. The model may
 
 | Task | Who does it | Where the facts come from | How it is verified |
 |---|---|---|---|
-| **Extraction** (invoice → structured data) | OCR produces text and geometry; DeepSeek structures the text (live), or the seeded fixture (mock) | The document's OCR text only; images are never sent | Zod schema with one repair pass; geometry always from OCR, never the model; fixture fallback on provider failure |
+| **Extraction** (invoice → structured data) | OCR produces text and geometry; DeepSeek structures the text (live), or the seeded fixture (mock) | The document's OCR text only; images are never sent | Zod schema with one repair pass; geometry and confidence always from OCR, never the model; every field grounded against the OCR text; seeded claims score on the reference fixture with the model as a recorded shadow (D-37) |
 | **Judgement** (score, level, decision, routing, review economics) | Deterministic code: `src/lib/risk`, `src/lib/domain/routing.ts`, `src/lib/risk/economics.ts` | SAP master data, policy, the extraction | Pure functions with table-driven tests; the model never sets a score |
 | **Narrative** (finding summary on the claim) | DeepSeek (live) or a template (mock) | The deterministic findings JSON | Prompt forbids adding findings or changing the score; template fallback |
 | **Q&A** (`/ask`) | Deterministic retrieval + template; DeepSeek may rephrase (live) | `Facts` read from the database by `src/lib/ask/retrieve.ts` | Citation check on every claim id, rule id and dollar amount; template fallback |
