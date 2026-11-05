@@ -94,6 +94,12 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
     let extraction: Extraction;
     let ocr: OcrResult;
     let run = { mode: "mock", provider: "fixture", model: "fixture-ocr + deterministic-rules", inputTokens: 0, outputTokens: 0 };
+    // Per-run detail persisted in AiRun.runDetail (D-37). Nothing here feeds the score.
+    const stage: { extract: { latencyMs: number; inputTokens: number; outputTokens: number; repaired: boolean } | null; narrative: { latencyMs: number; inputTokens: number; outputTokens: number } | null } = {
+      extract: null,
+      narrative: null,
+    };
+    let modelExtraction: Extraction | null = null;
 
     if (cfg.mode === "mock") {
       if (!fixture) throw new AuditError(422, "OCR_DISABLED", "Live OCR is disabled in demo mode. Seeded claims use deterministic fixtures.");
@@ -106,6 +112,8 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
       else throw new AuditError(422, "OCR_UNAVAILABLE", "No OCR source for this receipt. Enable OCR_MODE=tesseract for PNG/JPEG uploads.");
       try {
         const live = await extractWithDeepSeek(ocr.text, { category: claim.category }, opts.requestId);
+        modelExtraction = live.extraction;
+        stage.extract = { latencyMs: live.latencyMs, ...live.usage, repaired: live.repaired };
         // Geometry comes from the OCR layer, never from the LLM.
         extraction = { ...live.extraction, boundingBoxes: ocr.boxes };
         run = { mode: "live", provider: "deepseek", model: live.model, inputTokens: live.usage.inputTokens, outputTokens: live.usage.outputTokens };
@@ -134,11 +142,13 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
     let narrative = templateNarrative(result, { claimId, vendorName: claim.vendorName, amountCents });
     if (run.mode === "live") {
       try {
+        const narrativeStarted = Date.now();
         const n = await narrativeWithDeepSeek(
           JSON.stringify({ score: result.score, riskLevel: result.riskLevel, decision: result.decision, findings: result.findings.map((f) => ({ ruleId: f.ruleId, anomalyType: f.anomalyType, points: f.points, message: f.message })) }),
           opts.requestId,
         );
         narrative = n.narrative;
+        stage.narrative = { latencyMs: Date.now() - narrativeStarted, ...n.usage };
         run.inputTokens += n.usage.inputTokens;
         run.outputTokens += n.usage.outputTokens;
       } catch {
@@ -172,6 +182,13 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
       warnings,
     };
     const confidences = Object.values(extraction.fieldConfidence);
+    // Provenance (D-37): which extraction was scored. Written on the claim (list views) and the run (history).
+    const extractionSource = run.mode === "live" ? "model" : run.mode === "fallback" ? "fallback" : "fixture";
+    const runDetail = {
+      modelExtraction,
+      modelConfidence: modelExtraction ? { note: "model-reported, uncalibrated", fieldConfidence: modelExtraction.fieldConfidence } : null,
+      stageMetrics: { ocrSource: ocr.source, ocrConfidence: ocr.confidence, extract: stage.extract, narrative: stage.narrative, totalLatencyMs: latencyMs },
+    };
 
     // 10. One transaction: claim update, exceptions, audit log, AI run. All or nothing.
     try {
@@ -191,6 +208,7 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
             assignedRole: assignment?.role ?? null,
             assignedTo: assignment?.owner ?? null,
             assignedAt: assignment ? analyzedAt : null,
+            extractionSource,
           },
         });
         if (updated.count !== 1) throw new AuditError(409, "CLAIM_NOT_PENDING", "Claim was analyzed by a concurrent request", { currentStatus: "Analyzed" });
@@ -221,6 +239,9 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
             idempotencyKey: guardKey,
             requestKey: opts.idempotencyKey ?? null,
             responseJson: JSON.stringify(response),
+            extractionSource,
+            ocrConfidence: ocr.confidence,
+            runDetail: runDetail as Prisma.InputJsonValue,
           },
         });
       });

@@ -45,6 +45,8 @@ model Claim {
   assignedRole  String?
   assignedTo    String?
   assignedAt    DateTime?
+  /// Which extraction the score was computed from: fixture | model | fallback (D-37). Null = before provenance tracking.
+  extractionSource String?
   ocrText       String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -211,6 +213,12 @@ model AiRun {
   idempotencyKey String   @unique // claimId + receiptHash + promptVersion
   requestKey     String?  @unique // client Idempotency-Key header
   responseJson   String? // stored response for idempotent replay
+  /// fixture | model | fallback: the extraction that was scored (D-37); also on Claim for list views.
+  extractionSource String?
+  /// Mean OCR-layer confidence (fixture or Tesseract), never the model's self-report (D-37).
+  ocrConfidence  Float?
+  /// Per-run detail for reconstruction: modelExtraction, extractionDiff, fieldChecks, modelConfidence, stageMetrics (D-37).
+  runDetail      Json?
   createdAt      DateTime @default(now())
 
   claim Claim @relation(fields: [claimId], references: [claimId], onDelete: Cascade)
