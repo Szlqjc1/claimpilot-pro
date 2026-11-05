@@ -127,8 +127,10 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
           const differing = Object.entries(extractionDiff).filter(([, d]) => !d.match).map(([f]) => f);
           if (differing.length) warnings.push(`Model extraction differs from the reference on ${differing.length} field(s): ${differing.join(", ")}. Scored on the reference extraction.`);
         } else {
-          // Upload: no known answer, so the model's extraction is scored. Geometry comes from the OCR layer, never the LLM.
-          extraction = { ...live.extraction, boundingBoxes: ocr.boxes };
+          // Upload: no known answer, so the model's extraction is scored. Geometry and confidence come from the OCR
+          // layer, never the LLM (D-37): the model's self-reported numbers are kept in runDetail.modelConfidence only.
+          const ocrConf = Object.fromEntries(Object.keys(live.extraction.fieldConfidence).map((k) => [k, ocr.confidence]));
+          extraction = { ...live.extraction, boundingBoxes: ocr.boxes, fieldConfidence: ocrConf, vendor: { ...live.extraction.vendor, confidence: ocr.confidence } };
         }
       } catch (err) {
         if (!(err instanceof ProviderError)) throw err;
@@ -169,7 +171,7 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
     }
 
     // 9. Annotated SVG.
-    await writeReceiptFile(claimId, "analyzed.svg", annotateReceipt({ data: receipt, mime }, extraction));
+    await writeReceiptFile(claimId, "analyzed.svg", annotateReceipt({ data: receipt, mime }, extraction, ocr.text));
 
     const analyzedAt = new Date();
     const entry = auditEntryFor(result.findings, claim.department);

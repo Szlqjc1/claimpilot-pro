@@ -27,14 +27,18 @@ export function AnnotatedInvoice({ src, claimId }: { src: string; claimId: strin
           {/* eslint-disable-next-line @next/next/no-img-element -- generated SVG streamed from the receipts API */}
           <img src={src} alt={`AI-annotated invoice for ${claimId} with labeled field boxes`} className="mx-auto block w-full rounded bg-white" />
         </div>
-        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted" title="Simulated extraction quality (demo)">
+        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted" title="Grounding against the OCR text and OCR-layer confidence; the model's self-reported confidence is never shown here">
           <span className="font-medium text-ink">Legend</span>
-          {(["high", "medium", "low"] as const).map((b) => (
-            <span key={b} className="inline-flex items-center gap-1.5">
-              <span aria-hidden className="h-3 w-3 rounded-sm border-2" style={{ borderColor: CONFIDENCE_COLORS[b].stroke }} />
-              {b === "high" ? "High" : b === "medium" ? "Medium" : "Low"} confidence ({CONFIDENCE_COLORS[b].label})
-            </span>
-          ))}
+          <span className="inline-flex items-center gap-1.5">
+            <span aria-hidden className="h-3 w-3 rounded-sm border-2" style={{ borderColor: CONFIDENCE_COLORS.high.stroke }} />✓ Found in OCR text, OCR ≥ 0.90
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span aria-hidden className="h-3 w-3 rounded-sm border-2" style={{ borderColor: CONFIDENCE_COLORS.medium.stroke }} />
+            OCR 0.75 – 0.89
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span aria-hidden className="h-3 w-3 rounded-sm border-2" style={{ borderColor: CONFIDENCE_COLORS.low.stroke }} />✗ Not found in OCR text, or OCR &lt; 0.75
+          </span>
           <span className="ml-auto italic">Overlay is AI-generated — demo data.</span>
         </div>
       </CardContent>

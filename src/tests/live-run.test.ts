@@ -13,7 +13,14 @@ vi.mock("@/lib/ai/deepseek", async (importOriginal) => ({
   narrativeWithDeepSeek: async () => ({ narrative: "Stub narrative.", usage: { inputTokens: 11, outputTokens: 7 } }),
 }));
 
+let tesseract: () => Promise<{ text: string; confidence: number; boxes: []; source: "tesseract" }>;
+vi.mock("@/lib/ai/ocr", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/ai/ocr")>()),
+  ocrWithTesseract: () => tesseract(),
+}));
+
 const { runAudit } = await import("@/lib/audit/run-audit");
+const { writeReceiptFile } = await import("@/lib/receipts/storage");
 const { loadFixture } = await import("@/lib/ai/ocr");
 const { buildRiskInput } = await import("@/lib/audit/run-audit");
 const { evaluateRisk } = await import("@/lib/risk/score");
@@ -97,6 +104,38 @@ describe("item 3: seeded claims score on the reference; the model is a shadow", 
     const run = await prisma.aiRun.findFirstOrThrow({ where: { claimId }, orderBy: { createdAt: "desc" } });
     expect(run).toMatchObject({ mode: "fallback", extractionSource: "fallback" });
     expect((await prisma.claim.findUniqueOrThrow({ where: { claimId } })).extractionSource).toBe("fallback");
+  });
+});
+
+describe("item 4: confidence on a scored extraction is the OCR layer's, never the model's", () => {
+  it("a live upload whose model reports total at 0.40 does not fire R-14; the model's number survives only in runDetail", async () => {
+    process.env.OCR_MODE = "tesseract";
+    try {
+      const ref = (await loadFixture("CLM-2026-0142"))!;
+      const claimId = `CLM-9${String(Date.now()).slice(-3)}-${String(Math.floor(Math.random() * 9000) + 1000)}`;
+      await prisma.claim.create({
+        data: {
+          claimId, employee: "Marcus Reed", department: "R&D Engineering", category: "R&D Track Testing", amount: "14500.00", status: "Pending",
+          originalReceipt: `/api/receipts/${claimId}/original`, vendorName: "Midwest Proving Grounds LLC", source: "upload", submittedAt: new Date("2026-10-30T12:00:00Z"),
+          receiptName: "upload.png", receiptMime: "image/png",
+        },
+      });
+      await writeReceiptFile(claimId, "upload.png", Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0]));
+      tesseract = async () => ({ text: ref.ocrText, confidence: 0.91, boxes: [], source: "tesseract" });
+      const model = { ...ref.extraction, fieldConfidence: { ...Object.fromEntries(Object.keys(ref.extraction.fieldConfidence).map((k) => [k, 0.95])), total: 0.4 } };
+      extract = async () => ({ extraction: model, usage: { inputTokens: 900, outputTokens: 250 }, latencyMs: 4100, model: "deepseek-chat", repaired: false });
+
+      const res = await runAudit(claimId, { requestId: "test-live-4" });
+      expect(res.exceptions.map((e) => e.ruleId)).not.toContain("R-14");
+      const stored = await prisma.claim.findUniqueOrThrow({ where: { claimId } });
+      expect(stored.extractionSource).toBe("model");
+      expect(JSON.parse(stored.extractedData!).fieldConfidence.total).toBe(0.91);
+      const run = await prisma.aiRun.findFirstOrThrow({ where: { claimId }, orderBy: { createdAt: "desc" } });
+      expect((run.runDetail as { modelConfidence: { fieldConfidence: Record<string, number> } }).modelConfidence.fieldConfidence.total).toBe(0.4);
+      expect(run.ocrConfidence).toBe(0.91);
+    } finally {
+      process.env.OCR_MODE = "fixture";
+    }
   });
 });
 

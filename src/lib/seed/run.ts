@@ -259,7 +259,7 @@ export async function seedDatabase(prisma: PrismaClient, opts: { log?: (msg: str
     if (c.status !== "Pending") {
       result = evaluateRisk(seedRiskInput(plan, c));
       analyzedAt = new Date(c.submittedAt.getTime() + (c.cycleHours ?? 4) * 3_600_000);
-      const annotated = annotateReceipt({ data: Buffer.from(svg), mime: "image/svg+xml" }, fixture.extraction);
+      const annotated = annotateReceipt({ data: Buffer.from(svg), mime: "image/svg+xml" }, fixture.extraction, fixture.ocrText);
       await writeReceiptFile(c.claimId, "analyzed.svg", annotated);
       if (result.findings.length > 0) flagged++;
       if (!c.plannedAnomaly && result.findings.length > 0) unexpected.push(`${c.claimId} (${c.category}): ${result.findings.map((f) => f.ruleId).join(",")}`);

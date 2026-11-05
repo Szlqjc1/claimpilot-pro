@@ -1,26 +1,39 @@
 import { Braces, FileWarning } from "lucide-react";
 import type { Extraction } from "@/lib/domain/schemas";
-import { CONFIDENCE_COLORS, FIELD_LABELS, confidenceBand, fieldValue } from "@/lib/domain/fields";
+import { FIELD_LABELS, chipFor, fieldValue } from "@/lib/domain/fields";
+import type { FieldCheck } from "@/lib/ai/grounding";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 const usd = (n: number | null) => (n === null ? "—" : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n));
 
-function ConfidenceChip({ field, value }: { field: string; value: number | undefined }) {
-  if (value === undefined) return null;
-  const band = confidenceBand(value);
-  const c = CONFIDENCE_COLORS[band];
+function GroundingChip({ field, check, ocr }: { field: string; check: FieldCheck | undefined; ocr: number | undefined }) {
+  if (check === undefined && ocr === undefined) return null;
+  const chip = chipFor(check, ocr);
   return (
-    <span className="tabular inline-flex items-center gap-1 rounded-full border px-1.5 text-[11px]" style={{ borderColor: c.stroke, color: c.text, background: c.fill }} title="Simulated extraction quality (demo)">
-      <span aria-hidden className="h-1.5 w-1.5 rounded-full" style={{ background: c.stroke }} />
-      {value.toFixed(2)}
-      <span className="sr-only"> {FIELD_LABELS[field] ?? field} simulated confidence ({band})</span>
+    <span
+      className="tabular inline-flex items-center gap-1 rounded-full border px-1.5 text-[11px]"
+      style={{ borderColor: chip.colors.stroke, color: chip.colors.text, background: chip.colors.fill }}
+      title="Is the value in the OCR text? · OCR-layer confidence (fixture or Tesseract), never the model's self-report"
+      data-testid={`chip-${field}`}
+    >
+      {chip.text}
+      <span className="sr-only"> for {FIELD_LABELS[field] ?? field}</span>
     </span>
   );
 }
 
 /** "AI Structured Data" — connected to Extracted_Data. Rendered only for Status === "Analyzed". */
-export function AiStructuredData({ result, raw }: { result: { ok: true; data: Extraction } | { ok: false; error: string } | null; raw: string | null }) {
+export function AiStructuredData({
+  result,
+  raw,
+  checks,
+}: {
+  result: { ok: true; data: Extraction } | { ok: false; error: string } | null;
+  raw: string | null;
+  /** Grounding of the scored extraction against the stored OCR text (D-37); null when no OCR text is stored. */
+  checks: Record<string, FieldCheck> | null;
+}) {
   return (
     <Card data-testid="ai-structured-data">
       <CardHeader>
@@ -41,14 +54,14 @@ export function AiStructuredData({ result, raw }: { result: { ok: true; data: Ex
             </div>
           </div>
         ) : (
-          <ExtractionBody e={result.data} raw={raw} />
+          <ExtractionBody e={result.data} raw={raw} checks={checks} />
         )}
       </CardContent>
     </Card>
   );
 }
 
-function ExtractionBody({ e, raw }: { e: Extraction; raw: string | null }) {
+function ExtractionBody({ e, raw, checks }: { e: Extraction; raw: string | null; checks: Record<string, FieldCheck> | null }) {
   const summary: [string, string, string | null][] = [
     ["Vendor", e.vendor.name ?? "—", "vendorName"],
     ["Invoice #", e.invoiceNumber ?? "—", "invoiceNumber"],
@@ -75,7 +88,7 @@ function ExtractionBody({ e, raw }: { e: Extraction; raw: string | null }) {
         {summary.map(([label, value, field]) => (
           <div key={label} className="min-w-0">
             <dt className="flex items-center gap-1.5 text-xs text-muted">
-              {label} {field && <ConfidenceChip field={field} value={e.fieldConfidence[field]} />}
+              {label} {field && <GroundingChip field={field} check={checks?.[field]} ocr={e.fieldConfidence[field]} />}
             </dt>
             <dd className={`truncate font-medium ${label === "Total" ? "tabular text-[15px]" : "text-[13px]"} ${/[#.]|PO|GRN|Project/.test(label) ? "font-mono" : ""}`} title={value}>
               {value}

@@ -28,6 +28,21 @@ export const CONFIDENCE_COLORS: Record<ConfidenceBand, { stroke: string; fill: s
   low: { stroke: "#b42318", fill: "#fef3f2", text: "#912018", label: "< 0.75" },
 };
 
+/** Neutral styling for a field that was not extracted (null). */
+export const NOT_EXTRACTED_COLORS = { stroke: "#98a2b3", fill: "#f8fafc", text: "#475467" } as const;
+
+/**
+ * D-37 chip: grounding state + the OCR layer's confidence (fixture or Tesseract), never the model's self-report.
+ * Red when the value is not in the OCR text or OCR < 0.75 (the R-14 triggers), amber 0.75-0.89, green otherwise.
+ */
+export function chipFor(check: "found" | "not_found" | "not_extracted" | undefined, ocrConfidence: number | undefined) {
+  if (check === "not_extracted") return { text: "— not extracted", band: null, colors: NOT_EXTRACTED_COLORS };
+  const ocr = ocrConfidence !== undefined ? ` · OCR ${ocrConfidence.toFixed(2)}` : "";
+  const band: ConfidenceBand = check === "not_found" ? "low" : confidenceBand(ocrConfidence);
+  const mark = check === "not_found" ? "✗ not found" : check === "found" ? "✓ found" : "OCR";
+  return { text: check === undefined ? `OCR ${ocrConfidence?.toFixed(2) ?? "n/a"}` : `${mark}${ocr}`, band, colors: CONFIDENCE_COLORS[band] };
+}
+
 const usd = (n: number | null) =>
   n === null ? "—" : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
 

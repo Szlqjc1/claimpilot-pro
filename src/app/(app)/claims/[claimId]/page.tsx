@@ -7,6 +7,7 @@ import { AlertTriangle, FolderKanban, Send } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { claimIdSchema, parseExtractedData } from "@/lib/domain/schemas";
 import { FIELD_LABELS } from "@/lib/domain/fields";
+import { groundExtraction } from "@/lib/ai/grounding";
 import { formatUsd, toCents } from "@/lib/domain/money";
 import { formatEt } from "@/lib/domain/dates";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -46,6 +47,7 @@ export default async function ClaimReviewPage({ params }: { params: Params }) {
   // AI blocks exist in the DOM only once the claim has been analyzed (Analyzed or Posted) — DECISIONS D-19.
   const showAi = claim.status !== "Pending";
   const lastRun = claim.aiRuns[0] ?? null;
+  const extracted = parseExtractedData(claim.extractedData);
   // D-37: fields where the live model disagreed with the reference extraction (seeded claims, shadow run).
   const diff = (lastRun?.runDetail as { extractionDiff?: Record<string, { match: boolean }> | null } | null)?.extractionDiff ?? null;
   const differing = diff ? Object.entries(diff).filter(([, d]) => !d.match).map(([f]) => FIELD_LABELS[f] ?? f) : [];
@@ -170,7 +172,7 @@ export default async function ClaimReviewPage({ params }: { params: Params }) {
 
           {showAi ? (
             <>
-              <AiStructuredData result={parseExtractedData(claim.extractedData)} raw={claim.extractedData} />
+              <AiStructuredData result={extracted} raw={claim.extractedData} checks={extracted?.ok && claim.ocrText ? groundExtraction(extracted.data, claim.ocrText) : null} />
               {claim.aiAnalyzedReceipt && <AnnotatedInvoice src={claim.aiAnalyzedReceipt} claimId={claim.claimId} />}
             </>
           ) : (
