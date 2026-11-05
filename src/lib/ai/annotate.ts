@@ -1,6 +1,7 @@
 import type { Extraction } from "@/lib/domain/schemas";
 import { CONFIDENCE_COLORS, FIELD_LABELS, chipFor, fieldValue } from "@/lib/domain/fields";
 import { checkField, GROUNDED_FIELDS, type GroundedField } from "./grounding";
+import { OCR_SOURCE_LABEL, type OcrSource } from "@/lib/domain/ocr-source";
 
 const W = 1200;
 const H = 1600;
@@ -15,7 +16,12 @@ const trunc = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1)}…
  * The original is embedded as a data URI because SVG-as-image cannot fetch external resources.
  * Boxes are drawn only when the OCR layer supplied geometry; otherwise a "Fields extracted" panel is shown.
  */
-export function annotateReceipt(original: { data: Buffer; mime: string }, extraction: Extraction, ocrText: string | null = null): string {
+export function annotateReceipt(
+  original: { data: Buffer; mime: string },
+  extraction: Extraction,
+  ocrText: string | null = null,
+  ocrSource: OcrSource = "fixture",
+): string {
   // D-37: colour = grounding against the OCR text + OCR-layer confidence (never the model's self-report).
   const chip = (field: string) =>
     chipFor(
@@ -70,7 +76,7 @@ export function annotateReceipt(original: { data: Buffer; mime: string }, extrac
     parts.push(`<rect x="${x}" y="${ly + 34}" width="16" height="16" rx="3" fill="${c.stroke}"/>`);
     parts.push(`<text x="${x + 22}" y="${ly + 47}" font-size="12.5" font-family="Helvetica, Arial, sans-serif" fill="#344054">${esc(text)}</text>`);
   });
-  parts.push(`<text x="${lx + 14}" y="${ly + 80}" font-size="12.5" font-family="Helvetica, Arial, sans-serif" fill="#667085">AI-generated overlay — demo data</text>`);
+  parts.push(`<text x="${lx + 14}" y="${ly + 80}" font-size="12.5" font-family="Helvetica, Arial, sans-serif" fill="#667085">${esc(ocrSource === "fixture" ? "OCR numbers simulated (demo fixture), not measured" : OCR_SOURCE_LABEL.tesseract.title)}</text>`);
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="AI-annotated invoice">${parts.join("")}</svg>`;
 }

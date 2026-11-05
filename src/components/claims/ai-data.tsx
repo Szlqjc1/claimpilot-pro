@@ -2,23 +2,27 @@ import { Braces, FileWarning } from "lucide-react";
 import type { Extraction } from "@/lib/domain/schemas";
 import { FIELD_LABELS, chipFor, fieldValue } from "@/lib/domain/fields";
 import type { FieldCheck } from "@/lib/ai/grounding";
+import { OCR_SOURCE_LABEL, type OcrSource } from "@/lib/domain/ocr-source";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 const usd = (n: number | null) => (n === null ? "—" : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n));
 
-function GroundingChip({ field, check, ocr }: { field: string; check: FieldCheck | undefined; ocr: number | undefined }) {
+function GroundingChip({ field, check, ocr, source }: { field: string; check: FieldCheck | undefined; ocr: number | undefined; source: OcrSource }) {
   if (check === undefined && ocr === undefined) return null;
   const chip = chipFor(check, ocr);
   return (
     <span
       className="tabular inline-flex items-center gap-1 rounded-full border px-1.5 text-[11px]"
       style={{ borderColor: chip.colors.stroke, color: chip.colors.text, background: chip.colors.fill }}
-      title="Is the value in the OCR text? · OCR-layer confidence (fixture or Tesseract), never the model's self-report"
+      title={`Is the value in the OCR text? · ${OCR_SOURCE_LABEL[source].title}; never the model's self-report`}
       data-testid={`chip-${field}`}
     >
       {chip.text}
-      <span className="sr-only"> for {FIELD_LABELS[field] ?? field}</span>
+      <span className="sr-only">
+        {" "}
+        for {FIELD_LABELS[field] ?? field}. {OCR_SOURCE_LABEL[source].title}.
+      </span>
     </span>
   );
 }
@@ -28,9 +32,12 @@ export function AiStructuredData({
   result,
   raw,
   checks,
+  ocrSource,
 }: {
   result: { ok: true; data: Extraction } | { ok: false; error: string } | null;
   raw: string | null;
+  /** Where the OCR layer (and its confidence numbers) came from: simulated fixture or Tesseract. */
+  ocrSource: OcrSource;
   /** Grounding of the scored extraction against the stored OCR text (D-37); null when no OCR text is stored. */
   checks: Record<string, FieldCheck> | null;
 }) {
@@ -41,7 +48,12 @@ export function AiStructuredData({
           <CardTitle className="flex items-center gap-2">
             <Braces className="h-4 w-4 text-info" aria-hidden /> AI Structured Data
           </CardTitle>
-          <CardDescription>Extracted_Data · OCR + LLM extraction, validated by schema</CardDescription>
+          <CardDescription>
+            Extracted_Data · OCR + LLM extraction, validated by schema ·{" "}
+            <span className="font-medium text-ink" title={OCR_SOURCE_LABEL[ocrSource].title} data-testid="ocr-source">
+              {OCR_SOURCE_LABEL[ocrSource].short}
+            </span>
+          </CardDescription>
         </div>
       </CardHeader>
       <CardContent>
@@ -54,14 +66,14 @@ export function AiStructuredData({
             </div>
           </div>
         ) : (
-          <ExtractionBody e={result.data} raw={raw} checks={checks} />
+          <ExtractionBody e={result.data} raw={raw} checks={checks} ocrSource={ocrSource} />
         )}
       </CardContent>
     </Card>
   );
 }
 
-function ExtractionBody({ e, raw, checks }: { e: Extraction; raw: string | null; checks: Record<string, FieldCheck> | null }) {
+function ExtractionBody({ e, raw, checks, ocrSource }: { e: Extraction; raw: string | null; checks: Record<string, FieldCheck> | null; ocrSource: OcrSource }) {
   const summary: [string, string, string | null][] = [
     ["Vendor", e.vendor.name ?? "—", "vendorName"],
     ["Invoice #", e.invoiceNumber ?? "—", "invoiceNumber"],
@@ -88,7 +100,7 @@ function ExtractionBody({ e, raw, checks }: { e: Extraction; raw: string | null;
         {summary.map(([label, value, field]) => (
           <div key={label} className="min-w-0">
             <dt className="flex items-center gap-1.5 text-xs text-muted">
-              {label} {field && <GroundingChip field={field} check={checks?.[field]} ocr={e.fieldConfidence[field]} />}
+              {label} {field && <GroundingChip field={field} check={checks?.[field]} ocr={e.fieldConfidence[field]} source={ocrSource} />}
             </dt>
             <dd className={`truncate font-medium ${label === "Total" ? "tabular text-[15px]" : "text-[13px]"} ${/[#.]|PO|GRN|Project/.test(label) ? "font-mono" : ""}`} title={value}>
               {value}
@@ -142,6 +154,9 @@ function ExtractionBody({ e, raw, checks }: { e: Extraction; raw: string | null;
       )}
       <details className="group rounded-lg border border-line">
         <summary className="cursor-pointer px-3 py-2 text-[13px] font-medium text-info">View raw JSON</summary>
+        <p className="border-t border-line px-3 py-2 text-xs text-muted">
+          <span className="font-mono">fieldConfidence</span>: {OCR_SOURCE_LABEL[ocrSource].title}.
+        </p>
         <pre className="max-h-80 overflow-auto border-t border-line bg-slate-950 p-3 text-[11px] leading-relaxed text-slate-100">{pretty}</pre>
       </details>
     </div>

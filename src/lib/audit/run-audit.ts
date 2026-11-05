@@ -173,7 +173,7 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
     }
 
     // 9. Annotated SVG.
-    await writeReceiptFile(claimId, "analyzed.svg", annotateReceipt({ data: receipt, mime }, extraction, ocr.text));
+    await writeReceiptFile(claimId, "analyzed.svg", annotateReceipt({ data: receipt, mime }, extraction, ocr.text, ocr.source));
 
     const analyzedAt = new Date();
     const entry = auditEntryFor(result.findings, claim.department);

@@ -6,9 +6,10 @@ import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { DecisionBadge, RiskBadge } from "./badges";
 import { ExceptionActions } from "./exception-actions";
+import { OCR_SOURCE_LABEL, type OcrSource } from "@/lib/domain/ocr-source";
 
 /** "AI-Annotated Invoice" — image connected to AI_Analyzed_Receipt. Rendered only for Status === "Analyzed". */
-export function AnnotatedInvoice({ src, claimId }: { src: string; claimId: string }) {
+export function AnnotatedInvoice({ src, claimId, ocrSource }: { src: string; claimId: string; ocrSource: OcrSource }) {
   return (
     <Card data-testid="ai-annotated-invoice">
       <CardHeader>
@@ -29,6 +30,9 @@ export function AnnotatedInvoice({ src, claimId }: { src: string; claimId: strin
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted" title="Grounding against the OCR text and OCR-layer confidence; the model's self-reported confidence is never shown here">
           <span className="font-medium text-ink">Legend</span>
+          <span className="w-full" data-testid="annotated-ocr-source">
+            OCR numbers: <span className="font-medium text-ink">{OCR_SOURCE_LABEL[ocrSource].title}</span>
+          </span>
           <span className="inline-flex items-center gap-1.5">
             <span aria-hidden className="h-3 w-3 rounded-sm border-2" style={{ borderColor: CONFIDENCE_COLORS.high.stroke }} />✓ Found in OCR text, OCR ≥ 0.90
           </span>

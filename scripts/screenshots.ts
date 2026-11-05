@@ -95,6 +95,17 @@ async function main() {
     await page.screenshot({ path: path.join(OUT, "claim-analyzed.png") });
     console.log("✔ audit-frames/03-done.png, claim-analyzed.png");
 
+    // The annotated invoice sits below the 1440x900 fold: capture the card itself, not the page.
+    const annotated = page.locator('[data-testid="ai-annotated-invoice"]');
+    // The sticky topbar would overlap the card's header in an element shot; let it scroll away for this capture.
+    const unstick = await page.addStyleTag({ content: "header.sticky { position: static !important; }" });
+    await annotated.scrollIntoViewIfNeeded();
+    await annotated.locator("img").evaluate((img: HTMLImageElement) => (img.complete ? null : new Promise((r) => img.addEventListener("load", r, { once: true }))));
+    await annotated.screenshot({ path: path.join(OUT, "annotated-invoice.png") });
+    console.log("✔ annotated-invoice.png");
+    await unstick.evaluate((el) => el.remove());
+    await page.evaluate(() => window.scrollTo(0, 0));
+
     await page.getByText("How this was calculated").click();
     const riskCard = page.locator("section", { has: page.locator("#risk-title") });
     await riskCard.scrollIntoViewIfNeeded();

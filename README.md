@@ -72,8 +72,8 @@ Captured with `pnpm shots` (Playwright, 1440×900, against a running server with
 | **Audit log**: append-only trail; system rows show who initiated them | **Exceptions**: a handled exception shows who handled it |
 | ![Sign-in page](docs/images/login.png) | |
 | **Sign in**: every page requires a session; demo accounts listed | |
-| ![Queue](docs/images/queue.png) | |
-| **Queue**: assigned work by stage, plus an Unassigned section | |
+| ![Queue](docs/images/queue.png) | ![AI-annotated invoice](docs/images/annotated-invoice.png) |
+| **Queue**: assigned work by stage, plus an Unassigned section | **AI-annotated invoice**: green = found in the OCR text with OCR confidence ≥ 0.90, amber = 0.75–0.89, red = not found in the OCR text or OCR < 0.75. For seeded claims the OCR numbers are simulated (demo fixture), not measured; the card and the image say so |
 | ![Review cost curve](docs/images/cost-curve.svg) | |
 | **Review economics**: total cost vs review capacity; the minimum sits where marginal expected loss crosses the $18 review cost | |
 

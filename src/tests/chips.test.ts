@@ -25,3 +25,21 @@ describe("annotated invoice", () => {
     expect(svg).not.toContain(">OCR confidence<");
   });
 });
+
+describe("OCR source disclosure (D-25 / D-37)", () => {
+  it("seeded claims are labelled as simulated fixture confidence, uploads as Tesseract page-level", async () => {
+    const { ocrSourceOf, OCR_SOURCE_LABEL } = await import("@/lib/domain/ocr-source");
+    expect(ocrSourceOf("seed")).toBe("fixture");
+    expect(ocrSourceOf("upload")).toBe("tesseract");
+    expect(OCR_SOURCE_LABEL.fixture).toEqual({ short: "OCR: fixture (simulated)", title: "Simulated OCR confidence (demo fixture) — not a measurement" });
+    expect(OCR_SOURCE_LABEL.tesseract.title).toBe("Tesseract page-level confidence");
+  });
+
+  it("the annotated invoice image itself states where its numbers came from", async () => {
+    const f = (await loadFixture("CLM-2026-0144"))!;
+    const img = { data: Buffer.from("<svg/>"), mime: "image/svg+xml" };
+    expect(annotateReceipt(img, f.extraction, f.ocrText, "fixture")).toContain("OCR numbers simulated (demo fixture), not measured");
+    expect(annotateReceipt(img, f.extraction, f.ocrText, "tesseract")).toContain("Tesseract page-level confidence");
+    expect(annotateReceipt(img, f.extraction, f.ocrText, "fixture")).not.toContain("AI-generated overlay — demo data");
+  });
+});

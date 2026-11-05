@@ -8,6 +8,7 @@ import { prisma } from "@/lib/db";
 import { claimIdSchema, parseExtractedData } from "@/lib/domain/schemas";
 import { FIELD_LABELS } from "@/lib/domain/fields";
 import { groundExtraction } from "@/lib/ai/grounding";
+import { ocrSourceOf } from "@/lib/domain/ocr-source";
 import { formatUsd, toCents } from "@/lib/domain/money";
 import { formatEt } from "@/lib/domain/dates";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -172,8 +173,8 @@ export default async function ClaimReviewPage({ params }: { params: Params }) {
 
           {showAi ? (
             <>
-              <AiStructuredData result={extracted} raw={claim.extractedData} checks={extracted?.ok && claim.ocrText ? groundExtraction(extracted.data, claim.ocrText) : null} />
-              {claim.aiAnalyzedReceipt && <AnnotatedInvoice src={claim.aiAnalyzedReceipt} claimId={claim.claimId} />}
+              <AiStructuredData result={extracted} raw={claim.extractedData} checks={extracted?.ok && claim.ocrText ? groundExtraction(extracted.data, claim.ocrText) : null} ocrSource={ocrSourceOf(claim.source)} />
+              {claim.aiAnalyzedReceipt && <AnnotatedInvoice src={claim.aiAnalyzedReceipt} claimId={claim.claimId} ocrSource={ocrSourceOf(claim.source)} />}
             </>
           ) : (
             <LockedPlaceholder />
