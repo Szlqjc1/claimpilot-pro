@@ -8,7 +8,7 @@ import { PageHeader } from "@/components/shell/page-header";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import { buttonVariants } from "@/components/ui/button";
-import { DecisionBadge, RiskBadge } from "@/components/claims/badges";
+import { DecisionBadge, ProvenanceBadge, RiskBadge } from "@/components/claims/badges";
 
 export const metadata: Metadata = { title: "Queue" };
 export const dynamic = "force-dynamic";
@@ -36,7 +36,7 @@ function Rows({ rows, stage, readOnly, empty }: { rows: QueueRow[]; stage: Queue
         {rows.map((r) => (
           <TR key={r.claimId}>
             <TD className="whitespace-nowrap">
-              <span className="font-mono text-xs font-medium">{r.claimId}</span>
+              <span className="font-mono text-xs font-medium">{r.claimId}</span> <ProvenanceBadge source={r.extractionSource} />
               <span className="block text-[11px] text-muted">
                 {r.employee} · {formatEt(r.submittedAt)}
               </span>

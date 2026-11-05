@@ -1,5 +1,6 @@
 import { AlertTriangle, CheckCircle2, CircleDot, Clock, ShieldAlert, ShieldCheck, UserRoundCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { provenanceLabel } from "@/lib/domain/provenance";
 
 // Badges always carry a text label — color is never the only signal.
 
@@ -54,3 +55,14 @@ export function AssignedBadge({ role, owner }: { role: string; owner: string | n
     </Badge>
   );
 }
+
+export function ProvenanceBadge({ source }: { source: string | null | undefined }) {
+  const p = provenanceLabel(source);
+  if (!p) return null;
+  return (
+    <Badge tone={source === "model" ? "blue" : "amber"} title={p.title} data-testid="provenance-badge">
+      {p.label}
+    </Badge>
+  );
+}
+

@@ -11,7 +11,7 @@ import { formatUsd, toCents } from "@/lib/domain/money";
 import { formatEt } from "@/lib/domain/dates";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AssignedBadge, RiskBadge, StatusBadge } from "@/components/claims/badges";
+import { AssignedBadge, ProvenanceBadge, RiskBadge, StatusBadge } from "@/components/claims/badges";
 import { ReceiptViewer } from "@/components/claims/receipt-viewer";
 import { AiStructuredData } from "@/components/claims/ai-data";
 import { AnnotatedInvoice, AuditTimeline, ExceptionsTable, LockedPlaceholder, RiskPanel } from "@/components/claims/panels";
@@ -69,6 +69,7 @@ export default async function ClaimReviewPage({ params }: { params: Params }) {
           <StatusBadge status={claim.status} />
           {claim.riskLevel && <RiskBadge level={claim.riskLevel} score={claim.riskScore} />}
           {claim.assignedRole && <AssignedBadge role={claim.assignedRole} owner={claim.assignedTo} />}
+          <ProvenanceBadge source={claim.extractionSource} />
           <p className="tabular text-3xl font-semibold tracking-tight" aria-label={`Amount ${formatUsd(amountCents)}`}>
             {formatUsd(amountCents)}
           </p>

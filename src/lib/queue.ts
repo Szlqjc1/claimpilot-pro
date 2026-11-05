@@ -26,6 +26,7 @@ export type QueueRow = {
   assignedTo: string | null;
   openExceptions: number;
   submittedAt: Date;
+  extractionSource: string | null;
 };
 export type QueueGroups = Record<QueueStage, QueueRow[]>;
 export type Queue = { mode: "reviewer"; mine: QueueGroups; unassigned: QueueGroups } | { mode: "requester"; mine: QueueGroups };
@@ -61,6 +62,7 @@ async function loadRows(where: Prisma.ClaimWhereInput): Promise<QueueRow[]> {
       assignedRole: true,
       assignedTo: true,
       submittedAt: true,
+      extractionSource: true,
       _count: { select: { exceptions: { where: { status: "Open" } } } },
     },
   });

@@ -10,7 +10,7 @@ const ids = (g: QueueGroups) => ({ pending: g.pending.map((r) => r.claimId), dis
 describe("groupQueue (pure)", () => {
   const row = (claimId: string, status: string, openExceptions: number, day: number): QueueRow => ({
     claimId, employee: "x", vendorName: "v", amountCents: 100, status, riskLevel: null, riskScore: null, decision: null,
-    assignedRole: null, assignedTo: null, openExceptions, submittedAt: new Date(Date.UTC(2026, 9, day)),
+    assignedRole: null, assignedTo: null, openExceptions, submittedAt: new Date(Date.UTC(2026, 9, day)), extractionSource: null,
   });
   it("Pending → pending audit; Analyzed with open exceptions → disposition; Analyzed with none → ready; Posted dropped; oldest first", () => {
     const g = groupQueue([row("C", "Analyzed", 0, 3), row("A", "Pending", 0, 2), row("B", "Analyzed", 2, 1), row("D", "Posted", 0, 1), row("E", "Pending", 0, 1)]);
@@ -29,10 +29,10 @@ describe("loadQueue (own fixture)", () => {
     return { pending: f(g.pending), disposition: f(g.disposition), ready: f(g.ready) };
   };
 
-  type Spec = { n: string; status: string; employee: string; assignedTo: string | null; day: number; exceptions?: ("Open" | "Resolved")[] };
+  type Spec = { n: string; status: string; employee: string; assignedTo: string | null; day: number; exceptions?: ("Open" | "Resolved")[]; extractionSource?: string };
   const fixture: Spec[] = [
     { n: "01", status: "Pending", employee: submitter.name, assignedTo: reviewer.name, day: 1 }, //                assigned → pending
-    { n: "02", status: "Analyzed", employee: submitter.name, assignedTo: reviewer.name, day: 2, exceptions: ["Open", "Resolved"] }, // → disposition
+    { n: "02", status: "Analyzed", employee: submitter.name, assignedTo: reviewer.name, day: 2, exceptions: ["Open", "Resolved"], extractionSource: "model" }, // → disposition
     { n: "03", status: "Analyzed", employee: submitter.name, assignedTo: reviewer.name, day: 3, exceptions: ["Resolved"] }, //        → ready
     { n: "04", status: "Analyzed", employee: submitter.name, assignedTo: null, day: 4, exceptions: ["Open"] }, //                     unassigned → disposition
     { n: "05", status: "Pending", employee: submitter.name, assignedTo: null, day: 5 }, //                                            unassigned → pending
@@ -57,6 +57,7 @@ describe("loadQueue (own fixture)", () => {
           submittedAt: new Date(Date.UTC(2026, 9, c.day)),
           assignedRole: c.assignedTo ? "Plant Controller" : null,
           assignedTo: c.assignedTo,
+          extractionSource: c.extractionSource ?? null,
           exceptions: {
             create: (c.exceptions ?? []).map((status, i) => ({
               exceptionId: `EXC-${tag}-${c.n}-${i}`,
@@ -103,5 +104,12 @@ describe("loadQueue (own fixture)", () => {
     expect(q.mode).toBe("requester");
     expect("unassigned" in q).toBe(false);
     expect(ids(q.mine)).toEqual({ pending: [id("01"), id("05")], disposition: [id("02"), id("04")], ready: [id("03")] });
+  });
+
+  it("queue rows carry the claim's extraction provenance from the claim row (no per-row AiRun lookup)", async () => {
+    const q = await loadQueue(reviewer);
+    if (q.mode !== "reviewer") throw new Error("expected reviewer queue");
+    expect(q.mine.disposition.find((r) => r.claimId === id("02"))?.extractionSource).toBe("model");
+    expect(q.mine.ready.find((r) => r.claimId === id("03"))?.extractionSource).toBeNull();
   });
 });

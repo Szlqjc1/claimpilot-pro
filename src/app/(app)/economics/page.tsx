@@ -10,6 +10,7 @@ import { PageHeader } from "@/components/shell/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { ProvenanceBadge } from "@/components/claims/badges";
 
 export const metadata: Metadata = { title: "Economics" };
 export const dynamic = "force-dynamic";
@@ -22,6 +23,7 @@ export default async function EconomicsPage() {
   const claims = await assessClaims();
   const top = [...claims].sort((a, b) => b.priority - a.priority || b.exposureCents - a.exposureCents).slice(0, 10);
   const reviewed = claims.filter((c) => c.action === "REVIEW");
+  const onModel = claims.filter((c) => c.extractionSource === "model").length;
   const leftOnTable = claims.filter((c) => c.action === "CLEAR").reduce((s, c) => s + c.expectedLossCents, 0);
   const points = costCurve(claims, REVIEW_COST_CENTS, CURVE_CAPACITIES);
   const best = points.reduce((a, b) => (b.totalCents < a.totalCents ? b : a), points[0]);
@@ -62,6 +64,10 @@ export default async function EconomicsPage() {
               Under this policy, <span className="tabular font-semibold">{reviewed.length}</span> of <span className="tabular">{claims.length}</span> analyzed claims would be reviewed, costing{" "}
               <span className="tabular font-semibold">{formatUsd(reviewed.length * REVIEW_COST_CENTS)}</span>, leaving <span className="tabular font-semibold">{usd(leftOnTable)}</span> of expected loss on the
               table.
+            </p>
+            <p className="mt-2 text-xs text-muted" data-testid="economics-provenance">
+              <span className="tabular font-semibold text-ink">{onModel}</span> of <span className="tabular">{claims.length}</span> analyzed claims were scored on a model extraction; the rest on the
+              reference extraction.
             </p>
           </CardContent>
         </Card>
@@ -120,7 +126,8 @@ export default async function EconomicsPage() {
                   <TD className="whitespace-nowrap font-mono text-xs">
                     <Link href={`/claims/${c.claimId}`} className="text-info hover:underline">
                       {c.claimId}
-                    </Link>
+                    </Link>{" "}
+                    <ProvenanceBadge source={c.extractionSource} />
                   </TD>
                   <TD className="max-w-[260px] truncate" title={c.vendorName}>
                     {c.vendorName}

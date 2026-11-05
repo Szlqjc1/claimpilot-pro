@@ -23,6 +23,7 @@ export type AssessedClaim = {
   priority: number;
   action: Economics["action"];
   reason: Economics["reason"];
+  extractionSource: string | null;
 };
 
 export async function assessClaims(opts: { probability?: number; reviewCostCents?: number } = {}): Promise<AssessedClaim[]> {
@@ -58,6 +59,7 @@ export async function assessClaims(opts: { probability?: number; reviewCostCents
       priority: e.priority,
       action: e.action,
       reason: e.reason,
+      extractionSource: claim.extractionSource,
     });
   }
   return out;
