@@ -178,7 +178,7 @@ All values are computed from the database (`src/lib/kpi/formulas.ts`), and the d
 | Benchmark Variance | amount-weighted (unit price − p50) ÷ p50 |
 | Budget Utilization | project spend ÷ project budget |
 
-Each card shows a delta against the previous equal-length period. The **KPI Watchlist** shows up to 3 deterministic callouts (budget > 90%, duplicates > $10k, high-risk rate > 15%, cycle time > 48 h, category spike, vendor concentration). Filters live in the URL and apply to both the cards and the list.
+Each card shows a delta against the previous equal-length period. The **KPI Watchlist** shows up to 3 deterministic callouts (budget > 90%, duplicates > $10k, high-risk rate > 15%, cycle time > 48 h, category spike, vendor concentration). Filters live in the URL and apply to both the cards and the list. **Spend by site** splits the same claims across the five sites (invoice ship-to plant, else the submitter's home site) and shows per row how many were attributed through the submitter (D-43).
 
 ## Security notes
 
@@ -196,6 +196,7 @@ Each card shows a delta against the previous equal-length period. The **KPI Watc
 - Authentication is local email/password only (no SSO, MFA, password reset or account lockout beyond rate limiting). Role enforcement is deliberately minimal: three server-side checks, not a permission matrix (D-27). Seeded historical audit rows remain attributed to "AP Shared Services".
 - In mock mode, uploads can be stored and reviewed but not audited. Tesseract boxes aren't mapped to fields, so annotated uploads show a "Fields extracted" panel instead of boxes.
 - PDF uploads need rasterization before OCR (not implemented); use PNG/JPEG for live OCR.
+- Site spend is computed in application code from the extraction, not from a database column; making it filterable or sortable server-side would need `Claim.plant` (future work).
 - Posting to SAP is simulated: it records a MIRO document number and audit entries but does not call SAP.
 - There is no Playwright test suite. Playwright is only used by `pnpm shots` for screenshots; the golden path is covered by integration tests against a real DB plus a manual browser run (DECISIONS D-12).
 - There is no self-service sign-up. Accounts are provisioned (seeded in the demo, SCIM/HR in production); an approval system must not let arbitrary users create an account, let alone pick a role. An admin-managed Users screen is the intended next step (D-29).

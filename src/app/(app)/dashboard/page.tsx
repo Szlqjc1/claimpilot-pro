@@ -11,6 +11,7 @@ import { aiStatus } from "@/lib/ai/provider";
 import { PageHeader } from "@/components/shell/page-header";
 import { KpiCard } from "@/components/dashboard/kpi-card";
 import { Watchlist } from "@/components/dashboard/watchlist";
+import { SiteSpendCard } from "@/components/dashboard/site-spend";
 import { BudgetChart, CategoryMixChart, ParetoChart, RiskDistributionChart, SpendTrendChart } from "@/components/dashboard/charts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
@@ -71,6 +72,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: SP
         <KpiCard compact label="Benchmark Variance" value={`${k.benchmarkVariance >= 0 ? "+" : ""}${pct(k.benchmarkVariance)}`} delta={dl(k.benchmarkVariance, p.benchmarkVariance)} explanation="" formula="amount-weighted average of (unit price − benchmark p50) ÷ p50 over matched line items" />
         <KpiCard compact label="Budget Utilization" value={pct(k.budgetUtilization)} delta={dl(k.budgetUtilization, p.budgetUtilization)} explanation="" formula="project spend in period ÷ project budget (all selected projects)" />
       </section>
+
+      <SiteSpendCard rows={d.siteSpend} />
 
       <div className="mt-6">
         <Watchlist items={d.watchlist} explainEnabled={ai.mode === "live" && ai.configured} query={query} />

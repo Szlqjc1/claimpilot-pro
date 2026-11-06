@@ -16,6 +16,9 @@ export type KpiClaim = {
   vendorName: string;
   exceptions: { anomalyType: string; status: string; riskLevel: string }[];
   lineItems: { partNumber: string | null; unitPrice: number; amount: number }[];
+  /** For spend by site (D-43); optional so KPI fixtures need not set them. */
+  employee?: string;
+  shipToPlant?: string | null;
 };
 
 export type KpiBenchmark = { itemCode: string; p50Cents: number };

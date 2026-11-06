@@ -20,12 +20,13 @@ mode.
 
 | Evidence | Where | How to verify |
 |---|---|---|
-| 251 automated tests (unit + integration against a real SQLite DB) | `src/tests/` (25 files) | `pnpm test` → "Tests 251 passed" |
+| 289 automated tests (unit + integration against a real SQLite DB) | `src/tests/` (27 files) | `pnpm test` → "Tests 289 passed" |
 | CI runs install, migrate, lint, typecheck, test, build | `.github/workflows/ci.yml:27-35` | GitHub Actions badge at the top of `README.md` |
 | Deterministic risk engine; 7 hero claims with exact scores | `src/lib/risk/score.ts:28`, `src/tests/risk.test.ts:13` | `pnpm test src/tests/risk.test.ts`; `pnpm db:seed` throws if any hero score drifts (`src/lib/seed/run.ts:130`) |
 | KPI targets | `src/lib/kpi/formulas.ts:44`, `scripts/kpi-report.ts` | `pnpm kpi:report` → every row `OK` |
 | Grounding benchmark: false alarms **harsh 55.8 %**, **realistic 15.2 % → 12.2 %** after OCR clean-up; 852 injected errors, 69.7 % caught end-to-end | `docs/GROUNDING_BENCH.md`, `scripts/grounding-bench.ts:111` | Read the report; `pnpm bench:grounding` (needs `./eng.traineddata`, ~31 min cold, seconds cached) |
 | Review economics and cost curve (`review ⇔ p·L > c`) | `docs/ECONOMICS.md`, `src/lib/risk/economics.ts:19` | `/economics`; `pnpm cost:curve` |
+| Spend by site: five sites from the invoice ship-to plant, travel/entertainment attributed to the submitter's home site and disclosed per row; totals reconcile with Total Claim Spend | `src/lib/locations.ts:70`, `src/lib/kpi/locations.ts:28` | `/dashboard` → Spend by site; `pnpm test src/tests/locations.test.ts` |
 | Retrieval-first grounded Q&A with citation check | `docs/AI_GOVERNANCE.md`, `src/lib/ask/answer.ts:79` | `/ask` → click an example; the badge says **Template** in mock mode |
 | Accessibility evidence: axe-core on 5 pages (0 violations on all five after the fixes; before/after recorded), measured contrast, keyboard walkthrough including dialog focus return, reflow at 390 px, remaining gaps | `docs/ACCESSIBILITY.md`, `scripts/a11y-audit.ts` | Read; `pnpm dev` + `pnpm a11y:audit` |
 | Architecture and AI boundary | `docs/ARCHITECTURE.md`, `docs/AI_GOVERNANCE.md` | Read |
@@ -48,7 +49,7 @@ mode.
 | CSV export of claims and the audit log, filter-aware, capped at 10 000 rows, injection-safe, bare-decimal money and UTC dates | `src/lib/export/csv.ts`, `src/lib/export/exports.ts`, `src/app/api/claims/export/route.ts`, `src/app/api/audit/export/route.ts` | `/claims` or `/audit` → **Export CSV** (carries the current filters); `pnpm test src/tests/csv.test.ts` |
 | Every API route requires a session | `src/lib/auth/session.ts:54`, `src/tests/api-auth.test.ts:17` | `pnpm test src/tests/api-auth.test.ts` |
 
-## Decisions (DECISIONS.md D-01 … D-42)
+## Decisions (DECISIONS.md D-01 … D-43)
 
 | ID | Decision | Implementation | How to verify |
 |---|---|---|---|
@@ -94,6 +95,7 @@ mode.
 | D-40 | Realistic scan profile; OCR clean-up chosen by measurement | `src/lib/ai/preprocess.ts:245`, `src/lib/ai/ocr-prep.ts:19` | `docs/GROUNDING_BENCH.md` → Part B table; `src/tests/preprocess.test.ts` |
 | D-41 | Filter-aware CSV export; no BOM; formula-injection guard | `src/lib/export/csv.ts:18`, `src/lib/export/exports.ts`, `src/lib/audit/filters.ts` | `/claims` → Export CSV; `src/tests/csv.test.ts` |
 | D-42 | Accessibility fixes: contrast, dialog focus return, reflow, text alternatives | `src/components/ui/button.tsx:10`, `src/components/claims/exception-actions.tsx`, `src/components/ui/table.tsx:5`, `src/components/dashboard/charts.tsx` | `docs/ACCESSIBILITY.md` (before → after); `pnpm a11y:audit` → 0 violations |
+| D-43 | Spend by site: ship-to plant, else the submitter's home site; split disclosed per row | `src/lib/locations.ts:70`, `src/lib/kpi/locations.ts:28`, `src/lib/kpi/queries.ts:154` | `/dashboard` → Spend by site; `src/tests/locations.test.ts` |
 
 ## Known limitations (README)
 
@@ -104,6 +106,6 @@ mode.
 | Uploads cannot be audited in mock mode; Tesseract boxes are not mapped to fields | Explicit 422 with an explanation (D-13). Word-level OCR is now captured for uploads (D-40), the data a field mapping would need. |
 | PDF uploads need rasterising before OCR | Out of scope: no PDF rasteriser dependency. PNG/JPEG work in live OCR. |
 | Posting to SAP is simulated | Out of scope without an SAP system. Posting records a MIRO number and audit rows exactly where a real integration would (`src/lib/audit/disposition.ts:14`). |
-| No end-to-end browser test suite | Mitigated by integration tests against a real DB (251 tests) and recorded manual runs (`docs/images/manual/`). |
+| No end-to-end browser test suite | Mitigated by integration tests against a real DB (289 tests) and recorded manual runs (`docs/images/manual/`). |
 | No self-service sign-up | Deliberate (D-29): an approval system must not let users pick their own role. |
 | Simulated extraction confidence | Labelled in the UI ("OCR: fixture (simulated)"), never used by the model, and grounding has been measured separately on real Tesseract output (D-25, D-37, D-40). |

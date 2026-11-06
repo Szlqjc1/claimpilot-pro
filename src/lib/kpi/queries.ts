@@ -16,6 +16,7 @@ import {
   type KpiProject,
 } from "./formulas";
 import { buildWatchlist } from "./watchlist";
+import { computeSiteSpend } from "./locations";
 
 export type Period = { from: Date; to: Date; prevFrom: Date; prevTo: Date; label: string; range: string };
 
@@ -83,6 +84,7 @@ async function loadKpiClaims(where: Prisma.ClaimWhereInput): Promise<KpiClaim[]>
     where,
     select: {
       claimId: true,
+      employee: true,
       amount: true,
       status: true,
       decision: true,
@@ -112,6 +114,8 @@ async function loadKpiClaims(where: Prisma.ClaimWhereInput): Promise<KpiClaim[]>
       projectCode: r.projectCode,
       vendorName: r.vendorName,
       exceptions: r.exceptions,
+      employee: r.employee,
+      shipToPlant: parsed?.ok ? parsed.data.shipTo.plant : null,
       lineItems: parsed?.ok ? parsed.data.lineItems.map((l) => ({ partNumber: l.partNumber, unitPrice: l.unitPrice, amount: l.amount })) : [],
     };
   });
@@ -146,6 +150,8 @@ export async function getDashboardData(filters: ClaimFilters) {
     pareto: exceptionPareto(current),
     topVendors: topVendors(current),
     projectUtilization: projectUtilization(current, projects),
+    // Same claims as the KPI strip, same single parse of extractedData (no second scan).
+    siteSpend: computeSiteSpend(current.map((c) => ({ employee: c.employee ?? "", department: c.department, category: c.category, amountCents: c.amountCents, shipToPlant: c.shipToPlant ?? null }))),
     watchlist: buildWatchlist({ periodClaims: current, allClaims, projects, benchmarks: ref.benchmarks, asOf: anchor }),
   };
 }
