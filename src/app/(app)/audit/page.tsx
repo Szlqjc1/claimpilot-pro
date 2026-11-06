@@ -1,31 +1,23 @@
 import type { Metadata } from "next";
-import { z } from "zod";
-import type { Prisma } from "@prisma/client";
+import { Download } from "lucide-react";
 import { prisma } from "@/lib/db";
+import { auditWhere, parseAuditFilters } from "@/lib/audit/filters";
 import { PageHeader } from "@/components/shell/page-header";
 import { Card } from "@/components/ui/card";
 import { Input, Label, Select } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Pagination } from "@/components/claims/pagination";
 import { AuditLogTable } from "@/components/claims/audit-log-table";
 
 export const metadata: Metadata = { title: "Audit Log" };
 
 const PAGE = 25;
-const schema = z.object({
-  actor: z.string().max(60).optional().catch(undefined),
-  action: z.string().max(60).optional().catch(undefined),
-  claim: z.string().max(20).optional().catch(undefined),
-  page: z.coerce.number().int().min(1).catch(1).default(1),
-});
 
 export default async function AuditPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const raw = Object.fromEntries(Object.entries(await searchParams).map(([k, v]) => [k, Array.isArray(v) ? v[0] : v || undefined]));
-  const f = schema.parse(raw);
-  const where: Prisma.AuditLogWhereInput = {};
-  if (f.actor) where.actor = f.actor;
-  if (f.action) where.action = f.action;
-  if (f.claim) where.claimId = { contains: f.claim.toUpperCase() };
+  const f = parseAuditFilters(raw);
+  const where = auditWhere(f);
+  const exportQs = new URLSearchParams(Object.entries(raw).filter((e): e is [string, string] => !!e[1] && e[0] !== "page")).toString();
   const [total, rows, actors, actions] = await Promise.all([
     prisma.auditLog.count({ where }),
     prisma.auditLog.findMany({ where, orderBy: { timestamp: "desc" }, skip: (f.page - 1) * PAGE, take: PAGE }),
@@ -60,9 +52,15 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
             <Label htmlFor="a-claim">Claim ID</Label>
             <Input id="a-claim" name="claim" defaultValue={f.claim ?? ""} placeholder="CLM-2026-0142" />
           </div>
-          <Button type="submit" variant="navy">
-            Apply filters
-          </Button>
+          <div className="flex gap-2">
+            <Button type="submit" variant="navy" className="flex-1">
+              Apply filters
+            </Button>
+            {/* Filter-aware: the export carries the applied filters (all pages, up to 10 000 rows). */}
+            <a href={`/api/audit/export${exportQs ? `?${exportQs}` : ""}`} download className={buttonVariants({ variant: "secondary" })}>
+              <Download className="h-4 w-4" aria-hidden /> Export CSV
+            </a>
+          </div>
         </form>
       </Card>
       <Card>

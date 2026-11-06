@@ -77,7 +77,7 @@ Claims are always owned by the signed-in user: employee and department come from
 
 **Accessibility:** [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md) records axe-core results, measured contrast and a keyboard walkthrough, including the known gaps (`pnpm a11y:audit`).
 
-**Grading index:** [docs/SUBMISSION.md](docs/SUBMISSION.md) maps every requirement, decision (D-01 … D-40) and known limitation to the code and to a way to check it.
+**Grading index:** [docs/SUBMISSION.md](docs/SUBMISSION.md) maps every requirement, decision (D-01 … D-41) and known limitation to the code and to a way to check it.
 
 ## Screenshots
 
@@ -150,6 +150,8 @@ Full script: [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md).
 `Pending` → **🚀 Run AI-RPA Audit** → `Analyzed` → reviewer resolves (real, corrected), waives (real, accepted) or dismisses (**not an exception**: the rule was wrong) each exception, always with a note → **Post to SAP** → `Posted` (MIRO document number). Posting is blocked while any exception is still Open; dismissals feed the "Alert precision by rule" table on `/economics` (D-39). Every step is appended to the audit log.
 
 **Routing:** a flagged claim is assigned by department → role (the same table that writes "Routed to …") → owner, the one employee with that title, and never to the claim's own submitter (the claim then stays assigned to the role with no owner, for someone else to pick up). Reviewers see their assigned claims plus an Unassigned section on `/queue`; requesters see their own submissions there, read-only (D-34).
+
+**CSV export:** `/claims` and `/audit` each have an **Export CSV** button. Exports are filter-aware: they contain every row the current filters select (all pages, up to 10 000 rows), with amounts as bare decimals and UTC `YYYY-MM-DD HH:mm` timestamps so a spreadsheet can sum and sort them, and with a guard against formula injection.
 
 The AI Structured Data and AI-Annotated Invoice blocks are **conditionally rendered**: absent from the DOM while `Pending`, present once the claim is `Analyzed` or `Posted` (DECISIONS D-19).
 

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { Plus } from "lucide-react";
+import { Download, Plus } from "lucide-react";
 import { claimFiltersSchema } from "@/lib/domain/schemas";
 import { CLAIM_STATUSES } from "@/lib/domain/constants";
 import { getClaimsPage, PAGE_SIZE } from "@/lib/kpi/queries";
@@ -19,6 +19,7 @@ export default async function ClaimsPage({ searchParams }: { searchParams: Promi
   const raw = Object.fromEntries(Object.entries(await searchParams).map(([k, v]) => [k, Array.isArray(v) ? v[0] : v]));
   const filters = claimFiltersSchema.parse(raw);
   const list = await getClaimsPage(filters);
+  const exportQs = new URLSearchParams(Object.entries(raw).filter((e): e is [string, string] => !!e[1] && e[0] !== "page")).toString();
   const tabHref = (status?: string) => {
     const sp = new URLSearchParams(Object.entries(raw).filter((e): e is [string, string] => !!e[1] && e[0] !== "page" && e[0] !== "status"));
     if (status) sp.set("status", status);
@@ -56,6 +57,12 @@ export default async function ClaimsPage({ searchParams }: { searchParams: Promi
         <Suspense>
           <ClaimFilters showStatus={false} />
         </Suspense>
+        <div className="mt-3 flex justify-end">
+          {/* Filter-aware: the export carries the current query string (all pages, up to 10 000 rows). */}
+          <a href={`/api/claims/export${exportQs ? `?${exportQs}` : ""}`} download className={buttonVariants({ variant: "secondary", size: "sm" })}>
+            <Download className="h-4 w-4" aria-hidden /> Export CSV
+          </a>
+        </div>
       </Card>
       <Card>
         <ClaimsTable rows={list.rows} />

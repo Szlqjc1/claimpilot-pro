@@ -43,6 +43,8 @@ All notable user-visible changes to ClaimPilot PRO. The format follows
 - **Screenshots** in the README, regenerated as the UI changed. (`ba090bf`, `fe58ba5`, `66e3d36`, `431949f`)
 - **Delivery**: MIT licence, a dev container, a first-run preflight that creates `.env` and seeds the database
   before `pnpm dev`, and a "Run it" section in the README. (`89b3cf2`)
+- **CSV export** of claims and the audit log from `/claims` and `/audit`: filter-aware, up to 10 000 rows, amounts
+  as bare decimals, UTC timestamps, and protected against spreadsheet formula injection. (D-41)
 - **Documentation**: grading index `docs/SUBMISSION.md` and measured accessibility evidence `docs/ACCESSIBILITY.md`
   (`pnpm a11y:audit`). (`afbc17d`, `8e847f8`)
 

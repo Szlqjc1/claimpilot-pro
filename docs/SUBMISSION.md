@@ -45,9 +45,10 @@ mode.
 | Money: Prisma Decimal in DB, integer cents in code | `src/lib/domain/money.ts:5` | `src/tests/schema-money.test.ts` |
 | Time: UTC stored, Eastern Time displayed | `src/lib/domain/dates.ts:5` | Timestamps on `/audit` end in "ET" |
 | DeepSeek only from server modules, text only (OCR first) | `src/lib/ai/deepseek.ts:91`, `src/lib/ai/provider.ts:16` | `import "server-only"` at the top of both |
+| CSV export of claims and the audit log, filter-aware, capped at 10 000 rows, injection-safe, bare-decimal money and UTC dates | `src/lib/export/csv.ts`, `src/lib/export/exports.ts`, `src/app/api/claims/export/route.ts`, `src/app/api/audit/export/route.ts` | `/claims` or `/audit` → **Export CSV** (carries the current filters); `pnpm test src/tests/csv.test.ts` |
 | Every API route requires a session | `src/lib/auth/session.ts:54`, `src/tests/api-auth.test.ts:17` | `pnpm test src/tests/api-auth.test.ts` |
 
-## Decisions (DECISIONS.md D-01 … D-40)
+## Decisions (DECISIONS.md D-01 … D-41)
 
 | ID | Decision | Implementation | How to verify |
 |---|---|---|---|
@@ -91,6 +92,7 @@ mode.
 | D-38 | Offline, deterministic grounding benchmark | `scripts/grounding-bench.ts:111` | `docs/GROUNDING_BENCH.md` |
 | D-39 | Reviewer dispositions as one enum; alert precision by rule | `src/lib/domain/constants.ts:61`, `src/lib/economics/precision.ts:21` | Claim → "Not an exception"; `/economics` → Alert precision by rule |
 | D-40 | Realistic scan profile; OCR clean-up chosen by measurement | `src/lib/ai/preprocess.ts:245`, `src/lib/ai/ocr-prep.ts:19` | `docs/GROUNDING_BENCH.md` → Part B table; `src/tests/preprocess.test.ts` |
+| D-41 | Filter-aware CSV export; no BOM; formula-injection guard | `src/lib/export/csv.ts:17`, `src/lib/export/exports.ts`, `src/lib/audit/filters.ts` | `/claims` → Export CSV; `src/tests/csv.test.ts` |
 
 ## Known limitations (README)
 
