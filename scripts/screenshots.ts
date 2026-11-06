@@ -1,10 +1,12 @@
 // Captures README screenshots and audit GIF frames from a running dev server.
 // Usage: start the app (`pnpm db:seed` for a fresh demo, then `pnpm dev`), then `pnpm shots`.
-// Requires AI_MODE="mock" and OCR_MODE="fixture" so the captures are deterministic.
+// Refuses to run unless AI_MODE is mock (scripts/lib/guards.ts): captures must be deterministic and must not call
+// the live model. `pnpm shots --allow-live` overrides.
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { chromium, type Page } from "playwright";
 import { DEMO_ACCOUNTS } from "../src/lib/auth/demo-accounts";
+import { requireMockMode, requireServer, requireServerMock } from "./lib/guards";
 
 const BASE = process.env.SHOTS_BASE_URL ?? "http://localhost:3000";
 const OUT = path.resolve("docs/images");
@@ -15,15 +17,6 @@ const HANDLED = "CLM-2026-0143";
 // Plant Operations, submitted by Tyler Brooks → routed to Priya, so her "Needs disposition" group has an item.
 const ROUTED = "CLM-2026-0147";
 
-async function probe(): Promise<boolean> {
-  try {
-    const res = await fetch(`${BASE}/login`, { signal: AbortSignal.timeout(5_000) });
-    return res.ok;
-  } catch {
-    return false;
-  }
-}
-
 async function settle(page: Page) {
   await page.waitForLoadState("networkidle");
   // Hide the Next.js dev-mode indicator so screenshots show only the app.
@@ -33,10 +26,8 @@ async function settle(page: Page) {
 }
 
 async function main() {
-  if (!(await probe())) {
-    console.error(`Dev server not reachable at ${BASE}. Run \`pnpm dev\` in another terminal, then re-run \`pnpm shots\`.`);
-    process.exit(1);
-  }
+  requireMockMode();
+  await requireServer(BASE, "pnpm shots");
   await mkdir(FRAMES, { recursive: true });
 
   const browser = await chromium.launch();
@@ -58,6 +49,7 @@ async function main() {
     }
 
     await page.goto(`${BASE}/dashboard`);
+    await requireServerMock(() => page.locator('[title^="AI mode:"]').first().getAttribute("title"));
     await settle(page);
     await page.screenshot({ path: path.join(OUT, "dashboard.png") });
     console.log("✔ dashboard.png");

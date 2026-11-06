@@ -7,6 +7,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium, type Page } from "playwright";
 import { DEMO_ACCOUNTS } from "../src/lib/auth/demo-accounts";
+import { requireMockMode, requireServer, requireServerMock } from "./lib/guards";
 
 const BASE = process.env.A11Y_BASE_URL ?? "http://localhost:3000";
 const OUT = path.resolve("docs/images/manual");
@@ -140,6 +141,8 @@ async function contrast(page: Page) {
 }
 
 async function main() {
+  requireMockMode();
+  await requireServer(BASE, "pnpm a11y:audit");
   if (!AXE) throw new Error("axe-core not found under node_modules/.pnpm (it ships with eslint-plugin-jsx-a11y).");
   await mkdir(OUT, { recursive: true });
   const browser = await chromium.launch();
@@ -165,6 +168,7 @@ async function main() {
     if (!login.ok()) throw new Error(`Sign-in failed (${login.status()}); run pnpm db:seed`);
 
     await page.goto(`${BASE}/dashboard`);
+    await requireServerMock(() => page.locator('[title^="AI mode:"]').first().getAttribute("title"));
     await settle(page);
     const dashboardTabs = await tabs(page, 12);
     await page.goto(`${BASE}/dashboard`);
