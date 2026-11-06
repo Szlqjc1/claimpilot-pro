@@ -7,6 +7,7 @@
     "node": ">=20"
   },
   "scripts": {
+    "predev": "node scripts/preflight.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

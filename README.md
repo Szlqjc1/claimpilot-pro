@@ -10,23 +10,42 @@ Ironwood processes ~1,400 supplier invoices a month. Manual review averages 4.2 
 
 > **Demo only.** All companies, vendors, tax IDs, people and invoices are fictional. Every receipt carries a `SAMPLE — NOT A REAL INVOICE` watermark. USD only.
 
-## Quick start
+## Run it
 
-Requirements: Node 20+ and pnpm (`npm i -g pnpm`).
-
-```bash
-pnpm install
-```
+Requirements: **Node 20+** and **pnpm** (`corepack enable pnpm`, or `npm i -g pnpm`).
 
 ```bash
-pnpm db:reset
+pnpm install      # first run: about 7 minutes; no API key needed
+pnpm db:reset     # about 3 s: 130 demo claims, 3 users, 130 receipts
+pnpm dev          # http://localhost:3000
 ```
 
-```bash
-pnpm dev
-```
+Then sign in with a demo account — they are listed on the sign-in page and in [Demo accounts](#demo-accounts) below.
+Everything runs offline in mock AI mode: `pnpm install` writes `.env` from `.env.example`, `pnpm dev` seeds the
+database automatically if it is missing, and no DeepSeek key is required.
 
-Open http://localhost:3000 and sign in with one of the demo accounts below. `pnpm install` creates `.env` from `.env.example` (mock AI mode), so no API key and no internet connection are needed.
+Two things catch people out:
+
+- **Use `http://localhost:3000`, not `127.0.0.1`.** The session cookie is host-scoped, so the other host name is a
+  separate session.
+- **Clone to a short path** (for example `C:\dev\claimpilot`). pnpm's nested `node_modules` can exceed the Windows
+  260-character path limit and the install fails with `Filename too long`.
+
+### No local toolchain?
+
+Open the repository in **GitHub Codespaces** — `Code ▾ → Codespaces → Create codespace` — and run the same three
+commands in its terminal. A `.devcontainer` is included, so the container installs the dependencies and seeds the
+database for you. Set the forwarded port 3000 to *Public* in the Ports panel to get a shareable https URL.
+
+### Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `The table main.User does not exist` | no database | `pnpm db:reset` |
+| `EADDRINUSE :3000` | port in use | `pnpm dev --port 3001` |
+| Bounced back to `/login` | not signed in | use a demo account below |
+| `pnpm: command not found` | pnpm missing | `corepack enable pnpm` |
+| `Filename too long` (Windows) | clone path too deep | clone to `C:\dev\...` |
 
 ### Demo accounts
 

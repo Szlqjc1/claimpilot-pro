@@ -1,0 +1,15 @@
+{
+  "name": "ClaimPilot PRO",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20-bookworm",
+  "postCreateCommand": "corepack enable && pnpm install --frozen-lockfile && pnpm db:reset",
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": { "label": "ClaimPilot PRO", "onAutoForward": "notify" }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["dbaeumer.vscode-eslint", "bradlc.vscode-tailwindcss"]
+    }
+  },
+  "remoteUser": "node"
+}
