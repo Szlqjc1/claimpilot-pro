@@ -13,7 +13,8 @@ export function PostToSapButton({ claimId, openExceptions, amountLabel }: { clai
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  // Status line under the button: red for a failure, green for the confirmation shown until the page refreshes.
+  const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null);
   const blocked = openExceptions > 0;
 
   const post = async () => {
@@ -25,17 +26,18 @@ export function PostToSapButton({ claimId, openExceptions, amountLabel }: { clai
       const body = (await res.json()) as ErrorBody & { miroDocNo?: string };
       if (!res.ok || !body.miroDocNo) {
         const text = body.error ? `${body.error.message} (request ${body.error.requestId})` : `Posting failed (${res.status})`;
-        setMessage(text);
+        setMessage({ text, ok: false });
         toast.error("Posting to SAP failed", { description: text });
         if (res.status === 409) router.refresh();
         return;
       }
       setOpen(false);
+      setMessage({ text: `Posted to SAP · ${body.miroDocNo}`, ok: true });
       toast.success("Posted to SAP", { description: `${claimId} · ${body.miroDocNo}` });
       router.refresh();
     } catch {
       const text = "Network error — the claim was not posted. Try again.";
-      setMessage(text);
+      setMessage({ text, ok: false });
       toast.error("Posting to SAP failed", { description: text });
     } finally {
       setBusy(false);
@@ -71,8 +73,8 @@ export function PostToSapButton({ claimId, openExceptions, amountLabel }: { clai
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
-      <p aria-live="polite" role="status" className="text-[13px] text-danger">
-        {message}
+      <p aria-live="polite" role="status" className={`text-[13px] ${message?.ok ? "text-success" : "text-danger"}`}>
+        {message?.text}
       </p>
     </div>
   );
