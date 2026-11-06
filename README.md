@@ -75,6 +75,8 @@ Claims are always owned by the signed-in user: employee and department come from
 | `pnpm shots` | Captures `docs/images/*` from a running `pnpm dev` (needs `npx playwright install chromium` once) |
 | `pnpm receipts:generate` | Regenerates receipt SVGs + fixtures without touching the DB |
 
+**Grading index:** [docs/SUBMISSION.md](docs/SUBMISSION.md) maps every requirement, decision (D-01 … D-40) and known limitation to the code and to a way to check it.
+
 ## Screenshots
 
 Captured with `pnpm shots` (Playwright, 1440×900, against a running server with `AI_MODE="mock"` and `OCR_MODE="fixture"` after `pnpm db:seed`). The script captures `/login` while signed out, then signs in as Priya Natarajan (reviewer), the account `docs/DEMO_SCRIPT.md` uses, and audits CLM-2026-0147 so her queue has routed work. Frames for an audit GIF are in `docs/images/audit-frames/` (idle → running → done).
