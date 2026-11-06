@@ -20,7 +20,7 @@ mode.
 
 | Evidence | Where | How to verify |
 |---|---|---|
-| 232+ automated tests (unit + integration against a real SQLite DB) | `src/tests/` (24 files) | `pnpm test` → "Tests 232 passed" or more |
+| 251 automated tests (unit + integration against a real SQLite DB) | `src/tests/` (25 files) | `pnpm test` → "Tests 251 passed" |
 | CI runs install, migrate, lint, typecheck, test, build | `.github/workflows/ci.yml:27-35` | GitHub Actions badge at the top of `README.md` |
 | Deterministic risk engine; 7 hero claims with exact scores | `src/lib/risk/score.ts:28`, `src/tests/risk.test.ts:13` | `pnpm test src/tests/risk.test.ts`; `pnpm db:seed` throws if any hero score drifts (`src/lib/seed/run.ts:130`) |
 | KPI targets | `src/lib/kpi/formulas.ts:44`, `scripts/kpi-report.ts` | `pnpm kpi:report` → every row `OK` |
@@ -92,7 +92,7 @@ mode.
 | D-38 | Offline, deterministic grounding benchmark | `scripts/grounding-bench.ts:111` | `docs/GROUNDING_BENCH.md` |
 | D-39 | Reviewer dispositions as one enum; alert precision by rule | `src/lib/domain/constants.ts:61`, `src/lib/economics/precision.ts:21` | Claim → "Not an exception"; `/economics` → Alert precision by rule |
 | D-40 | Realistic scan profile; OCR clean-up chosen by measurement | `src/lib/ai/preprocess.ts:245`, `src/lib/ai/ocr-prep.ts:19` | `docs/GROUNDING_BENCH.md` → Part B table; `src/tests/preprocess.test.ts` |
-| D-41 | Filter-aware CSV export; no BOM; formula-injection guard | `src/lib/export/csv.ts:17`, `src/lib/export/exports.ts`, `src/lib/audit/filters.ts` | `/claims` → Export CSV; `src/tests/csv.test.ts` |
+| D-41 | Filter-aware CSV export; no BOM; formula-injection guard | `src/lib/export/csv.ts:18`, `src/lib/export/exports.ts`, `src/lib/audit/filters.ts` | `/claims` → Export CSV; `src/tests/csv.test.ts` |
 
 ## Known limitations (README)
 
@@ -103,6 +103,6 @@ mode.
 | Uploads cannot be audited in mock mode; Tesseract boxes are not mapped to fields | Explicit 422 with an explanation (D-13). Word-level OCR is now captured for uploads (D-40), the data a field mapping would need. |
 | PDF uploads need rasterising before OCR | Out of scope: no PDF rasteriser dependency. PNG/JPEG work in live OCR. |
 | Posting to SAP is simulated | Out of scope without an SAP system. Posting records a MIRO number and audit rows exactly where a real integration would (`src/lib/audit/disposition.ts:14`). |
-| No end-to-end browser test suite | Mitigated by integration tests against a real DB (232+ tests) and recorded manual runs (`docs/images/manual/`). |
+| No end-to-end browser test suite | Mitigated by integration tests against a real DB (251 tests) and recorded manual runs (`docs/images/manual/`). |
 | No self-service sign-up | Deliberate (D-29): an approval system must not let users pick their own role. |
 | Simulated extraction confidence | Labelled in the UI ("OCR: fixture (simulated)"), never used by the model, and grounding has been measured separately on real Tesseract output (D-25, D-37, D-40). |
