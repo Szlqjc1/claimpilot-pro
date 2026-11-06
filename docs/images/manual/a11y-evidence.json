@@ -1,0 +1,250 @@
+{
+  "capturedWith": "Playwright Chromium 156.0.8078.4, axe-core 4.14.0, tags wcag2a, wcag2aa, wcag21a, wcag21aa, wcag22aa",
+  "base": "http://localhost:3000",
+  "keyboard": {
+    "login": [
+      "input \"Password\"",
+      "button \"Sign in\"",
+      "(body)",
+      "input \"Email\"",
+      "input \"Password\"",
+      "button \"Sign in\""
+    ],
+    "dashboard": [
+      "a \"Skip to content\"",
+      "a \"ClaimPilot PRO AI-RPA expense review\"",
+      "a \"Dashboard\"",
+      "a \"Claims\"",
+      "a \"Queue\"",
+      "a \"Economics\"",
+      "a \"Ask\"",
+      "a \"Audit Log\"",
+      "a \"Policies & Data\"",
+      "input \"Search claims\"",
+      "button \"Sign out\"",
+      "a \"New Claim\""
+    ],
+    "skipLink": {
+      "focusAfterActivate": "body",
+      "nextTabs": [
+        "a \"New Claim\"",
+        "input \"Search\"",
+        "select \"Department\""
+      ]
+    },
+    "claimReview": [
+      "a \"Skip to content\"",
+      "a \"ClaimPilot PRO AI-RPA expense review\"",
+      "a \"Dashboard\"",
+      "a \"Claims\"",
+      "a \"Queue\"",
+      "a \"Economics\"",
+      "a \"Ask\"",
+      "a \"Audit Log\"",
+      "a \"Policies & Data\"",
+      "a \"Claims\"",
+      "input \"Search claims\"",
+      "button \"Sign out\"",
+      "button \"Zoom out\"",
+      "button \"Zoom in\"",
+      "button \"Fit to width\"",
+      "a \"Open\"",
+      "a \"Download\"",
+      "button \"🚀 Run AI-RPA Audit\""
+    ],
+    "exceptionDialog": {
+      "trigger": "button \"Not an exception (Approval Threshold Breach)\"",
+      "focusOnOpen": "textarea \"Why is this not an exception?\" [in dialog]",
+      "tabOrderInside": [
+        "button \"Cancel\" [in dialog]",
+        "textarea \"Why is this not an exception?\" [in dialog]",
+        "button \"Cancel\" [in dialog]",
+        "textarea \"Why is this not an exception?\" [in dialog]",
+        "button \"Cancel\" [in dialog]",
+        "textarea \"Why is this not an exception?\" [in dialog]",
+        "button \"Cancel\" [in dialog]",
+        "textarea \"Why is this not an exception?\" [in dialog]"
+      ],
+      "focusTrapped": true,
+      "focusAfterEscape": "(body)",
+      "returnedToTrigger": false
+    },
+    "postDialog": {
+      "trigger": "button \"Post to SAP\"",
+      "focusOnOpen": "button \"Cancel\" [in dialog]",
+      "tabOrderInside": [
+        "button \"Confirm posting\" [in dialog]",
+        "button \"Cancel\" [in dialog]",
+        "button \"Confirm posting\" [in dialog]",
+        "button \"Cancel\" [in dialog]",
+        "button \"Confirm posting\" [in dialog]",
+        "button \"Cancel\" [in dialog]"
+      ],
+      "focusTrapped": true,
+      "focusAfterEscape": "button \"Post to SAP\"",
+      "returnedToTrigger": true
+    }
+  },
+  "axe": [
+    {
+      "page": "/login",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "nodes": 1,
+          "targets": [
+            ".inline-flex"
+          ]
+        }
+      ],
+      "passes": 24,
+      "incomplete": 0
+    },
+    {
+      "page": "/dashboard",
+      "violations": [],
+      "passes": 30,
+      "incomplete": 1
+    },
+    {
+      "page": "/claims/CLM-2026-0142",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "nodes": 1,
+          "targets": [
+            ".hover\\:bg-accent-strong"
+          ]
+        }
+      ],
+      "passes": 28,
+      "incomplete": 1
+    },
+    {
+      "page": "/queue",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "nodes": 48,
+          "targets": [
+            "tr:nth-child(1) > td:nth-child(4) > .border-amber-200.bg-amber-50.text-warning > .opacity-80.tabular",
+            "a[href=\"/claims/CLM-2026-0067\"]",
+            "tr:nth-child(2) > td:nth-child(4) > .border-amber-200.bg-amber-50.text-warning > .opacity-80.tabular",
+            "a[href=\"/claims/CLM-2026-0075\"]",
+            "a[href=\"/claims/CLM-2026-0089\"]"
+          ]
+        }
+      ],
+      "passes": 27,
+      "incomplete": 0
+    },
+    {
+      "page": "/economics",
+      "violations": [],
+      "passes": 30,
+      "incomplete": 0
+    }
+  ],
+  "contrast": [
+    {
+      "pair": "--color-muted on white",
+      "fg": "#667085",
+      "bg": "#ffffff",
+      "ratio": 4.97
+    },
+    {
+      "pair": "--color-success on white",
+      "fg": "#067647",
+      "bg": "#ffffff",
+      "ratio": 5.69
+    },
+    {
+      "pair": "--color-warning on white",
+      "fg": "#b54708",
+      "bg": "#ffffff",
+      "ratio": 5.43
+    },
+    {
+      "pair": "--color-danger on white",
+      "fg": "#b42318",
+      "bg": "#ffffff",
+      "ratio": 6.57
+    },
+    {
+      "pair": "--color-info on white",
+      "fg": "#175cd3",
+      "bg": "#ffffff",
+      "ratio": 5.99
+    },
+    {
+      "pair": "--color-accent-strong on white",
+      "fg": "#c2410c",
+      "bg": "#ffffff",
+      "ratio": 5.18
+    },
+    {
+      "pair": "--color-ink on white",
+      "fg": "#101828",
+      "bg": "#ffffff",
+      "ratio": 17.75
+    },
+    {
+      "pair": "--color-muted on --color-canvas (page background)",
+      "fg": "#667085",
+      "bg": "#f3f5f7",
+      "ratio": 4.55
+    },
+    {
+      "pair": "badge neutral",
+      "fg": "#314158",
+      "bg": "#f8fafc",
+      "ratio": 9.9
+    },
+    {
+      "pair": "badge amber",
+      "fg": "#b54708",
+      "bg": "#fffbeb",
+      "ratio": 5.23
+    },
+    {
+      "pair": "badge blue",
+      "fg": "#175cd3",
+      "bg": "#eff6ff",
+      "ratio": 5.5
+    },
+    {
+      "pair": "badge green",
+      "fg": "#067647",
+      "bg": "#ecfdf5",
+      "ratio": 5.4
+    },
+    {
+      "pair": "badge red",
+      "fg": "#b42318",
+      "bg": "#fef2f2",
+      "ratio": 6.01
+    },
+    {
+      "pair": "badge orange",
+      "fg": "#c2410c",
+      "bg": "#fff7ed",
+      "ratio": 4.88
+    },
+    {
+      "pair": "badge navy",
+      "fg": "#ffffff",
+      "bg": "#122c47",
+      "ratio": 14.22
+    }
+  ],
+  "narrowViewport390": {
+    "exceptionsTableScrollsHorizontally": true,
+    "pageScrollsHorizontally": true
+  }
+}

@@ -75,6 +75,8 @@ Claims are always owned by the signed-in user: employee and department come from
 | `pnpm shots` | Captures `docs/images/*` from a running `pnpm dev` (needs `npx playwright install chromium` once) |
 | `pnpm receipts:generate` | Regenerates receipt SVGs + fixtures without touching the DB |
 
+**Accessibility:** [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md) records axe-core results, measured contrast and a keyboard walkthrough, including the known gaps (`pnpm a11y:audit`).
+
 **Grading index:** [docs/SUBMISSION.md](docs/SUBMISSION.md) maps every requirement, decision (D-01 … D-40) and known limitation to the code and to a way to check it.
 
 ## Screenshots

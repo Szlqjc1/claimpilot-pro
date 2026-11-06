@@ -27,6 +27,7 @@ mode.
 | Grounding benchmark: false alarms **harsh 55.8 %**, **realistic 15.2 % → 12.2 %** after OCR clean-up; 852 injected errors, 69.7 % caught end-to-end | `docs/GROUNDING_BENCH.md`, `scripts/grounding-bench.ts:111` | Read the report; `pnpm bench:grounding` (needs `./eng.traineddata`, ~31 min cold, seconds cached) |
 | Review economics and cost curve (`review ⇔ p·L > c`) | `docs/ECONOMICS.md`, `src/lib/risk/economics.ts:19` | `/economics`; `pnpm cost:curve` |
 | Retrieval-first grounded Q&A with citation check | `docs/AI_GOVERNANCE.md`, `src/lib/ask/answer.ts:79` | `/ask` → click an example; the badge says **Template** in mock mode |
+| Accessibility evidence: axe-core on 5 pages (0 violations on `/dashboard` and `/economics`; contrast failures on the orange primary button elsewhere), measured contrast, keyboard walkthrough, known gaps | `docs/ACCESSIBILITY.md`, `scripts/a11y-audit.ts` | Read; `pnpm dev` + `pnpm a11y:audit` |
 | Architecture and AI boundary | `docs/ARCHITECTURE.md`, `docs/AI_GOVERNANCE.md` | Read |
 | Demo walkthrough | `docs/DEMO_SCRIPT.md` | Follow it after `pnpm db:reset` |
 
