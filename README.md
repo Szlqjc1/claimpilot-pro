@@ -10,7 +10,8 @@ Ironwood processes ~1,400 supplier invoices a month. Manual review averages 4.2 
 
 ## Run it
 
-Requirements: **Node 20+** and **pnpm** (`corepack enable pnpm`, or `npm i -g pnpm`).
+Requirements: **Node 22.13+** and **pnpm 12** (`corepack enable pnpm`, or `npm i -g pnpm@12`). pnpm 12 itself
+requires Node 22.13, so a Node 20 toolchain fails before the first command runs.
 
 ```bash
 pnpm install      # first run: about 7 minutes; no API key needed

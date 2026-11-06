@@ -4,8 +4,9 @@
   "private": true,
   "description": "ClaimPilot PRO — AI-RPA expense review for Ironwood Safety Systems (demo)",
   "engines": {
-    "node": ">=20"
+    "node": ">=22.13"
   },
+  "packageManager": "pnpm@12.16.1",
   "scripts": {
     "predev": "node scripts/preflight.mjs",
     "dev": "next dev",

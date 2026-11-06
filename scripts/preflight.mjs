@@ -12,9 +12,12 @@ const ENV = ".env";
 const ENV_EXAMPLE = ".env.example";
 const DB = "prisma/dev.db";
 
-const major = Number(process.versions.node.split(".")[0]);
-if (major < 20) {
-  console.warn(`[preflight] Node ${process.versions.node} detected; this project expects Node 20 or newer.`);
+const [major, minor] = process.versions.node.split(".").map(Number);
+if (major < 22 || (major === 22 && minor < 13)) {
+  console.warn(
+    `[preflight] Node ${process.versions.node} detected; this project needs Node 22.13 or newer ` +
+      `(pnpm 12 uses the built-in node:sqlite module).`,
+  );
 }
 
 function runPrisma(args) {
