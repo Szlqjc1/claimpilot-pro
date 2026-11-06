@@ -1,8 +1,6 @@
 # ClaimPilot PRO
 
-[![CI](https://github.com/OWNER/REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/REPO/actions/workflows/ci.yml)
-
-<!-- Replace OWNER/REPO with the GitHub repository once a remote exists. -->
+[![CI](https://github.com/Szlqjc1/claimpilot-pro/actions/workflows/ci.yml/badge.svg)](https://github.com/Szlqjc1/claimpilot-pro/actions/workflows/ci.yml)
 
 AI-RPA expense review for **Ironwood Safety Systems, Inc.**, a fictional Tier-1 automotive safety supplier (airbag modules, seatbelt assemblies, pretensioners) headquartered in Auburn Hills, MI, with plants in Toledo OH, Chattanooga TN, San Antonio TX and cross-border supply from Monterrey.
 
