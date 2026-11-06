@@ -32,7 +32,7 @@ export function RiskBadge({ level, score }: { level: string | null; score?: numb
     <Badge tone={tone}>
       <Icon className="h-3 w-3" aria-hidden />
       {level}
-      {score !== undefined && score !== null && <span className="tabular opacity-80">· {score}</span>}
+      {score !== undefined && score !== null && <span className="tabular font-normal">· {score}</span>}
     </Badge>
   );
 }

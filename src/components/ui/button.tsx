@@ -7,7 +7,7 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: "bg-accent text-white hover:bg-accent-strong shadow-sm",
+        primary: "bg-accent-strong text-white hover:bg-orange-800 shadow-sm", // white on #c2410c = 5.18:1 (docs/ACCESSIBILITY.md)
         secondary: "border border-line bg-white text-ink hover:bg-slate-50",
         ghost: "text-ink hover:bg-slate-100",
         navy: "bg-navy-950 text-white hover:bg-navy-900",

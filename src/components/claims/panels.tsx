@@ -119,7 +119,7 @@ export function RiskPanel({
                 <p className="tabular text-xl font-semibold">{findings.length}</p>
               </div>
             </div>
-            <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={score ?? 0} aria-label="Risk score">
+            <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={score ?? 0} aria-valuetext={`${score ?? 0} of 100, ${level ?? "not scored"}`} aria-label="Risk score">
               <div className={`h-full ${level === "High" ? "bg-danger" : level === "Medium" ? "bg-[#f79009]" : "bg-success"}`} style={{ width: `${Math.max(2, score ?? 0)}%` }} />
             </div>
             <details className="rounded-lg border border-line">
@@ -186,7 +186,7 @@ export function ExceptionsTable({ findings, analyzed, claimId, canHandle }: { fi
     <Card>
       <CardHeader>
         <div>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle id="exceptions-heading" tabIndex={-1} className="flex items-center gap-2 outline-none">
             <ListChecks className="h-4 w-4 text-accent" aria-hidden /> Exceptions
           </CardTitle>
           <CardDescription>One row per rule finding, with evidence from SAP master data</CardDescription>

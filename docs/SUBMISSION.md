@@ -27,7 +27,7 @@ mode.
 | Grounding benchmark: false alarms **harsh 55.8 %**, **realistic 15.2 % → 12.2 %** after OCR clean-up; 852 injected errors, 69.7 % caught end-to-end | `docs/GROUNDING_BENCH.md`, `scripts/grounding-bench.ts:111` | Read the report; `pnpm bench:grounding` (needs `./eng.traineddata`, ~31 min cold, seconds cached) |
 | Review economics and cost curve (`review ⇔ p·L > c`) | `docs/ECONOMICS.md`, `src/lib/risk/economics.ts:19` | `/economics`; `pnpm cost:curve` |
 | Retrieval-first grounded Q&A with citation check | `docs/AI_GOVERNANCE.md`, `src/lib/ask/answer.ts:79` | `/ask` → click an example; the badge says **Template** in mock mode |
-| Accessibility evidence: axe-core on 5 pages (0 violations on `/dashboard` and `/economics`; contrast failures on the orange primary button elsewhere), measured contrast, keyboard walkthrough, known gaps | `docs/ACCESSIBILITY.md`, `scripts/a11y-audit.ts` | Read; `pnpm dev` + `pnpm a11y:audit` |
+| Accessibility evidence: axe-core on 5 pages (0 violations on all five after the fixes; before/after recorded), measured contrast, keyboard walkthrough including dialog focus return, reflow at 390 px, remaining gaps | `docs/ACCESSIBILITY.md`, `scripts/a11y-audit.ts` | Read; `pnpm dev` + `pnpm a11y:audit` |
 | Architecture and AI boundary | `docs/ARCHITECTURE.md`, `docs/AI_GOVERNANCE.md` | Read |
 | Demo walkthrough | `docs/DEMO_SCRIPT.md` | Follow it after `pnpm db:reset` |
 
@@ -48,7 +48,7 @@ mode.
 | CSV export of claims and the audit log, filter-aware, capped at 10 000 rows, injection-safe, bare-decimal money and UTC dates | `src/lib/export/csv.ts`, `src/lib/export/exports.ts`, `src/app/api/claims/export/route.ts`, `src/app/api/audit/export/route.ts` | `/claims` or `/audit` → **Export CSV** (carries the current filters); `pnpm test src/tests/csv.test.ts` |
 | Every API route requires a session | `src/lib/auth/session.ts:54`, `src/tests/api-auth.test.ts:17` | `pnpm test src/tests/api-auth.test.ts` |
 
-## Decisions (DECISIONS.md D-01 … D-41)
+## Decisions (DECISIONS.md D-01 … D-42)
 
 | ID | Decision | Implementation | How to verify |
 |---|---|---|---|
@@ -93,6 +93,7 @@ mode.
 | D-39 | Reviewer dispositions as one enum; alert precision by rule | `src/lib/domain/constants.ts:61`, `src/lib/economics/precision.ts:21` | Claim → "Not an exception"; `/economics` → Alert precision by rule |
 | D-40 | Realistic scan profile; OCR clean-up chosen by measurement | `src/lib/ai/preprocess.ts:245`, `src/lib/ai/ocr-prep.ts:19` | `docs/GROUNDING_BENCH.md` → Part B table; `src/tests/preprocess.test.ts` |
 | D-41 | Filter-aware CSV export; no BOM; formula-injection guard | `src/lib/export/csv.ts:18`, `src/lib/export/exports.ts`, `src/lib/audit/filters.ts` | `/claims` → Export CSV; `src/tests/csv.test.ts` |
+| D-42 | Accessibility fixes: contrast, dialog focus return, reflow, text alternatives | `src/components/ui/button.tsx:10`, `src/components/claims/exception-actions.tsx`, `src/components/ui/table.tsx:5`, `src/components/dashboard/charts.tsx` | `docs/ACCESSIBILITY.md` (before → after); `pnpm a11y:audit` → 0 violations |
 
 ## Known limitations (README)
 

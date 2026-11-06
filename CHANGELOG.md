@@ -65,6 +65,9 @@ All notable user-visible changes to ClaimPilot PRO. The format follows
 
 ### Fixed
 
+- Accessibility: primary buttons and risk-badge scores meet WCAG AA contrast, the exception dialog returns focus,
+  pages no longer scroll sideways at 390 px, and the risk meter and charts have text alternatives; axe-core now
+  reports 0 violations on the five audited pages. (D-42)
 - Invalid configuration now stops the server with one clear message instead of silently falling back to mock mode.
   (`ce2e1b4`, D-21, D-22)
 - Running an audit in `pnpm dev` no longer triggers a full page rebuild. (`74fee70`, D-23)

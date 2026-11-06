@@ -25,7 +25,7 @@
       "a \"New Claim\""
     ],
     "skipLink": {
-      "focusAfterActivate": "body",
+      "focusAfterActivate": "main",
       "nextTabs": [
         "a \"New Claim\"",
         "input \"Search\"",
@@ -66,8 +66,8 @@
         "textarea \"Why is this not an exception?\" [in dialog]"
       ],
       "focusTrapped": true,
-      "focusAfterEscape": "(body)",
-      "returnedToTrigger": false
+      "focusAfterEscape": "button \"Not an exception (Approval Threshold Breach)\"",
+      "returnedToTrigger": true
     },
     "postDialog": {
       "trigger": "button \"Post to SAP\"",
@@ -88,17 +88,7 @@
   "axe": [
     {
       "page": "/login",
-      "violations": [
-        {
-          "id": "color-contrast",
-          "impact": "serious",
-          "help": "Elements must meet minimum color contrast ratio thresholds",
-          "nodes": 1,
-          "targets": [
-            ".inline-flex"
-          ]
-        }
-      ],
+      "violations": [],
       "passes": 24,
       "incomplete": 0
     },
@@ -110,37 +100,13 @@
     },
     {
       "page": "/claims/CLM-2026-0142",
-      "violations": [
-        {
-          "id": "color-contrast",
-          "impact": "serious",
-          "help": "Elements must meet minimum color contrast ratio thresholds",
-          "nodes": 1,
-          "targets": [
-            ".hover\\:bg-accent-strong"
-          ]
-        }
-      ],
+      "violations": [],
       "passes": 28,
-      "incomplete": 1
+      "incomplete": 0
     },
     {
       "page": "/queue",
-      "violations": [
-        {
-          "id": "color-contrast",
-          "impact": "serious",
-          "help": "Elements must meet minimum color contrast ratio thresholds",
-          "nodes": 48,
-          "targets": [
-            "tr:nth-child(1) > td:nth-child(4) > .border-amber-200.bg-amber-50.text-warning > .opacity-80.tabular",
-            "a[href=\"/claims/CLM-2026-0067\"]",
-            "tr:nth-child(2) > td:nth-child(4) > .border-amber-200.bg-amber-50.text-warning > .opacity-80.tabular",
-            "a[href=\"/claims/CLM-2026-0075\"]",
-            "a[href=\"/claims/CLM-2026-0089\"]"
-          ]
-        }
-      ],
+      "violations": [],
       "passes": 27,
       "incomplete": 0
     },
@@ -245,6 +211,6 @@
   ],
   "narrowViewport390": {
     "exceptionsTableScrollsHorizontally": true,
-    "pageScrollsHorizontally": true
+    "pageScrollsHorizontally": false
   }
 }

@@ -73,7 +73,7 @@ export default async function ClaimReviewPage({ params }: { params: Params }) {
           {claim.riskLevel && <RiskBadge level={claim.riskLevel} score={claim.riskScore} />}
           {claim.assignedRole && <AssignedBadge role={claim.assignedRole} owner={claim.assignedTo} />}
           <ProvenanceBadge source={claim.extractionSource} />
-          <p className="tabular text-3xl font-semibold tracking-tight" aria-label={`Amount ${formatUsd(amountCents)}`}>
+          <p className="tabular text-3xl font-semibold tracking-tight">
             {formatUsd(amountCents)}
           </p>
         </div>

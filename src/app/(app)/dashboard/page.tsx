@@ -41,7 +41,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: SP
         title="Claims Dashboard"
         subtitle={
           <>
-            AI-RPA spend, risk, and exception overview · FY2026 <span className="text-slate-400">·</span> {d.period.label}, data as of {formatEtDate(d.anchor)}
+            AI-RPA spend, risk, and exception overview · FY2026 <span aria-hidden className="text-slate-400">·</span> {d.period.label}, data as of {formatEtDate(d.anchor)}
           </>
         }
         actions={

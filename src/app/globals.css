@@ -5,6 +5,9 @@
 @source not "../../storage";
 @source not "../../storage-test";
 @source not "../../prisma";
+/* Generated evidence (screenshots, a11y JSON, benchmark CSV) lives in docs/: writing it during `pnpm shots` or
+   `pnpm a11y:audit` must not rebuild the app mid-run, and class names quoted in the docs are not CSS source. */
+@source not "../../docs";
 
 @theme {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;

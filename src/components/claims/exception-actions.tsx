@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Loader2 } from "lucide-react";
@@ -22,6 +22,14 @@ export function ExceptionActions({ claimId, exceptionId, anomalyType, message }:
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Focus management (docs/ACCESSIBILITY.md): return focus to the button that opened the dialog; after a successful
+  // disposition that button is gone, so move focus to the Exceptions heading instead.
+  const trigger = useRef<HTMLButtonElement | null>(null);
+  const handled = useRef(false);
+  const open = (d: Disposition, el: HTMLButtonElement) => {
+    trigger.current = el;
+    setMode(d);
+  };
   const length = note.trim().length;
   const valid = length >= MIN && length <= MAX;
 
@@ -43,6 +51,7 @@ export function ExceptionActions({ claimId, exceptionId, anomalyType, message }:
         if (res.status === 409) router.refresh();
         return;
       }
+      handled.current = true;
       toast.success(mode === "Dismissed" ? `${anomalyType} dismissed as not an exception` : `${anomalyType} ${mode.toLowerCase()}`);
       setMode(null);
       setNote("");
@@ -57,20 +66,28 @@ export function ExceptionActions({ claimId, exceptionId, anomalyType, message }:
   return (
     <>
       <div className="flex gap-1.5">
-        <Button size="sm" variant="secondary" onClick={() => setMode("Resolved")}>
+        <Button size="sm" variant="secondary" onClick={(e) => open("Resolved", e.currentTarget)}>
           Resolve<span className="sr-only"> {anomalyType}</span>
         </Button>
-        <Button size="sm" variant="ghost" onClick={() => setMode("Waived")}>
+        <Button size="sm" variant="ghost" onClick={(e) => open("Waived", e.currentTarget)}>
           Waive<span className="sr-only"> {anomalyType}</span>
         </Button>
-        <Button size="sm" variant="ghost" className="text-muted" onClick={() => setMode("Dismissed")}>
+        <Button size="sm" variant="ghost" className="text-muted" onClick={(e) => open("Dismissed", e.currentTarget)}>
           Not an exception<span className="sr-only"> ({anomalyType})</span>
         </Button>
       </div>
       <Dialog.Root open={mode !== null} onOpenChange={(o) => !o && !busy && (setMode(null), setError(null))}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 z-40 bg-black/40" />
-          <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[calc(100%-32px)] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-5 shadow-xl">
+          <Dialog.Content
+            className="fixed left-1/2 top-1/2 z-50 w-[calc(100%-32px)] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-5 shadow-xl"
+            onCloseAutoFocus={(e) => {
+              e.preventDefault();
+              const target = handled.current ? document.getElementById("exceptions-heading") : trigger.current;
+              handled.current = false;
+              target?.focus();
+            }}
+          >
             <Dialog.Title className="text-base font-semibold">
               {mode ? TITLE[mode] : ""}: {anomalyType}
             </Dialog.Title>
