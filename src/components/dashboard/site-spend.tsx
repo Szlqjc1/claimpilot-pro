@@ -56,7 +56,7 @@ export function SiteSpendCard({ rows }: { rows: SiteSpend[] }) {
         </ul>
       </CardContent>
       <p className="border-t border-line px-5 py-3 text-[12px] text-muted">
-        Off-site claims — travel, entertainment and supplier audits — carry no ship-to plant, so they are attributed to the submitter&apos;s home site. The split is shown per row. Claims not yet audited have no extraction and are attributed the same way.
+        Off-site claims (such as travel, entertainment, supplier audits and proving-ground track tests) have no ship-to plant and are attributed to the submitter&apos;s home site. The split is shown per row. Claims not yet audited have no extraction and are attributed the same way.
       </p>
     </Card>
   );
