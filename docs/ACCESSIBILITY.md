@@ -10,15 +10,22 @@ VoiceOver) was run, so screen-reader announcements below are inferred from the m
 
 Before = the first audit (commit `8e847f8`); after = this version.
 
-| Page | Before (rules / nodes) | After | Screenshot (after) |
-|---|---|---|---|
-| `/login` | 1 / 1: `color-contrast` on **Sign in** (white on `#f97316` = 2.8:1) | **0** | [axe-login.png](images/manual/axe-login.png) |
-| `/dashboard` | 0 | **0** (1 item needs manual review, see gaps) | [axe-dashboard.png](images/manual/axe-dashboard.png) |
-| `/claims/CLM-2026-0142` | 1 / 1: `color-contrast` on **🚀 Run AI-RPA Audit** (2.8:1); 1 needs review: `aria-label` on the amount `<p>` | **0**, nothing to review | [axe-claim-0142.png](images/manual/axe-claim-0142.png) |
-| `/queue` | 1 / 48: `color-contrast` on the orange **Review / Post / Audit** buttons (2.8:1) and the faded risk score in badges (3.68:1) | **0** | [axe-queue.png](images/manual/axe-queue.png) |
-| `/economics` | 0 | **0** | [axe-economics.png](images/manual/axe-economics.png) |
+| Page | Before (rules / nodes) | After | Screenshot before | Screenshot after |
+|---|---|---|---|---|
+| `/login` | 1 / 1: `color-contrast` on **Sign in** (white on `#f97316` = 2.8:1) | **0** | [axe-before-login.png](images/manual/axe-before-login.png) | [axe-login.png](images/manual/axe-login.png) |
+| `/dashboard` | 0 | **0** (1 item needs manual review, see gaps) | — | [axe-dashboard.png](images/manual/axe-dashboard.png) |
+| `/claims/CLM-2026-0142` | 1 / 1: `color-contrast` on **🚀 Run AI-RPA Audit** (2.8:1); 1 needs review: `aria-label` on the amount `<p>` | **0**, nothing to review | [axe-before-claim-0142.png](images/manual/axe-before-claim-0142.png) | [axe-claim-0142.png](images/manual/axe-claim-0142.png) |
+| `/queue` | 1 / 48: `color-contrast` on the orange **Review / Post / Audit** buttons (2.8:1) and the faded risk score in badges (3.68:1) | **0** | [axe-before-queue.png](images/manual/axe-before-queue.png) | [axe-queue.png](images/manual/axe-queue.png) |
+| `/economics` | 0 | **0** | — | [axe-economics.png](images/manual/axe-economics.png) |
 
 Each screenshot carries the axe summary in its bottom-right corner.
+
+**Which screenshots show the old orange on purpose.** The three `axe-before-*.png` files are the intentional *before*
+state: they were extracted unchanged from commit `8e847f8` and show the 2.8:1 orange buttons that failed
+`color-contrast`. They were captured while the dev server ran with `AI_MODE=live`; the axe audit runs no AI audit, so
+no model call was involved, but the topbar badge in them reads "DeepSeek live". Every other image under
+`docs/images/manual/` (`axe-*.png` without `before`, `auth-*.png`, `roles-*.png`) is current: it was captured after the
+D-42 colour change, in mock mode (`pnpm a11y:audit`, `pnpm evidence:shots`).
 
 ## Contrast (measured)
 

@@ -24,7 +24,8 @@
     "cost:curve": "tsx --conditions=react-server scripts/cost-curve.ts",
     "bench:degrade": "tsx scripts/degrade.ts",
     "bench:grounding": "tsx scripts/grounding-bench.ts",
-    "a11y:audit": "tsx scripts/a11y-audit.ts"
+    "a11y:audit": "tsx scripts/a11y-audit.ts",
+    "evidence:shots": "tsx scripts/evidence-shots.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
