@@ -1,13 +1,18 @@
 @import "tailwindcss";
 
-/* Runtime data written by the app (receipts, uploads, SQLite) is not CSS source. Without this,
-   every audit write triggers a dev rebuild that orphans the post-audit router.refresh(). */
+/* Directories written at runtime by our own scripts (storage/, storage-test/, prisma/, docs/, .bench-cache/) must
+   never be scanned. Tailwind treats every write as a source change, which rebuilds the dev server and breaks
+   in-flight requests (D-23, D-42, Task 11). The same applies to tool output folders (coverage/, test-results/,
+   playwright-report/, .scratch/). When a script starts writing somewhere new, add the directory here. */
 @source not "../../storage";
 @source not "../../storage-test";
 @source not "../../prisma";
-/* Generated evidence (screenshots, a11y JSON, benchmark CSV) lives in docs/: writing it during `pnpm shots` or
-   `pnpm a11y:audit` must not rebuild the app mid-run, and class names quoted in the docs are not CSS source. */
 @source not "../../docs";
+@source not "../../.bench-cache";
+@source not "../../coverage";
+@source not "../../test-results";
+@source not "../../playwright-report";
+@source not "../../.scratch";
 
 @theme {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
