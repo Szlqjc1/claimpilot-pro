@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" width="720" height="400" font-family="Inter, system-ui, sans-serif" font-size="12" role="img" aria-labelledby="t d">
+  <title id="t">Review cost curve</title>
+  <desc id="d">Total cost (review cost plus expected loss left unreviewed) by review capacity. Lowest total at 25% capacity: $117.59.</desc>
+  <rect width="720" height="400" fill="#ffffff"/>
+  <text x="84" y="22" font-size="14" font-weight="600" fill="#0f172a">Total cost vs review capacity (p = 0.02, c = $18.00)</text>
+  <line x1="84" x2="696" y1="344.0" y2="344.0" stroke="#e2e8f0"/>
+  <text x="76" y="348.0" text-anchor="end" fill="#64748b">$0</text>
+  <line x1="84" x2="696" y1="283.2" y2="283.2" stroke="#e2e8f0"/>
+  <text x="76" y="287.2" text-anchor="end" fill="#64748b">$500</text>
+  <line x1="84" x2="696" y1="222.4" y2="222.4" stroke="#e2e8f0"/>
+  <text x="76" y="226.4" text-anchor="end" fill="#64748b">$1k</text>
+  <line x1="84" x2="696" y1="161.6" y2="161.6" stroke="#e2e8f0"/>
+  <text x="76" y="165.6" text-anchor="end" fill="#64748b">$1.5k</text>
+  <line x1="84" x2="696" y1="100.8" y2="100.8" stroke="#e2e8f0"/>
+  <text x="76" y="104.8" text-anchor="end" fill="#64748b">$2k</text>
+  <line x1="84" x2="696" y1="40.0" y2="40.0" stroke="#e2e8f0"/>
+  <text x="76" y="44.0" text-anchor="end" fill="#64748b">$2.5k</text>
+  <text x="84.0" y="362" text-anchor="middle" fill="#64748b">0%</text>
+  <text x="237.0" y="362" text-anchor="middle" fill="#64748b">10%</text>
+  <text x="390.0" y="362" text-anchor="middle" fill="#64748b">20%</text>
+  <text x="543.0" y="362" text-anchor="middle" fill="#64748b">30%</text>
+  <text x="696.0" y="362" text-anchor="middle" fill="#64748b">40%</text>
+  <line x1="84" x2="696" y1="344" y2="344" stroke="#94a3b8"/>
+  <text x="390" y="388" text-anchor="middle" fill="#334155">Review capacity (share of Analyzed claims, highest p·L/c first)</text>
+  <text transform="translate(18 192) rotate(-90)" text-anchor="middle" fill="#334155">USD</text>
+  <path d="M84.0,40.2 L122.3,176.3 L160.5,176.3 L198.8,293.6 L237.0,293.6 L275.3,315.7 L313.5,329.6 L351.8,329.6 L390.0,338.0 L428.3,338.0 L466.5,342.8 L504.8,343.5 L543.0,343.5 L581.3,344.0 L619.5,344.0 L657.8,344.0 L696.0,344.0" fill="none" stroke="#f97316" stroke-width="2" stroke-dasharray="6 4"/>
+  <path d="M84.0,344.0 L122.3,341.8 L160.5,341.8 L198.8,339.6 L237.0,339.6 L275.3,337.4 L313.5,335.2 L351.8,335.2 L390.0,333.1 L428.3,333.1 L466.5,330.9 L504.8,328.7 L543.0,328.7 L581.3,326.5 L619.5,326.5 L657.8,324.3 L696.0,322.1" fill="none" stroke="#2563eb" stroke-width="2" stroke-dasharray="2 4"/>
+  <path d="M84.0,40.2 L122.3,174.1 L160.5,174.1 L198.8,289.3 L237.0,289.3 L275.3,309.2 L313.5,320.9 L351.8,320.9 L390.0,327.0 L428.3,327.0 L466.5,329.7 L504.8,328.2 L543.0,328.2 L581.3,326.5 L619.5,326.5 L657.8,324.3 L696.0,322.1" fill="none" stroke="#0f172a" stroke-width="2.5"/>
+  <circle cx="466.5" cy="329.7" r="5" fill="#0f172a"/>
+  <text x="474.5" y="321.7" fill="#0f172a" font-weight="600">min $117.59 at 25%</text>
+  <g transform="translate(476 46)">
+    <rect width="216" height="62" rx="6" fill="#ffffff" stroke="#e2e8f0"/>
+    <line x1="10" x2="34" y1="16" y2="16" stroke="#0f172a" stroke-width="2.5"/><text x="42" y="20" fill="#0f172a">Total cost</text>
+    <line x1="10" x2="34" y1="32" y2="32" stroke="#f97316" stroke-width="2" stroke-dasharray="6 4"/><text x="42" y="36" fill="#0f172a">Expected loss not reviewed (Σ p·L)</text>
+    <line x1="10" x2="34" y1="48" y2="48" stroke="#2563eb" stroke-width="2" stroke-dasharray="2 4"/><text x="42" y="52" fill="#0f172a">Review cost (reviewed × c)</text>
+  </g>
+</svg>

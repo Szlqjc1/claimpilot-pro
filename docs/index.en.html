@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ClaimPilot PRO — The invoice-processing agent for accounts payable</title>
+<meta name="description" content="ClaimPilot PRO processes AP invoices end to end: OCR with field-level grounding, cross-system lookup, 18 deterministic rules, an expected-loss gate that decides whether to clear the claim or escalate to a human, and a fully auditable trail.">
+<meta property="og:title" content="ClaimPilot PRO — It runs the invoice queue on its own">
+<meta property="og:description" content="One number decides where it stops: expected loss p·L ≤ c clears on its own, anything above that goes to a human.">
+<meta property="og:image" content="assets/dashboard.png">
+<meta property="og:type" content="website">
+<link rel="alternate" hreflang="zh-CN" href="index.html">
+<link rel="alternate" hreflang="en" href="index.en.html">
+<style>
+  :root{
+    --navy-950:#0a1b2e; --navy-900:#122c47; --navy-800:#1b3a5c; --navy-700:#24496f;
+    --ink:#101828; --muted:#667085; --line:#e4e7ec; --canvas:#f3f5f7;
+    --accent-strong:#c2410c; --accent:#f97316;
+    --success:#067647; --warning:#b54708; --danger:#b42318; --info:#175cd3;
+    --bg:#ffffff; --bg-soft:var(--canvas);
+    --radius:14px; --radius-sm:9px;
+    --shadow:0 1px 2px rgba(16,24,40,.05),0 12px 28px -12px rgba(16,24,40,.18);
+    --font:Inter,"Inter var",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --wrap:1180px;
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink); font-family:var(--font);
+    font-size:16px; line-height:1.65; overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  img{max-width:100%;height:auto;display:block}
+  a{color:var(--info);text-decoration:none}
+  a:hover{text-decoration:underline}
+  a:focus-visible,button:focus-visible{
+    outline:2px solid var(--info);outline-offset:3px;border-radius:4px
+  }
+  code{font-family:var(--mono);font-size:.9em}
+  .wrap{width:100%;max-width:var(--wrap);margin:0 auto;padding:0 20px}
+  .tabular{font-variant-numeric:tabular-nums}
+
+  /* ---------- deploy notice ---------- */
+  .deploy-note{
+    background:#fff7ed;border-bottom:1px solid #f5cfa8;color:#7a3d0a;
+    font-size:13px;line-height:1.55;padding:9px 0
+  }
+  .deploy-note .wrap{display:flex;gap:10px;align-items:flex-start}
+  .deploy-note .k{font-weight:700;flex:none}
+  .deploy-note code{background:#fde8d0;border-radius:5px;padding:1px 5px;font-size:12.5px}
+
+  /* ---------- nav ---------- */
+  .site-nav{
+    position:sticky;top:0;z-index:40;background:rgba(255,255,255,.92);
+    backdrop-filter:saturate(1.6) blur(8px);border-bottom:1px solid var(--line);
+  }
+  .nav-inner{display:flex;align-items:center;gap:14px;min-height:60px}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:16px;color:var(--navy-900);letter-spacing:-.2px}
+  .brand:hover{text-decoration:none}
+  .brand svg{width:28px;height:28px;flex:none}
+  .brand .pro{color:var(--accent-strong)}
+  .nav-links{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .nav-links a.nav-plain{
+    color:var(--ink);font-size:14px;font-weight:500;padding:8px 10px;border-radius:8px;white-space:nowrap
+  }
+  .nav-links a.nav-plain:hover{background:var(--canvas);text-decoration:none}
+  .lang-switch{
+    font-size:13.5px;font-weight:600;color:var(--muted);border:1px solid var(--line);
+    border-radius:8px;padding:6px 11px;white-space:nowrap
+  }
+  .lang-switch:hover{color:var(--navy-900);background:var(--canvas);text-decoration:none}
+
+  /* ---------- buttons ---------- */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    font-family:inherit;font-size:15px;font-weight:600;line-height:1.2;
+    padding:12px 20px;border-radius:10px;border:1px solid transparent;cursor:pointer;
+    transition:transform .16s ease,background-color .16s ease;
+    text-align:center;
+  }
+  .btn:hover{text-decoration:none}
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:var(--accent-strong);color:#fff;box-shadow:0 1px 2px rgba(16,24,40,.12)}
+  .btn-primary:hover{background:#a8390a}
+  .btn-ghost{background:#fff;color:var(--navy-900);border-color:var(--line)}
+  .btn-ghost:hover{background:var(--canvas)}
+  .btn-sm{font-size:14px;padding:9px 14px;border-radius:9px}
+  .btn-lg{font-size:16.5px;padding:14px 24px}
+
+  /* ---------- hero ---------- */
+  .hero{padding:40px 0 14px;background:
+    radial-gradient(1100px 420px at 88% -12%,rgba(249,115,22,.13),transparent 60%),
+    linear-gradient(180deg,#fbfcfe 0%,#ffffff 70%);
+  }
+  .hero-grid{
+    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    column-gap:48px;row-gap:24px;align-items:center;
+  }
+  .hero-copy{grid-column:1 / -1}
+  .hero-lead{grid-column:1}
+  .hero-visual{grid-column:2}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;letter-spacing:.06em;
+    color:var(--navy-700);background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 13px;margin:0
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex:none}
+  h1{
+    font-size:clamp(26px,5.2vw,50px);line-height:1.14;letter-spacing:-.028em;
+    margin:20px 0 0;max-width:100%;font-weight:800;color:var(--navy-950);
+  }
+  h1 em{font-style:normal;color:var(--accent-strong)}
+  .lead{margin:0;max-width:52ch;font-size:clamp(15.5px,2.2vw,18.5px);color:#414c5e}
+  .lead code{background:var(--canvas);border:1px solid var(--line);border-radius:6px;padding:1px 6px;white-space:nowrap}
+  .hero-cta{display:flex;flex-wrap:wrap;gap:10px;margin:26px 0 0}
+
+  /* stats */
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;grid-column:1 / -1}
+  .stat{
+    background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px 17px;box-shadow:var(--shadow)
+  }
+  .stat .n{display:block;font-size:clamp(21px,4.4vw,31px);font-weight:800;letter-spacing:-.025em;color:var(--navy-950);line-height:1.15}
+  .stat .n small{font-size:.5em;font-weight:700;color:var(--muted);margin-left:3px;letter-spacing:0}
+  .stat .l{display:block;margin-top:5px;font-size:12.5px;line-height:1.45;color:var(--muted)}
+  .stat.accent .n{color:var(--accent-strong)}
+
+  /* demo account */
+  .demo{
+    grid-column:1 / -1;margin:0;border:1px solid var(--line);border-left:3px solid var(--navy-900);
+    border-radius:var(--radius-sm);background:#fff;padding:13px 16px;
+    display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;font-size:13.5px
+  }
+  .demo .tag{font-size:11.5px;font-weight:700;letter-spacing:.05em;color:var(--navy-700);text-transform:uppercase}
+  .demo code{background:var(--canvas);border:1px solid var(--line);border-radius:6px;padding:2px 7px;font-size:13px}
+  .demo .note{color:var(--muted);font-size:12.5px}
+
+  /* hero shot */
+  .shot{margin:0}
+  .shot .frame{
+    border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
+    box-shadow:0 28px 56px -28px rgba(10,27,46,.42);background:#fff
+  }
+  .shot img{width:100%;aspect-ratio:1440/900;object-fit:cover;object-position:top center}
+  .shot figcaption{margin-top:9px;font-size:12.5px;color:var(--muted)}
+
+  /* ---------- sections ---------- */
+  section.band{padding:56px 0;border-top:1px solid var(--line)}
+  section.band.soft{background:var(--bg-soft);border-top-color:#e9edf1}
+  .sec-head{max-width:66ch;margin:0 0 28px}
+  .sec-head .kicker{font-size:12.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--accent-strong);margin:0}
+  h2{font-size:clamp(23px,4.2vw,32px);line-height:1.2;letter-spacing:-.02em;margin:8px 0 0;color:var(--navy-950);font-weight:800}
+  .sec-head p{margin:11px 0 0;color:#4b5565;font-size:16px}
+
+  /* 6-step chain */
+  .chain{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .step{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px 17px}
+  .step .n{
+    display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;
+    background:var(--navy-900);color:#fff;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums
+  }
+  .step h3{margin:12px 0 0;font-size:16px;font-weight:700;color:var(--navy-950)}
+  .step p{margin:7px 0 0;font-size:14px;color:#4b5565;line-height:1.6}
+  .step p code{background:var(--canvas);border-radius:5px;padding:1px 5px}
+
+  /* gate */
+  .gate{display:grid;grid-template-columns:1.05fr .95fr;gap:28px;align-items:start}
+  .formula{
+    background:var(--navy-950);color:#fff;border-radius:var(--radius);padding:26px 24px;box-shadow:var(--shadow)
+  }
+  .formula .expr{font-family:var(--mono);font-size:clamp(18px,3.2vw,26px);font-weight:700;letter-spacing:-.01em;margin:0}
+  .formula .expr .op{color:var(--accent)}
+  .formula .expr .eq{color:#7f93ad}
+  .formula p{margin:14px 0 0;font-size:14.5px;color:#c3cede;line-height:1.65}
+  .formula .legend{margin:16px 0 0;padding:0;list-style:none;font-size:13px;color:#a9b8ca}
+  .formula .legend li{display:flex;gap:10px;padding:4px 0}
+  .formula .legend b{color:#fff;font-family:var(--mono);font-weight:700;flex:none}
+  .fig{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin:0}
+  .fig img{width:100%;border-radius:8px;border:1px solid var(--line)}
+  .fig figcaption{margin-top:10px;font-size:12.5px;color:var(--muted)}
+  .callout{
+    margin:22px 0 0;border:1px solid #f2d5b8;background:#fdf6ef;border-radius:var(--radius-sm);padding:14px 16px;
+    font-size:14px;color:#6b3a12;line-height:1.65
+  }
+  .callout b{color:#5a2f0d}
+
+  /* truth */
+  .truth{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .truth article{border-radius:var(--radius);padding:20px;border:1px solid var(--line);background:#fff}
+  .truth article.real{border-color:#b7e0cd;background:#f4fbf7}
+  .truth article.sim{border-color:#e6d3a8;background:#fffcf3}
+  .truth h3{margin:0;font-size:15.5px;font-weight:700;display:flex;align-items:center;gap:8px}
+  .truth .pill{font-size:11px;font-weight:700;letter-spacing:.05em;border-radius:999px;padding:3px 9px;text-transform:uppercase}
+  .truth article.real .pill{background:#d6f2e3;color:#05563a}
+  .truth article.sim .pill{background:#f8edcf;color:#7a5410}
+  .truth ul{margin:14px 0 0;padding:0;list-style:none;font-size:14px;color:#3f4a5a}
+  .truth li{padding:6px 0 6px 20px;position:relative;border-top:1px solid rgba(16,24,40,.06)}
+  .truth li:first-child{border-top:0}
+  .truth li::before{content:"";position:absolute;left:2px;top:14px;width:6px;height:6px;border-radius:50%;background:var(--muted)}
+  .truth article.real li::before{background:var(--success)}
+  .truth article.sim li::before{background:var(--warning)}
+  .truth .aside{margin:14px 0 0;font-size:13px;color:#5b6474}
+
+  /* bench */
+  .bench{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .bench .cell{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+  .bench .cell .n{font-size:clamp(26px,5.4vw,38px);font-weight:800;letter-spacing:-.025em;font-variant-numeric:tabular-nums;color:var(--navy-950)}
+  .bench .cell.harsh .n{color:var(--danger)}
+  .bench .cell.real .n{color:var(--warning)}
+  .bench .cell.clean .n{color:var(--success)}
+  .bench .cell .l{margin-top:4px;font-size:13.5px;color:#4b5565;font-weight:600}
+  .bench .cell .s{margin-top:7px;font-size:12.5px;color:var(--muted);line-height:1.55}
+
+  /* provenance table */
+  .table-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:#fff;-webkit-overflow-scrolling:touch}
+  table{width:100%;border-collapse:collapse;font-size:14px;min-width:660px}
+  caption{text-align:left;padding:14px 16px 0;color:var(--muted);font-size:13px}
+  th,td{padding:11px 16px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  thead th{background:var(--canvas);font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:700;white-space:nowrap}
+  tbody tr:last-child td{border-bottom:0}
+  td.num{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600;color:var(--navy-950)}
+  td code{font-size:12.5px;background:var(--canvas);border-radius:5px;padding:2px 6px;white-space:nowrap}
+  td.src{color:var(--muted);font-size:13px}
+
+  /* code block */
+  .cmds{background:var(--navy-950);border-radius:var(--radius);padding:20px 22px;overflow-x:auto;box-shadow:var(--shadow)}
+  .cmds pre{margin:0;font-family:var(--mono);font-size:14px;line-height:1.85;color:#e6edf5;white-space:pre}
+  .cmds .c{color:#7f93ad}
+  .cmds .g{color:#6ee7b7}
+
+  /* CTA band */
+  .cta-band{background:var(--navy-950);color:#fff;padding:52px 0}
+  .cta-band h2{color:#fff;max-width:22ch}
+  .cta-band p{margin:12px 0 0;color:#c3cede;max-width:60ch}
+  .cta-band .btn{margin-top:24px}
+  .cta-band .btn-primary{background:var(--accent-strong)}
+  .cta-band .btn-primary:hover{background:#d9500f}
+  .cta-band .btn-ghost{background:transparent;color:#fff;border-color:#33506f}
+  .cta-band .btn-ghost:hover{background:#1b3a5c}
+  .cta-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+
+  /* footer */
+  footer.site{padding:34px 0 46px;font-size:13px;color:var(--muted)}
+  footer.site .fgrid{display:flex;flex-wrap:wrap;gap:18px;justify-content:space-between;align-items:flex-start}
+  footer.site p{margin:0 0 8px;max-width:68ch}
+  footer.site .links a{margin-right:16px}
+
+  @media (max-width:960px){
+    .hero-grid{display:flex;flex-direction:column;align-items:stretch;row-gap:0}
+    .hero-copy{order:1}
+    .hero-lead{order:2;margin-top:18px}
+    .stats{order:3;margin-top:20px}
+    .hero-visual{order:4;margin-top:18px}
+    .demo{order:5;margin-top:14px}
+    .chain{grid-template-columns:repeat(2,1fr)}
+    .gate{grid-template-columns:1fr}
+    .truth{grid-template-columns:1fr}
+    .bench{grid-template-columns:1fr}
+  }
+  @media (max-width:620px){
+    body{font-size:15.5px}
+    .hero{padding-top:26px}
+    .br-wide{display:none}
+    h1{font-size:23px;line-height:1.26;text-wrap:balance}
+    .lead{font-size:15px;line-height:1.62}
+    .stats{gap:8px;margin-top:18px}
+    .stat{padding:12px 11px;border-radius:11px}
+    .stat .l{font-size:11.5px}
+    .chain{grid-template-columns:1fr}
+    .nav-links a.nav-plain{display:none}
+    .nav-links .btn{display:none}
+    .hero-cta{gap:8px}
+    .hero-cta .btn{flex:1 1 auto;padding:13px 14px;font-size:15px}
+    .demo{font-size:12.5px;gap:4px 12px;padding:12px 13px}
+    .demo code{font-size:12px}
+    .demo .note{flex:1 1 100%}
+    section.band{padding:42px 0}
+    .deploy-note{font-size:12px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important;animation:none!important;scroll-behavior:auto!important}
+    html{scroll-behavior:auto}
+  }
+  @media print{
+    .site-nav,.hero-cta,.cta-band .btn,.deploy-note{display:none}
+    body{font-size:12pt}
+    section.band{padding:18px 0;break-inside:avoid}
+    a{color:var(--ink);text-decoration:underline}
+  }
+</style>
+</head>
+<body>
+
+<div class="deploy-note" id="deploy-note" hidden>
+  <div class="wrap">
+    <span class="k">Pre-release</span>
+    <span>The survey link has not been swapped yet: every “Join the beta test” button currently points at a GitHub issue
+      (it works, it won't 404). Before launch, replace <code>{{SURVEY_URL}}</code> in <code>index.en.html</code> with your
+      Wenjuanxing / Tencent Questionnaire URL and this notice disappears on its own.</span>
+  </div>
+</div>
+
+<header class="site-nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <path d="M16 4.6 8.1 7.7v7.2c0 4.8 3.2 8.9 7.9 10.4 4.7-1.5 7.9-5.6 7.9-10.4V7.7L16 4.6Z"
+              fill="none" stroke="#122c47" stroke-width="2.2" stroke-linejoin="round"/>
+        <path d="M11.3 14.4 14.3 17.6 20.9 9.7" fill="none" stroke="#c2410c" stroke-width="2.6"
+              stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M10.1 27.4h11.8" fill="none" stroke="#c2410c" stroke-width="2.6" stroke-linecap="round"/>
+      </svg>
+      <span>ClaimPilot <span class="pro">PRO</span></span>
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a class="nav-plain" href="#chain">What it does</a>
+      <a class="nav-plain" href="#gate">The gate</a>
+      <a class="nav-plain" href="#run">Run locally</a>
+      <a class="nav-plain" href="https://github.com/Szlqjc1/claimpilot-pro" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a class="lang-switch" href="index.html" hreflang="zh-CN" lang="zh-CN" title="切换到中文版">中文</a>
+      <a class="btn btn-primary btn-sm" href="https://github.com/Szlqjc1/claimpilot-pro/issues/new?title=%5BFEEDBACK%5D%20ClaimPilot%20PRO%20beta%20feedback" target="_blank" rel="noopener noreferrer" data-survey-link>Join the beta test</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Accounts payable · invoice-processing agent</p>
+        <h1>It runs the invoice queue on its own. <span class="br-wide"><br></span><em>One number decides where it stops.</em></h1>
+      </div>
+
+      <div class="hero-lead">
+        <p class="lead">
+          18 deterministic rules score every invoice 0–100, and an expected-loss gate — <code>p·L ≤ c</code> — decides
+          whether it clears the claim itself or escalates to a human. In the demo dataset it clears
+          <strong class="tabular">65.8%</strong> on its own and hands <strong class="tabular">34.2%</strong> to people,
+          and every one of those decisions leaves an auditable trail.
+        </p>
+        <div class="hero-cta">
+          <a class="btn btn-primary btn-lg" href="https://github.com/Szlqjc1/claimpilot-pro/issues/new?title=%5BFEEDBACK%5D%20ClaimPilot%20PRO%20beta%20feedback" target="_blank" rel="noopener noreferrer" data-survey-link>Join the beta test</a>
+          <a class="btn btn-ghost btn-lg" href="https://github.com/Szlqjc1/claimpilot-pro" target="_blank" rel="noopener noreferrer">Read the source</a>
+        </div>
+      </div>
+
+      <figure class="shot hero-visual">
+        <div class="frame">
+          <img src="assets/dashboard.png" width="1440" height="900"
+               alt="The ClaimPilot PRO dashboard: KPI cards showing total claim spend $3,815,541.16, 130 claims in scope, a 65.8% auto-clear rate, a 34.2% exception rate, $413,603.26 of high-risk exposure, and a 9.6 hour average cycle time, with spend and risk panels by site below.">
+        </div>
+        <figcaption>Real product UI · demo dataset of 130 claims / $3,815,541.16 · all data is fictional</figcaption>
+      </figure>
+
+      <div class="stats">
+        <div class="stat accent">
+          <span class="n tabular">65.8<small>%</small></span>
+          <span class="l">of invoices cleared without human review</span>
+        </div>
+        <div class="stat">
+          <span class="n tabular">9.6<small>hours</small></span>
+          <span class="l">average cycle time (4.2 days by hand)</span>
+        </div>
+        <div class="stat">
+          <span class="n tabular">$413,603</span>
+          <span class="l">high-risk exposure, flagged and handed over</span>
+        </div>
+      </div>
+
+      <div class="demo">
+        <span class="tag">Demo account</span>
+        <code>priya.natarajan@ironwood.example</code>
+        <code>Toledo-Controller-26</code>
+        <span class="note">reviewer role · offline mock mode · no API key needed</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ CHAIN ============ -->
+  <section class="band" id="chain">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="kicker">End to end</p>
+        <h2>Six steps, run to completion</h2>
+        <p>The difference isn't that the AI is clever. It's that the chain finishes on its own — and every step can be explained, priced, and traced.</p>
+      </div>
+
+      <div class="chain">
+        <article class="step">
+          <span class="n">1</span>
+          <h3>Read: OCR + grounding</h3>
+          <p>OCR reads the invoice, an LLM extracts the fields, and <strong>every field is grounded back to the document text</strong>. Extraction errors get caught, not trusted.</p>
+        </article>
+        <article class="step">
+          <span class="n">2</span>
+          <h3>Look across systems</h3>
+          <p>Pulls PO master data, goods-receipt notes and supplier master data on its own, then checks the invoice against history for duplicates. Exceptions don't depend on someone spotting them.</p>
+        </article>
+        <article class="step">
+          <span class="n">3</span>
+          <h3>Judge: 18 rules</h3>
+          <p>18 deterministic rules score 0–100 and land in Low / Medium / High. A single High finding makes the whole claim High.</p>
+        </article>
+        <article class="step">
+          <span class="n">4</span>
+          <h3>Decide: p·L ≤ c</h3>
+          <p>If the expected loss is below the cost of one review, it clears the claim itself. Above that, it escalates. That's the quantified answer to "how far should this be automated?"</p>
+        </article>
+        <article class="step">
+          <span class="n">5</span>
+          <h3>Execute: post &amp; advance</h3>
+          <p>A state machine drives the transitions, posts a simulated MIRO document, and writes to an append-only audit log. Every click carries an idempotency key.</p>
+        </article>
+        <article class="step">
+          <span class="n">6</span>
+          <h3>Output: traceable</h3>
+          <p>CSV export, an audit report, and a traceable decision chain. Why it cleared, why it stopped — both point back to a specific rule and a specific field.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GATE ============ -->
+  <section class="band soft" id="gate">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="kicker">The rule it follows</p>
+        <h2>One number decides where it stops</h2>
+        <p>Not "the model felt good about it." A reproducible piece of arithmetic: is a review even worth its own cost?</p>
+      </div>
+
+      <div class="gate">
+        <div>
+          <div class="formula">
+            <p class="expr"><span>p·L</span> <span class="op">≤</span> <span class="eq">c</span> → clears on its own</p>
+            <p>When the expected loss is below the cost of one human review, reviewing costs more than being wrong — so it clears the claim. Otherwise it escalates.</p>
+            <ul class="legend">
+              <li><b>p</b><span>probability of an error (0.02 in the demo)</span></li>
+              <li><b>L</b><span>loss if this claim is wrong, priced by rule and capped at the invoice total</span></li>
+              <li><b>c</b><span>cost of one human review ($18)</span></li>
+            </ul>
+          </div>
+          <p class="callout">
+            <b>Two constant constraints always go to a human:</b> R-03 duplicate invoices and R-17 bank account changes
+            are excluded from the arithmetic — their damage isn't money. Work is ranked by <code>p·L / c</code>.
+            Rules explain and score; <b>the LLM never assigns the score.</b>
+          </p>
+        </div>
+
+        <figure class="fig">
+          <img src="assets/cost-curve.svg" width="720" height="400"
+               alt="The review cost curve: the x-axis is review capacity and the y-axis is total cost — review cost plus the expected loss left behind by unreviewed claims. At 0% review the total cost is $2,497.99; the curve bottoms out at 25% review capacity at $117.59 and rises slightly afterwards.">
+          <figcaption>Cost curve: 24 analyzed claims, p=0.02, $18 per review.
+            <strong>$2,497.99</strong> with no review, <strong>≈ $117.59 at the optimal 25% review rate</strong>.
+            Source: <code>docs/cost-curve.csv</code> in the repo (<code>pnpm cost:curve</code>).</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ REAL VS SIMULATED ============ -->
+  <section class="band" id="truth">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="kicker">Real vs simulated</p>
+        <h2>What's real, and what's simulated</h2>
+        <p>No hedging here: every item below is something you can run and check locally.</p>
+      </div>
+
+      <div class="truth">
+        <article class="real">
+          <h3><span class="pill">Real</span>Real: runs on your machine</h3>
+          <ul>
+            <li>OCR recognition and field-level grounding</li>
+            <li>18-rule deterministic engine and 0–100 scoring</li>
+            <li>Expected-loss math, the gate, and work ranking</li>
+            <li>Separation of duties (submitter / reviewer / admin)</li>
+            <li>Append-only audit log — no update or delete endpoints</li>
+            <li>CSV export</li>
+            <li>Database-backed Q&amp;A with citations</li>
+          </ul>
+        </article>
+        <article class="sim">
+          <h3><span class="pill">Simulated</span>Simulated: the demo doesn't touch real systems</h3>
+          <ul>
+            <li>SAP master data</li>
+            <li>MIRO posting (records a document number, doesn't call SAP)</li>
+            <li>Payment</li>
+          </ul>
+          <p class="aside">
+            <strong>Optional, and real:</strong> LLM field extraction. Set <code>AI_MODE=live</code> to call DeepSeek;
+            the default mock mode is deterministic, so runs are reproducible.<br>
+            <strong>Not claimed:</strong> no live SAP integration, and no ISO 27001 or SOC 2 certification.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OCR BENCH ============ -->
+  <section class="band soft" id="bench">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="kicker">Why believe it</p>
+        <h2>It measures its own failure rate</h2>
+        <p>Field-level grounding isn't a marketing line. Here's the benchmark: the share of documents where at least one key field can't be found in the OCR text.</p>
+      </div>
+
+      <div class="bench">
+        <div class="cell harsh">
+          <div class="n tabular">55.8%</div>
+          <div class="l">Worst-case degraded documents</div>
+          <div class="s">Scans with the worst injections, where grounding alarms a lot. This is the ceiling on how often the method fails on hostile input.</div>
+        </div>
+        <div class="cell real">
+          <div class="n tabular">15.2%</div>
+          <div class="l">Real office scans</div>
+          <div class="s">Scans that look like what actually comes out of an office. This is the number closer to production.</div>
+        </div>
+        <div class="cell clean">
+          <div class="n tabular">12.2%</div>
+          <div class="l">After cleaning</div>
+          <div class="s">Add one image-preprocessing pass (denoise, deskew) and the same scans alarm far less.</div>
+        </div>
+      </div>
+
+      <p class="callout">
+        <b>Honest boundary:</b> all 130 demo invoices extract correctly, so on their own they only show that grounding
+        doesn't false-alarm on clean data. The three numbers above run on 650 degraded scans and 852 injected errors
+        (<code>pnpm bench:grounding</code>; full table in <code>docs/GROUNDING_BENCH.md</code>).
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ PROVENANCE ============ -->
+  <section class="band" id="numbers">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="kicker">Verifiable</p>
+        <h2>Where every number comes from</h2>
+        <p>Every number on this page can be reproduced from the repo. Here's the mapping.</p>
+      </div>
+
+      <div class="table-scroll">
+        <table>
+          <caption>Number → where it lives in the repo. All values are measured from the repository — no estimates, no industry benchmarks.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Number</th>
+              <th scope="col">What it means</th>
+              <th scope="col">Where it lives in the repo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="num tabular">130 claims / $3,815,541.16</td>
+              <td>Invoice count and total value in the demo dataset</td>
+              <td class="src"><code>pnpm db:reset</code> then <code>pnpm kpi:report</code></td>
+            </tr>
+            <tr>
+              <td class="num tabular">65.8% / 34.2%</td>
+              <td>Auto-clear rate / exception rate</td>
+              <td class="src"><code>pnpm kpi:report</code> (the same formulas the dashboard and <code>/api/kpis</code> use)</td>
+            </tr>
+            <tr>
+              <td class="num tabular">$413,603.26</td>
+              <td>High-risk exposure</td>
+              <td class="src"><code>pnpm kpi:report</code></td>
+            </tr>
+            <tr>
+              <td class="num tabular">9.6 hours / 4.2 days</td>
+              <td>Average cycle time / human baseline</td>
+              <td class="src"><code>pnpm kpi:report</code>; the human baseline is in the repo README</td>
+            </tr>
+            <tr>
+              <td class="num tabular">18 rules · 0–100 · 3 tiers</td>
+              <td>The risk scoring system</td>
+              <td class="src"><code>src/lib/risk/rules.ts</code>, <code>docs/RISK_RULES.md</code></td>
+            </tr>
+            <tr>
+              <td class="num tabular">$2,497.99 → $117.59</td>
+              <td>Total cost with no review vs at the optimal 25% review rate</td>
+              <td class="src"><code>docs/cost-curve.csv</code> (<code>pnpm cost:curve</code>)</td>
+            </tr>
+            <tr>
+              <td class="num tabular">289 tests</td>
+              <td>Automated test count, CI green</td>
+              <td class="src"><code>pnpm test</code> (27 test files, all passing)</td>
+            </tr>
+            <tr>
+              <td class="num tabular">55.8% / 15.2% / 12.2%</td>
+              <td>OCR key-field grounding failure rate</td>
+              <td class="src"><code>docs/GROUNDING_BENCH.md</code> (<code>pnpm bench:grounding</code>)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RUN LOCALLY ============ -->
+  <section class="band soft" id="run">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="kicker">Run it locally</p>
+        <h2>Three commands to the whole thing</h2>
+        <p>Needs Node 22.13+ and pnpm 12. Offline mock mode — no API key.</p>
+      </div>
+
+      <div class="cmds">
+<pre><span class="c"># 1) clone</span>
+git clone https://github.com/Szlqjc1/claimpilot-pro.git
+<span class="c"># 2) install and reset the demo data (130 claims, 3 users)</span>
+cd claimpilot-pro &amp;&amp; pnpm install &amp;&amp; pnpm db:reset
+<span class="c"># 3) start, then open http://localhost:3000</span>
+pnpm dev
+
+<span class="g"># Use http://localhost:3000 — not 127.0.0.1 (session cookies are scoped per host)</span></pre>
+      </div>
+
+      <p class="callout">
+        <b>Demo account:</b> <code>priya.natarajan@ironwood.example</code> / <code>Toledo-Controller-26</code>
+        (reviewer — plant finance controller). The sign-in page lists all three demo accounts.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ CTA ============ -->
+  <section class="cta-band">
+    <div class="wrap">
+      <h2>Before it makes a decision for you, it shows you its reasoning</h2>
+      <p>We're looking for AP and finance teams to put this through real-world testing. You don't need to be technical — just tell us which step you don't follow, and which one you wouldn't trust.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary btn-lg" href="https://github.com/Szlqjc1/claimpilot-pro/issues/new?title=%5BFEEDBACK%5D%20ClaimPilot%20PRO%20beta%20feedback" target="_blank" rel="noopener noreferrer" data-survey-link>Join the beta test</a>
+        <a class="btn btn-ghost btn-lg" href="https://github.com/Szlqjc1/claimpilot-pro" target="_blank" rel="noopener noreferrer">Read the source first</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap fgrid">
+    <div>
+      <p><strong>Demo data notice:</strong> every company, supplier, tax ID, person and invoice in ClaimPilot PRO is fictional
+        and exists only for the demo. Each receipt carries a <code>SAMPLE — NOT A REAL INVOICE</code> watermark. Amounts are in USD.</p>
+      <p>No claim of a live SAP integration, no claim of ISO 27001 / SOC 2 certification, and no claim of reducing fraud by any percentage.</p>
+    </div>
+    <div class="links">
+      <a href="https://github.com/Szlqjc1/claimpilot-pro" target="_blank" rel="noopener noreferrer">GitHub repo</a>
+      <a href="https://github.com/Szlqjc1/claimpilot-pro/blob/main/docs/DEMO_SCRIPT.md" target="_blank" rel="noopener noreferrer">Demo script</a>
+      <a href="https://github.com/Szlqjc1/claimpilot-pro/blob/main/docs/GROUNDING_BENCH.md" target="_blank" rel="noopener noreferrer">Grounding benchmark</a>
+      <a href="https://github.com/Szlqjc1/claimpilot-pro/issues/new?title=%5BFEEDBACK%5D%20ClaimPilot%20PRO%20beta%20feedback" target="_blank" rel="noopener noreferrer" data-survey-link>Feedback survey</a>
+      <a href="index.html" hreflang="zh-CN" lang="zh-CN">中文</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  try {
+    // Survey link: replace {{SURVEY_URL}} with your Wenjuanxing / Tencent Questionnaire URL before launch.
+    // Until then the buttons fall back to a GitHub issue (works, won't 404) and a banner is shown.
+    var SURVEY_URL = "{{SURVEY_URL}}";
+    var resolved = /^https?:\/\//i.test(SURVEY_URL) && SURVEY_URL.indexOf("{{") === -1;
+    Array.prototype.slice.call(document.querySelectorAll("[data-survey-link]")).forEach(function (a) {
+      if (resolved) { a.setAttribute("href", SURVEY_URL); }
+    });
+    if (!resolved) {
+      var note = document.getElementById("deploy-note");
+      if (note) { note.hidden = false; }
+      console.warn("[ClaimPilot] {{SURVEY_URL}} is not replaced yet: buttons point at a GitHub issue. Swap in the survey URL before launch.");
+    }
+
+    // In-page navigation always resolves inside this document.
+    Array.prototype.slice.call(document.querySelectorAll('a[href^="#"]')).forEach(function (a) {
+      a.addEventListener("click", function (ev) {
+        var id = (a.getAttribute("href") || "").slice(1);
+        if (!id) return;
+        var target = document.getElementById(id);
+        if (!target) return;
+        ev.preventDefault();
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (history.replaceState) history.replaceState(null, "", "#" + id);
+      });
+    });
+  } catch (err) {
+    // Even if the enhancement fails, the static content stays fully readable.
+  }
+})();
+</script>
+</body>
+</html>
