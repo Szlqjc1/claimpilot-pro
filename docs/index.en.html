@@ -663,7 +663,7 @@ pnpm dev
   try {
     // Survey link: replace {{SURVEY_URL}} with your Wenjuanxing / Tencent Questionnaire URL before launch.
     // Until then the buttons fall back to a GitHub issue (works, won't 404) and a banner is shown.
-    var SURVEY_URL = "{{SURVEY_URL}}";
+    var SURVEY_URL = "https://github.com/Szlqjc1/claimpilot-pro/issues/new?title=%5B%E5%8F%8D%E9%A6%88%5D%20ClaimPilot%20PRO%20%E4%BD%93%E9%AA%8C%E5%8F%8D%E9%A6%88";
     var resolved = /^https?:\/\//i.test(SURVEY_URL) && SURVEY_URL.indexOf("{{") === -1;
     Array.prototype.slice.call(document.querySelectorAll("[data-survey-link]")).forEach(function (a) {
       if (resolved) { a.setAttribute("href", SURVEY_URL); }
