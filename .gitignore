@@ -26,3 +26,6 @@ eng.traineddata
 
 # Grounding benchmark OCR cache (pnpm bench:grounding)
 .bench-cache/
+
+# WorkBuddy tool scratch
+.workbuddy-ai/
