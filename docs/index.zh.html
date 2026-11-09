@@ -1,16 +1,14 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>ClaimPilot PRO — The invoice-processing agent for accounts payable</title>
-<meta name="description" content="ClaimPilot PRO processes AP invoices end to end: OCR with field-level grounding, cross-system lookup, 18 deterministic rules, an expected-loss gate that decides whether to clear the claim or escalate to a human, and a fully auditable trail.">
-<meta property="og:title" content="ClaimPilot PRO — It runs the invoice queue on its own">
-<meta property="og:description" content="One number decides where it stops: expected loss p·L ≤ c clears on its own, anything above that goes to a human.">
+<title>ClaimPilot PRO — 应付账款发票处理智能体</title>
+<meta name="description" content="ClaimPilot PRO 端到端处理应付账款发票：OCR 读入并回验字段、跨系统取数、18 条确定性规则评分、期望损失闸门决定自主放行或升级给人，全程留下可追溯的审计记录。">
+<meta property="og:title" content="ClaimPilot PRO — 它自己把发票队列跑完">
+<meta property="og:description" content="一个数字决定它停在哪里：期望损失 p·L ≤ c 就自己放行，超过才找人。">
 <meta property="og:image" content="assets/dashboard.png">
 <meta property="og:type" content="website">
-<link rel="alternate" hreflang="zh-CN" href="index.html">
-<link rel="alternate" hreflang="en" href="index.en.html">
 <style>
   :root{
     --navy-950:#0a1b2e; --navy-900:#122c47; --navy-800:#1b3a5c; --navy-700:#24496f;
@@ -20,7 +18,7 @@
     --bg:#ffffff; --bg-soft:var(--canvas);
     --radius:14px; --radius-sm:9px;
     --shadow:0 1px 2px rgba(16,24,40,.05),0 12px 28px -12px rgba(16,24,40,.18);
-    --font:Inter,"Inter var",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    --font:Inter,"Inter var",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",Arial,sans-serif;
     --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
     --wrap:1180px;
   }
@@ -40,6 +38,7 @@
   code{font-family:var(--mono);font-size:.9em}
   .wrap{width:100%;max-width:var(--wrap);margin:0 auto;padding:0 20px}
   .tabular{font-variant-numeric:tabular-nums}
+  .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 
   /* ---------- deploy notice ---------- */
   .deploy-note{
@@ -83,6 +82,8 @@
   .btn:active{transform:translateY(1px)}
   .btn-primary{background:var(--accent-strong);color:#fff;box-shadow:0 1px 2px rgba(16,24,40,.12)}
   .btn-primary:hover{background:#a8390a}
+  .btn-navy{background:var(--navy-900);color:#fff}
+  .btn-navy:hover{background:var(--navy-800)}
   .btn-ghost{background:#fff;color:var(--navy-900);border-color:var(--line)}
   .btn-ghost:hover{background:var(--canvas)}
   .btn-sm{font-size:14px;padding:9px 14px;border-radius:9px}
@@ -106,11 +107,11 @@
   }
   .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex:none}
   h1{
-    font-size:clamp(26px,5.2vw,50px);line-height:1.14;letter-spacing:-.028em;
-    margin:20px 0 0;max-width:100%;font-weight:800;color:var(--navy-950);
+    font-size:clamp(26px,6.2vw,50px);line-height:1.16;letter-spacing:-.025em;
+    margin:20px 0 0;max-width:15em;font-weight:800;color:var(--navy-950);
   }
   h1 em{font-style:normal;color:var(--accent-strong)}
-  .lead{margin:0;max-width:52ch;font-size:clamp(15.5px,2.2vw,18.5px);color:#414c5e}
+  .lead{margin:0;max-width:50ch;font-size:clamp(15.5px,2.3vw,18.5px);color:#414c5e}
   .lead code{background:var(--canvas);border:1px solid var(--line);border-radius:6px;padding:1px 6px;white-space:nowrap}
   .hero-cta{display:flex;flex-wrap:wrap;gap:10px;margin:26px 0 0}
 
@@ -119,8 +120,8 @@
   .stat{
     background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px 17px;box-shadow:var(--shadow)
   }
-  .stat .n{display:block;font-size:clamp(21px,4.4vw,31px);font-weight:800;letter-spacing:-.025em;color:var(--navy-950);line-height:1.15}
-  .stat .n small{font-size:.5em;font-weight:700;color:var(--muted);margin-left:3px;letter-spacing:0}
+  .stat .n{display:block;font-size:clamp(21px,4.6vw,31px);font-weight:800;letter-spacing:-.02em;color:var(--navy-950);line-height:1.15}
+  .stat .n small{font-size:.5em;font-weight:700;color:var(--muted);margin-left:3px}
   .stat .l{display:block;margin-top:5px;font-size:12.5px;line-height:1.45;color:var(--muted)}
   .stat.accent .n{color:var(--accent-strong)}
 
@@ -146,7 +147,7 @@
   /* ---------- sections ---------- */
   section.band{padding:56px 0;border-top:1px solid var(--line)}
   section.band.soft{background:var(--bg-soft);border-top-color:#e9edf1}
-  .sec-head{max-width:66ch;margin:0 0 28px}
+  .sec-head{max-width:62ch;margin:0 0 28px}
   .sec-head .kicker{font-size:12.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--accent-strong);margin:0}
   h2{font-size:clamp(23px,4.2vw,32px);line-height:1.2;letter-spacing:-.02em;margin:8px 0 0;color:var(--navy-950);font-weight:800}
   .sec-head p{margin:11px 0 0;color:#4b5565;font-size:16px}
@@ -167,13 +168,13 @@
   .formula{
     background:var(--navy-950);color:#fff;border-radius:var(--radius);padding:26px 24px;box-shadow:var(--shadow)
   }
-  .formula .expr{font-family:var(--mono);font-size:clamp(18px,3.2vw,26px);font-weight:700;letter-spacing:-.01em;margin:0}
+  .formula .expr{font-family:var(--mono);font-size:clamp(20px,4vw,30px);font-weight:700;letter-spacing:-.01em;margin:0}
   .formula .expr .op{color:var(--accent)}
   .formula .expr .eq{color:#7f93ad}
   .formula p{margin:14px 0 0;font-size:14.5px;color:#c3cede;line-height:1.65}
   .formula .legend{margin:16px 0 0;padding:0;list-style:none;font-size:13px;color:#a9b8ca}
-  .formula .legend li{display:flex;gap:10px;padding:4px 0}
-  .formula .legend b{color:#fff;font-family:var(--mono);font-weight:700;flex:none}
+  .formula .legend li{display:flex;gap:9px;padding:3px 0}
+  .formula .legend b{color:#fff;font-family:var(--mono);font-weight:700}
   .fig{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin:0}
   .fig img{width:100%;border-radius:8px;border:1px solid var(--line)}
   .fig figcaption{margin-top:10px;font-size:12.5px;color:var(--muted)}
@@ -212,7 +213,7 @@
 
   /* provenance table */
   .table-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:#fff;-webkit-overflow-scrolling:touch}
-  table{width:100%;border-collapse:collapse;font-size:14px;min-width:660px}
+  table{width:100%;border-collapse:collapse;font-size:14px;min-width:620px}
   caption{text-align:left;padding:14px 16px 0;color:var(--muted);font-size:13px}
   th,td{padding:11px 16px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
   thead th{background:var(--canvas);font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:700;white-space:nowrap}
@@ -229,8 +230,8 @@
 
   /* CTA band */
   .cta-band{background:var(--navy-950);color:#fff;padding:52px 0}
-  .cta-band h2{color:#fff;max-width:22ch}
-  .cta-band p{margin:12px 0 0;color:#c3cede;max-width:60ch}
+  .cta-band h2{color:#fff}
+  .cta-band p{margin:12px 0 0;color:#c3cede;max-width:56ch}
   .cta-band .btn{margin-top:24px}
   .cta-band .btn-primary{background:var(--accent-strong)}
   .cta-band .btn-primary:hover{background:#d9500f}
@@ -241,7 +242,7 @@
   /* footer */
   footer.site{padding:34px 0 46px;font-size:13px;color:var(--muted)}
   footer.site .fgrid{display:flex;flex-wrap:wrap;gap:18px;justify-content:space-between;align-items:flex-start}
-  footer.site p{margin:0 0 8px;max-width:68ch}
+  footer.site p{margin:0 0 8px;max-width:66ch}
   footer.site .links a{margin-right:16px}
 
   @media (max-width:960px){
@@ -259,8 +260,7 @@
   @media (max-width:620px){
     body{font-size:15.5px}
     .hero{padding-top:26px}
-    .br-wide{display:none}
-    h1{font-size:23px;line-height:1.26;text-wrap:balance}
+    h1{font-size:27px;line-height:1.22}
     .lead{font-size:15px;line-height:1.62}
     .stats{gap:8px;margin-top:18px}
     .stat{padding:12px 11px;border-radius:11px}
@@ -292,10 +292,9 @@
 
 <div class="deploy-note" id="deploy-note" hidden>
   <div class="wrap">
-    <span class="k">Pre-release</span>
-    <span>The survey link has not been swapped yet: every “Join the beta test” button currently points at a GitHub issue
-      (it works, it won't 404). Before launch, replace <code>{{SURVEY_URL}}</code> in <code>index.en.html</code> with your
-      Wenjuanxing / Tencent Questionnaire URL and this notice disappears on its own.</span>
+    <span class="k">预发布版本</span>
+    <span>问卷链接未替换：所有「参加测试并反馈」按钮当前指向 GitHub issue（可用，不会断）。部署前把
+      <code>index.html</code> 里的 <code>{{SURVEY_URL}}</code> 换成问卷星 / 腾讯问卷地址，本提示会自动消失。</span>
   </div>
 </div>
 
@@ -311,13 +310,13 @@
       </svg>
       <span>ClaimPilot <span class="pro">PRO</span></span>
     </a>
-    <nav class="nav-links" aria-label="Main">
-      <a class="nav-plain" href="#chain">What it does</a>
-      <a class="nav-plain" href="#gate">The gate</a>
-      <a class="nav-plain" href="#run">Run locally</a>
+    <nav class="nav-links" aria-label="主导航">
+      <a class="nav-plain" href="#chain">它做什么</a>
+      <a class="nav-plain" href="#gate">自主的判据</a>
+      <a class="nav-plain" href="#run">本地运行</a>
       <a class="nav-plain" href="https://github.com/Szlqjc1/claimpilot-pro" target="_blank" rel="noopener noreferrer">GitHub</a>
-      <a class="lang-switch" href="index.html" hreflang="zh-CN" lang="zh-CN" title="切换到中文版">中文</a>
-      <a class="btn btn-primary btn-sm" href="https://github.com/Szlqjc1/claimpilot-pro/issues/new?title=%5BFEEDBACK%5D%20ClaimPilot%20PRO%20beta%20feedback" target="_blank" rel="noopener noreferrer" data-survey-link>Join the beta test</a>
+      <a class="lang-switch" href="index.html" hreflang="en" lang="en" title="English version">EN</a>
+      <a class="btn btn-primary btn-sm" href="https://github.com/Szlqjc1/claimpilot-pro/issues/new?title=%5B%E5%8F%8D%E9%A6%88%5D%20ClaimPilot%20PRO%20%E4%BD%93%E9%AA%8C%E5%8F%8D%E9%A6%88" target="_blank" rel="noopener noreferrer" data-survey-link>参加测试并反馈</a>
     </nav>
   </div>
 </header>
@@ -329,271 +328,295 @@
     <div class="wrap hero-grid">
 
       <div class="hero-copy">
-        <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Accounts payable · invoice-processing agent</p>
-        <h1>It runs the invoice queue on its own. <span class="br-wide"><br></span><em>One number decides where it stops.</em></h1>
+        <p class="eyebrow"><span class="dot" aria-hidden="true"></span>应付账款 · 发票处理智能体</p>
+        <h1>它读完发票，<br><em>把每个字指给你看。</em></h1>
       </div>
 
       <div class="hero-lead">
         <p class="lead">
-          18 deterministic rules score every invoice 0–100, and an expected-loss gate — <code>p·L ≤ c</code> — decides
-          whether it clears the claim itself or escalates to a human. In the demo dataset it clears
-          <strong class="tabular">65.8%</strong> on its own and hands <strong class="tabular">34.2%</strong> to people,
-          and every one of those decisions leaves an auditable trail.
+          财务每月要一张张核对上千张供应商发票。<strong>它自己读、自己对、自己判</strong>——
+          每个字段都回验到原文，读不到的时候它会说读不到，而不是猜一个填上去。只有它拿不准的，才交给人。
         </p>
         <div class="hero-cta">
-          <a class="btn btn-primary btn-lg" href="https://github.com/Szlqjc1/claimpilot-pro/issues/new?title=%5BFEEDBACK%5D%20ClaimPilot%20PRO%20beta%20feedback" target="_blank" rel="noopener noreferrer" data-survey-link>Join the beta test</a>
-          <a class="btn btn-ghost btn-lg" href="https://github.com/Szlqjc1/claimpilot-pro" target="_blank" rel="noopener noreferrer">Read the source</a>
+          <a class="btn btn-primary btn-lg" href="https://github.com/Szlqjc1/claimpilot-pro/issues/new?title=%5B%E5%8F%8D%E9%A6%88%5D%20ClaimPilot%20PRO%20%E4%BD%93%E9%AA%8C%E5%8F%8D%E9%A6%88" target="_blank" rel="noopener noreferrer" data-survey-link>参加测试并反馈 →</a>
         </div>
       </div>
 
       <figure class="shot hero-visual">
         <div class="frame">
-          <img src="assets/dashboard.png" width="1440" height="900"
-               alt="The ClaimPilot PRO dashboard: KPI cards showing total claim spend $3,815,541.16, 130 claims in scope, a 65.8% auto-clear rate, a 34.2% exception rate, $413,603.26 of high-risk exposure, and a 9.6 hour average cycle time, with spend and risk panels by site below.">
+          <img src="assets/annotated-invoice.png" width="1280" height="900"
+               alt="一张扫描发票的局部：每个被抽出的字段旁边都标着绿色回验结果，例如 Invoice No. 显示 ✓ found · OCR 0.95，并框出该值在原文中的位置。">
         </div>
-        <figcaption>Real product UI · demo dataset of 130 claims / $3,815,541.16 · all data is fictional</figcaption>
+        <figcaption>它读出来的每个字段，都会连同"值在哪一行"一起标回原文</figcaption>
       </figure>
 
       <div class="stats">
         <div class="stat accent">
           <span class="n tabular">65.8<small>%</small></span>
-          <span class="l">of invoices cleared without human review</span>
+          <span class="l">发票被自主放行，无需人工复核</span>
         </div>
         <div class="stat">
-          <span class="n tabular">9.6<small>hours</small></span>
-          <span class="l">average cycle time (4.2 days by hand)</span>
+          <span class="n tabular">9.6<small>小时</small></span>
+          <span class="l">平均处理时长（人工基线 4.2 天）</span>
         </div>
         <div class="stat">
           <span class="n tabular">$413,603</span>
-          <span class="l">high-risk exposure, flagged and handed over</span>
+          <span class="l">高风险敞口金额，被标出并交给人</span>
         </div>
       </div>
 
       <div class="demo">
-        <span class="tag">Demo account</span>
+        <span class="tag">演示账号</span>
         <code>priya.natarajan@ironwood.example</code>
         <code>Toledo-Controller-26</code>
-        <span class="note">reviewer role · offline mock mode · no API key needed</span>
+        <span class="note">reviewer 角色 · 离线 mock 模式，无需任何 API key</span>
       </div>
 
     </div>
   </section>
 
-  <!-- ============ CHAIN ============ -->
+  <!-- ============ 三步 ============ -->
+  <section class="band" id="how">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="kicker">怎么用</p>
+        <h2>三步</h2>
+      </div>
+      <div class="chain">
+        <article class="step">
+          <span class="n">1</span>
+          <h3>把发票传上来</h3>
+          <p>扫描件、手机照片、PDF 都行。不用先填表，也不用先对账。</p>
+        </article>
+        <article class="step">
+          <span class="n">2</span>
+          <h3>它读、它对、它判</h3>
+          <p>每个字段回验到原文，再去核订单、收货单和历史发票，然后按 18 条规则打分。</p>
+        </article>
+        <article class="step">
+          <span class="n">3</span>
+          <h3>需要你的，它标出来</h3>
+          <p>拿不准的连同理由一起交到你手上；你看过、点头，它才过账。</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 链路 ============ -->
   <section class="band" id="chain">
     <div class="wrap">
       <div class="sec-head">
-        <p class="kicker">End to end</p>
-        <h2>Six steps, run to completion</h2>
-        <p>The difference isn't that the AI is clever. It's that the chain finishes on its own — and every step can be explained, priced, and traced.</p>
+        <p class="kicker">端到端链路</p>
+        <h2>六步，它自己跑完</h2>
+        <p>差异不在"AI 很聪明"，而在这条链能自己跑完，并且每一步都能解释、能定价、能追溯。</p>
       </div>
 
       <div class="chain">
         <article class="step">
           <span class="n">1</span>
-          <h3>Read: OCR + grounding</h3>
-          <p>OCR reads the invoice, an LLM extracts the fields, and <strong>every field is grounded back to the document text</strong>. Extraction errors get caught, not trusted.</p>
+          <h3>读入：OCR + 回验</h3>
+          <p>OCR 识别发票，LLM 抽取字段，<strong>每个字段回验到文档原文</strong>——抽错会被发现，而不是被相信。</p>
         </article>
         <article class="step">
           <span class="n">2</span>
-          <h3>Look across systems</h3>
-          <p>Pulls PO master data, goods-receipt notes and supplier master data on its own, then checks the invoice against history for duplicates. Exceptions don't depend on someone spotting them.</p>
+          <h3>跨系统取数</h3>
+          <p>自主查 PO 主数据、收货单（GRN）、供应商主数据，并对历史发票做查重。异常不靠人眼找。</p>
         </article>
         <article class="step">
           <span class="n">3</span>
-          <h3>Judge: 18 rules</h3>
-          <p>18 deterministic rules score 0–100 and land in Low / Medium / High. A single High finding makes the whole claim High.</p>
+          <h3>判断：18 条规则</h3>
+          <p>18 条确定性规则打 0–100 分，落 Low / Medium / High 三档风险。任一 High 发现即整单 High。</p>
         </article>
         <article class="step">
           <span class="n">4</span>
-          <h3>Decide: p·L ≤ c</h3>
-          <p>If the expected loss is below the cost of one review, it clears the claim itself. Above that, it escalates. That's the quantified answer to "how far should this be automated?"</p>
+          <h3>决定：p·L ≤ c</h3>
+          <p>期望损失不超过一次复核的成本，它就自主放行；超过才升级给人。这就是"自动化到哪一步"的量化答案。</p>
         </article>
         <article class="step">
           <span class="n">5</span>
-          <h3>Execute: post &amp; advance</h3>
-          <p>A state machine drives the transitions, posts a simulated MIRO document, and writes to an append-only audit log. Every click carries an idempotency key.</p>
+          <h3>执行：过账与流转</h3>
+          <p>状态机驱动流转，模拟 MIRO 过账，写入只追加的审计日志。每一次点击都带幂等键。</p>
         </article>
         <article class="step">
           <span class="n">6</span>
-          <h3>Output: traceable</h3>
-          <p>CSV export, an audit report, and a traceable decision chain. Why it cleared, why it stopped — both point back to a specific rule and a specific field.</p>
+          <h3>输出：可追溯</h3>
+          <p>CSV 导出、审计报告、可追溯的决策链——为什么放行、为什么停下，都指得回具体规则和具体字段。</p>
         </article>
       </div>
     </div>
   </section>
 
-  <!-- ============ GATE ============ -->
+  <!-- ============ 闸门 ============ -->
   <section class="band soft" id="gate">
     <div class="wrap">
       <div class="sec-head">
-        <p class="kicker">The rule it follows</p>
-        <h2>One number decides where it stops</h2>
-        <p>Not "the model felt good about it." A reproducible piece of arithmetic: is a review even worth its own cost?</p>
+        <p class="kicker">自主的判据</p>
+        <h2>一个数字决定它停在哪里</h2>
+        <p>不是"模型觉得没问题就放行"，而是一条可复核的算术：复核本身值不值钱。</p>
       </div>
 
       <div class="gate">
         <div>
           <div class="formula">
-            <p class="expr"><span>p·L</span> <span class="op">≤</span> <span class="eq">c</span> → clears on its own</p>
-            <p>When the expected loss is below the cost of one human review, reviewing costs more than being wrong — so it clears the claim. Otherwise it escalates.</p>
+            <p class="expr"><span>p·L</span> <span class="op">≤</span> <span class="eq">c</span> → 自主放行</p>
+            <p>期望损失不超过一次人工复核的成本时，复核比犯错更贵——它就自己放行。反之升级给人。</p>
             <ul class="legend">
-              <li><b>p</b><span>probability of an error (0.02 in the demo)</span></li>
-              <li><b>L</b><span>loss if this claim is wrong, priced by rule and capped at the invoice total</span></li>
-              <li><b>c</b><span>cost of one human review ($18)</span></li>
+              <li><b>p</b><span>出错的概率（演示取 0.02）</span></li>
+              <li><b>L</b><span>这笔出错时的损失，按规则定价并以发票总额封顶</span></li>
+              <li><b>c</b><span>一次人工复核的成本（$18）</span></li>
             </ul>
           </div>
           <p class="callout">
-            <b>Two constant constraints always go to a human:</b> R-03 duplicate invoices and R-17 bank account changes
-            are excluded from the arithmetic — their damage isn't money. Work is ranked by <code>p·L / c</code>.
-            Rules explain and score; <b>the LLM never assigns the score.</b>
+            <b>两条常量约束永远送人：</b>R-03 重复发票与 R-17 银行账户变更不参与算术——
+            它们的惩罚不是钱。工作排序用 <code>p·L / c</code>，谁先看谁先看。
+            规则只负责解释与打分，<b>LLM 绝不定分</b>。
           </p>
         </div>
 
         <figure class="fig">
           <img src="assets/cost-curve.svg" width="720" height="400"
-               alt="The review cost curve: the x-axis is review capacity and the y-axis is total cost — review cost plus the expected loss left behind by unreviewed claims. At 0% review the total cost is $2,497.99; the curve bottoms out at 25% review capacity at $117.59 and rises slightly afterwards.">
-          <figcaption>Cost curve: 24 analyzed claims, p=0.02, $18 per review.
-            <strong>$2,497.99</strong> with no review, <strong>≈ $117.59 at the optimal 25% review rate</strong>.
-            Source: <code>docs/cost-curve.csv</code> in the repo (<code>pnpm cost:curve</code>).</figcaption>
+               alt="复核成本曲线：横轴是复核容量，纵轴是总成本（复核成本加上未复核部分留下的期望损失）。0% 复核时总成本 2,497.99 美元；曲线在 25% 复核容量处达到最低点 117.59 美元，之后略微回升。">
+          <figcaption>成本曲线：24 张已分析单据、p=0.02、单次复核 $18。
+            <strong>不复核总成本 $2,497.99</strong>，<strong>最优 25% 复核率 ≈ $117.59</strong>。
+            出处：仓库 <code>docs/cost-curve.csv</code>（<code>pnpm cost:curve</code>）。</figcaption>
         </figure>
       </div>
     </div>
   </section>
 
-  <!-- ============ REAL VS SIMULATED ============ -->
+  <!-- ============ 真实 vs 模拟 ============ -->
   <section class="band" id="truth">
     <div class="wrap">
       <div class="sec-head">
-        <p class="kicker">Real vs simulated</p>
-        <h2>What's real, and what's simulated</h2>
-        <p>No hedging here: every item below is something you can run and check locally.</p>
+        <p class="kicker">真实与模拟</p>
+        <h2>哪些是真的，哪些是模拟的</h2>
+        <p>不说含糊话：下面每一项你都能在本地跑出来验。</p>
       </div>
 
       <div class="truth">
         <article class="real">
-          <h3><span class="pill">Real</span>Real: runs on your machine</h3>
+          <h3><span class="pill">Real</span>真实：本地跑得到</h3>
           <ul>
-            <li>OCR recognition and field-level grounding</li>
-            <li>18-rule deterministic engine and 0–100 scoring</li>
-            <li>Expected-loss math, the gate, and work ranking</li>
-            <li>Separation of duties (submitter / reviewer / admin)</li>
-            <li>Append-only audit log — no update or delete endpoints</li>
-            <li>CSV export</li>
-            <li>Database-backed Q&amp;A with citations</li>
+            <li>OCR 识别与字段回验（grounding）</li>
+            <li>18 条确定性规则引擎与 0–100 分评分</li>
+            <li>期望损失计算、闸门判断与工作排序</li>
+            <li>角色与职责分离（提交者 / 复核者 / 管理员）</li>
+            <li>只追加的审计日志，无更新与删除接口</li>
+            <li>CSV 导出</li>
+            <li>基于数据库的问答与引用</li>
           </ul>
         </article>
         <article class="sim">
-          <h3><span class="pill">Simulated</span>Simulated: the demo doesn't touch real systems</h3>
+          <h3><span class="pill">Simulated</span>模拟：演示不接真实系统</h3>
           <ul>
-            <li>SAP master data</li>
-            <li>MIRO posting (records a document number, doesn't call SAP)</li>
-            <li>Payment</li>
+            <li>SAP 主数据</li>
+            <li>MIRO 过账（会记录单号，但不调用 SAP）</li>
+            <li>付款</li>
           </ul>
           <p class="aside">
-            <strong>Optional, and real:</strong> LLM field extraction. Set <code>AI_MODE=live</code> to call DeepSeek;
-            the default mock mode is deterministic, so runs are reproducible.<br>
-            <strong>Not claimed:</strong> no live SAP integration, and no ISO 27001 or SOC 2 certification.
+            <strong>可选真实：</strong>LLM 字段抽取。设置 <code>AI_MODE=live</code> 会调用 DeepSeek；
+            默认 mock 模式是确定性的抽取，便于复现。<br>
+            <strong>不声称：</strong>没有对接真实 SAP，没有通过 ISO 27001 或 SOC 2 认证。
           </p>
         </article>
       </div>
     </div>
   </section>
 
-  <!-- ============ OCR BENCH ============ -->
+  <!-- ============ OCR 基准 ============ -->
   <section class="band soft" id="bench">
     <div class="wrap">
       <div class="sec-head">
-        <p class="kicker">Why believe it</p>
-        <h2>It measures its own failure rate</h2>
-        <p>Field-level grounding isn't a marketing line. Here's the benchmark: the share of documents where at least one key field can't be found in the OCR text.</p>
+        <p class="kicker">它凭什么这么说</p>
+        <h2>回验自己的失败率</h2>
+        <p>字段回验不是一句宣传语，这里是它自己的基准：至少一个关键字段在 OCR 文本中找不到的文档比例。</p>
       </div>
 
       <div class="bench">
         <div class="cell harsh">
           <div class="n tabular">55.8%</div>
-          <div class="l">Worst-case degraded documents</div>
-          <div class="s">Scans with the worst injections, where grounding alarms a lot. This is the ceiling on how often the method fails on hostile input.</div>
+          <div class="l">极端退化文档</div>
+          <div class="s">人为注入的最坏情况扫描，回验大量报警。这是这套方法在恶劣输入下的失败率上限。</div>
         </div>
         <div class="cell real">
           <div class="n tabular">15.2%</div>
-          <div class="l">Real office scans</div>
-          <div class="s">Scans that look like what actually comes out of an office. This is the number closer to production.</div>
+          <div class="l">真实办公室扫描</div>
+          <div class="s">接近真实办公扫描的画像——这才是上线时更接近的数。</div>
         </div>
         <div class="cell clean">
           <div class="n tabular">12.2%</div>
-          <div class="l">After cleaning</div>
-          <div class="s">Add one image-preprocessing pass (denoise, deskew) and the same scans alarm far less.</div>
+          <div class="l">灰度清洗后</div>
+          <div class="s">加一道图像预处理（去噪、校正）之后，同样的扫描文件回验报警显著下降。</div>
         </div>
       </div>
 
       <p class="callout">
-        <b>Honest boundary:</b> all 130 demo invoices extract correctly, so on their own they only show that grounding
-        doesn't false-alarm on clean data. The three numbers above run on 650 degraded scans and 852 injected errors
-        (<code>pnpm bench:grounding</code>; full table in <code>docs/GROUNDING_BENCH.md</code>).
+        <b>诚实边界：</b>演示用的 130 份发票字段全部正确，因此它们只证明回验在干净数据上不误报；
+        上面三个数字跑在 650 份退化扫描与 852 个注入错误上（<code>pnpm bench:grounding</code>，
+        完整表格见仓库 <code>docs/GROUNDING_BENCH.md</code>）。
       </p>
     </div>
   </section>
 
-  <!-- ============ PROVENANCE ============ -->
+  <!-- ============ 出处 ============ -->
   <section class="band" id="numbers">
     <div class="wrap">
       <div class="sec-head">
-        <p class="kicker">Verifiable</p>
-        <h2>Where every number comes from</h2>
-        <p>Every number on this page can be reproduced from the repo. Here's the mapping.</p>
+        <p class="kicker">可核验</p>
+        <h2>每个数字的出处</h2>
+        <p>本页所有数字都能在仓库里跑出来。下面是对照表。</p>
       </div>
 
       <div class="table-scroll">
         <table>
-          <caption>Number → where it lives in the repo. All values are measured from the repository — no estimates, no industry benchmarks.</caption>
+          <caption>数字 → 仓库出处。全部为仓库实测值，无估算、无行业对标。</caption>
           <thead>
             <tr>
-              <th scope="col">Number</th>
-              <th scope="col">What it means</th>
-              <th scope="col">Where it lives in the repo</th>
+              <th scope="col">数字</th>
+              <th scope="col">含义</th>
+              <th scope="col">仓库出处</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td class="num tabular">130 claims / $3,815,541.16</td>
-              <td>Invoice count and total value in the demo dataset</td>
-              <td class="src"><code>pnpm db:reset</code> then <code>pnpm kpi:report</code></td>
+              <td class="num tabular">130 张 / $3,815,541.16</td>
+              <td>演示数据集的发票张数与总金额</td>
+              <td class="src"><code>pnpm db:reset</code> 后 <code>pnpm kpi:report</code></td>
             </tr>
             <tr>
               <td class="num tabular">65.8% / 34.2%</td>
-              <td>Auto-clear rate / exception rate</td>
-              <td class="src"><code>pnpm kpi:report</code> (the same formulas the dashboard and <code>/api/kpis</code> use)</td>
+              <td>自动放行率 / 异常率</td>
+              <td class="src"><code>pnpm kpi:report</code>（与 dashboard、<code>/api/kpis</code> 同一套公式）</td>
             </tr>
             <tr>
               <td class="num tabular">$413,603.26</td>
-              <td>High-risk exposure</td>
+              <td>高风险敞口金额</td>
               <td class="src"><code>pnpm kpi:report</code></td>
             </tr>
             <tr>
-              <td class="num tabular">9.6 hours / 4.2 days</td>
-              <td>Average cycle time / human baseline</td>
-              <td class="src"><code>pnpm kpi:report</code>; the human baseline is in the repo README</td>
+              <td class="num tabular">9.6 小时 / 4.2 天</td>
+              <td>平均处理时长 / 人工基线</td>
+              <td class="src"><code>pnpm kpi:report</code>；人工基线见仓库 README</td>
             </tr>
             <tr>
-              <td class="num tabular">18 rules · 0–100 · 3 tiers</td>
-              <td>The risk scoring system</td>
-              <td class="src"><code>src/lib/risk/rules.ts</code>, <code>docs/RISK_RULES.md</code></td>
+              <td class="num tabular">18 条规则 · 0–100 分 · 三档</td>
+              <td>风险评分体系</td>
+              <td class="src"><code>src/lib/risk/rules.ts</code>、<code>docs/RISK_RULES.md</code></td>
             </tr>
             <tr>
               <td class="num tabular">$2,497.99 → $117.59</td>
-              <td>Total cost with no review vs at the optimal 25% review rate</td>
-              <td class="src"><code>docs/cost-curve.csv</code> (<code>pnpm cost:curve</code>)</td>
+              <td>不复核 vs 最优 25% 复核率的总成本</td>
+              <td class="src"><code>docs/cost-curve.csv</code>（<code>pnpm cost:curve</code>）</td>
             </tr>
             <tr>
-              <td class="num tabular">289 tests</td>
-              <td>Automated test count, CI green</td>
-              <td class="src"><code>pnpm test</code> (27 test files, all passing)</td>
+              <td class="num tabular">289 个测试</td>
+              <td>自动化测试数，CI 通过</td>
+              <td class="src"><code>pnpm test</code>（27 个测试文件全部通过）</td>
             </tr>
             <tr>
               <td class="num tabular">55.8% / 15.2% / 12.2%</td>
-              <td>OCR key-field grounding failure rate</td>
-              <td class="src"><code>docs/GROUNDING_BENCH.md</code> (<code>pnpm bench:grounding</code>)</td>
+              <td>OCR 关键字段回验失败率</td>
+              <td class="src"><code>docs/GROUNDING_BENCH.md</code>（<code>pnpm bench:grounding</code>）</td>
             </tr>
           </tbody>
         </table>
@@ -601,29 +624,29 @@
     </div>
   </section>
 
-  <!-- ============ RUN LOCALLY ============ -->
+  <!-- ============ 本地运行 ============ -->
   <section class="band soft" id="run">
     <div class="wrap">
       <div class="sec-head">
-        <p class="kicker">Run it locally</p>
-        <h2>Three commands to the whole thing</h2>
-        <p>Needs Node 22.13+ and pnpm 12. Offline mock mode — no API key.</p>
+        <p class="kicker">本地运行</p>
+        <h2>三条命令，把整套跑起来</h2>
+        <p>需要 Node 22.13+ 与 pnpm 12。离线 mock 模式，不需要任何 API key。</p>
       </div>
 
       <div class="cmds">
-<pre><span class="c"># 1) clone</span>
+<pre><span class="c"># 1) 拉代码</span>
 git clone https://github.com/Szlqjc1/claimpilot-pro.git
-<span class="c"># 2) install and reset the demo data (130 claims, 3 users)</span>
+<span class="c"># 2) 装依赖并重置演示数据（130 张发票、3 个用户）</span>
 cd claimpilot-pro &amp;&amp; pnpm install &amp;&amp; pnpm db:reset
-<span class="c"># 3) start, then open http://localhost:3000</span>
+<span class="c"># 3) 启动，打开 http://localhost:3000</span>
 pnpm dev
 
-<span class="g"># Use http://localhost:3000 — not 127.0.0.1 (session cookies are scoped per host)</span></pre>
+<span class="g"># 用 http://localhost:3000 打开，不要用 127.0.0.1（会话 cookie 按 host 隔离）</span></pre>
       </div>
 
       <p class="callout">
-        <b>Demo account:</b> <code>priya.natarajan@ironwood.example</code> / <code>Toledo-Controller-26</code>
-        (reviewer — plant finance controller). The sign-in page lists all three demo accounts.
+        <b>演示账号：</b><code>priya.natarajan@ironwood.example</code> / <code>Toledo-Controller-26</code>（reviewer，工厂财务控制员角色）。
+        登录页也列出了全部三个演示账号。
       </p>
     </div>
   </section>
@@ -631,11 +654,11 @@ pnpm dev
   <!-- ============ CTA ============ -->
   <section class="cta-band">
     <div class="wrap">
-      <h2>Before it makes a decision for you, it shows you its reasoning</h2>
-      <p>We're looking for AP and finance teams to put this through real-world testing. You don't need to be technical — just tell us which step you don't follow, and which one you wouldn't trust.</p>
+      <h2>它在替你做决定之前，先让你看它的判断依据</h2>
+      <p>我们正在找应付账款和财务团队做真实可用性测试。你不需要懂技术，只需要告诉我们：哪一步你看不懂，哪一步你不敢信。</p>
       <div class="cta-row">
-        <a class="btn btn-primary btn-lg" href="https://github.com/Szlqjc1/claimpilot-pro/issues/new?title=%5BFEEDBACK%5D%20ClaimPilot%20PRO%20beta%20feedback" target="_blank" rel="noopener noreferrer" data-survey-link>Join the beta test</a>
-        <a class="btn btn-ghost btn-lg" href="https://github.com/Szlqjc1/claimpilot-pro" target="_blank" rel="noopener noreferrer">Read the source first</a>
+        <a class="btn btn-primary btn-lg" href="https://github.com/Szlqjc1/claimpilot-pro/issues/new?title=%5B%E5%8F%8D%E9%A6%88%5D%20ClaimPilot%20PRO%20%E4%BD%93%E9%AA%8C%E5%8F%8D%E9%A6%88" target="_blank" rel="noopener noreferrer" data-survey-link>参加测试并反馈</a>
+        <a class="btn btn-ghost btn-lg" href="https://github.com/Szlqjc1/claimpilot-pro" target="_blank" rel="noopener noreferrer">先看看源码</a>
       </div>
     </div>
   </section>
@@ -644,16 +667,17 @@ pnpm dev
 <footer class="site">
   <div class="wrap fgrid">
     <div>
-      <p><strong>Demo data notice:</strong> every company, supplier, tax ID, person and invoice in ClaimPilot PRO is fictional
-        and exists only for the demo. Each receipt carries a <code>SAMPLE — NOT A REAL INVOICE</code> watermark. Amounts are in USD.</p>
-      <p>No claim of a live SAP integration, no claim of ISO 27001 / SOC 2 certification, and no claim of reducing fraud by any percentage.</p>
+      <p><strong>我们是谁：</strong>一支做智能制造与数据科学的学生团队。我们不是财务出身，所以把这个工具做成了"每一步都要能被人看懂"的样子。</p>
+      <p><strong>演示数据声明：</strong>ClaimPilot PRO 的所有公司、供应商、税号、人名与发票均为虚构，仅用于演示。
+        每张收据都带 <code>SAMPLE — NOT A REAL INVOICE</code> 水印。货币单位为美元。</p>
+      <p>不声称对接真实 SAP，不声称通过 ISO 27001 / SOC 2，不声称降低舞弊比例。</p>
     </div>
     <div class="links">
-      <a href="https://github.com/Szlqjc1/claimpilot-pro" target="_blank" rel="noopener noreferrer">GitHub repo</a>
-      <a href="https://github.com/Szlqjc1/claimpilot-pro/blob/main/docs/DEMO_SCRIPT.md" target="_blank" rel="noopener noreferrer">Demo script</a>
-      <a href="https://github.com/Szlqjc1/claimpilot-pro/blob/main/docs/GROUNDING_BENCH.md" target="_blank" rel="noopener noreferrer">Grounding benchmark</a>
-      <a href="https://github.com/Szlqjc1/claimpilot-pro/issues/new?title=%5BFEEDBACK%5D%20ClaimPilot%20PRO%20beta%20feedback" target="_blank" rel="noopener noreferrer" data-survey-link>Feedback survey</a>
-      <a href="index.html" hreflang="zh-CN" lang="zh-CN">中文</a>
+      <a href="https://github.com/Szlqjc1/claimpilot-pro" target="_blank" rel="noopener noreferrer">GitHub 仓库</a>
+      <a href="https://github.com/Szlqjc1/claimpilot-pro/blob/main/docs/DEMO_SCRIPT.md" target="_blank" rel="noopener noreferrer">演示脚本</a>
+      <a href="https://github.com/Szlqjc1/claimpilot-pro/blob/main/docs/GROUNDING_BENCH.md" target="_blank" rel="noopener noreferrer">回验基准</a>
+      <a href="https://github.com/Szlqjc1/claimpilot-pro/issues/new?title=%5B%E5%8F%8D%E9%A6%88%5D%20ClaimPilot%20PRO%20%E4%BD%93%E9%AA%8C%E5%8F%8D%E9%A6%88" target="_blank" rel="noopener noreferrer" data-survey-link>反馈问卷</a>
+      <a href="index.html" hreflang="en" lang="en">English</a>
     </div>
   </div>
 </footer>
@@ -661,8 +685,8 @@ pnpm dev
 <script>
 (function () {
   try {
-    // Survey link: replace {{SURVEY_URL}} with your Wenjuanxing / Tencent Questionnaire URL before launch.
-    // Until then the buttons fall back to a GitHub issue (works, won't 404) and a banner is shown.
+    // 问卷链接：部署前把下面的 {{SURVEY_URL}} 替换成问卷星 / 腾讯问卷的地址。
+    // 未替换时按钮仍然指向仓库 issue（可用、不会断），并在顶部显示一条提示。
     var SURVEY_URL = "https://github.com/Szlqjc1/claimpilot-pro/issues/new?title=%5B%E5%8F%8D%E9%A6%88%5D%20ClaimPilot%20PRO%20%E4%BD%93%E9%AA%8C%E5%8F%8D%E9%A6%88";
     var resolved = /^https?:\/\//i.test(SURVEY_URL) && SURVEY_URL.indexOf("{{") === -1;
     Array.prototype.slice.call(document.querySelectorAll("[data-survey-link]")).forEach(function (a) {
@@ -671,10 +695,10 @@ pnpm dev
     if (!resolved) {
       var note = document.getElementById("deploy-note");
       if (note) { note.hidden = false; }
-      console.warn("[ClaimPilot] {{SURVEY_URL}} is not replaced yet: buttons point at a GitHub issue. Swap in the survey URL before launch.");
+      console.warn("[ClaimPilot] {{SURVEY_URL}} 尚未替换：按钮当前指向仓库 issue，部署前请改成问卷链接。");
     }
 
-    // In-page navigation always resolves inside this document.
+    // 页内导航始终在当前文档内完成。
     Array.prototype.slice.call(document.querySelectorAll('a[href^="#"]')).forEach(function (a) {
       a.addEventListener("click", function (ev) {
         var id = (a.getAttribute("href") || "").slice(1);
@@ -687,7 +711,7 @@ pnpm dev
       });
     });
   } catch (err) {
-    // Even if the enhancement fails, the static content stays fully readable.
+    // 即使增强逻辑失败，静态内容依然完整可读。
   }
 })();
 </script>
