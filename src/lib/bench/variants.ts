@@ -245,7 +245,7 @@ export function fieldOutcome(field: CriticalField, got: Extraction, truth: Extra
 }
 
 export type DocResult = {
-  axis: "label" | "layout";
+  axis: string; // "label" | "layout" | "perspective" | "font" | "quality"
   variant: string;
   claimId: string;
   outcomes: Record<CriticalField, FieldOutcome>;
@@ -254,7 +254,7 @@ export type DocResult = {
 };
 
 export type VariantSummary = {
-  axis: "label" | "layout";
+  axis: string;
   variant: string;
   docs: number;
   returned: number;
@@ -265,13 +265,15 @@ export type VariantSummary = {
   cleared: number;
   clearedWithError: number;
   errorInCleared: number;
+  /** Documents with any outcome other than a correct auto-clear (D-47 decision metric, "error_or_escalation"). */
+  bad: number;
 };
 
 /** A document is wrong if any critical field is wrong or missed. */
 export const docHasError = (r: DocResult) => Object.values(r.outcomes).some((o) => o === "wrong" || o === "missed");
 
 /** The three columns, never one: field accuracy, escalation rate, error rate among auto-cleared claims. */
-export function summarise(rows: DocResult[], axis: "label" | "layout", variant: string): VariantSummary {
+export function summarise(rows: DocResult[], axis: string, variant: string): VariantSummary {
   const rs = rows.filter((r) => r.axis === axis && r.variant === variant);
   const all = rs.flatMap((r) => Object.values(r.outcomes));
   const returned = all.filter((o) => o === "correct" || o === "wrong").length;
@@ -291,5 +293,21 @@ export function summarise(rows: DocResult[], axis: "label" | "layout", variant: 
     cleared: cleared.length,
     clearedWithError,
     errorInCleared: cleared.length ? clearedWithError / cleared.length : 0,
+    bad: rs.filter((r) => !(r.cleared && !docHasError(r))).length,
   };
+}
+
+export type RecoveryDecision = { gap: number; recovered: number; recoveryPct: number | null; verdict: "build" | "do-not-build" | "spike" | "no-measurable-gap" };
+
+/**
+ * The pre-registered rule (docs/PERSPECTIVE.md, written before the run): gap = bad(A1) − bad(A0),
+ * recovered = bad(A1) − bad(A2), recovery% = recovered / gap. ≥ 70 % build; ≤ 30 % (or negative) do not build;
+ * between: spike. A gap of at most one document (≤ 5 % of 20) is "no measurable gap": do not build.
+ */
+export function recoveryDecision(bad: { a0: number; a1: number; a2: number }, docs: number): RecoveryDecision {
+  const gap = bad.a1 - bad.a0;
+  const recovered = bad.a1 - bad.a2;
+  if (gap <= Math.max(1, Math.floor(docs * 0.05))) return { gap, recovered, recoveryPct: null, verdict: "no-measurable-gap" };
+  const recoveryPct = recovered / gap;
+  return { gap, recovered, recoveryPct, verdict: recoveryPct >= 0.7 ? "build" : recoveryPct <= 0.3 ? "do-not-build" : "spike" };
 }

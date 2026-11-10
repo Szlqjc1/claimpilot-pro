@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildSeedPlan } from "@/lib/seed/run";
-import { BENCH_FIELDS, LABEL_SETS, LABEL_VARIANTS, LAYOUT_VARIANTS, docHasError, fieldOutcome, summarise, variantHtml, type DocResult } from "@/lib/bench/variants";
+import { BENCH_FIELDS, LABEL_SETS, LABEL_VARIANTS, LAYOUT_VARIANTS, docHasError, fieldOutcome, recoveryDecision, summarise, variantHtml, type DocResult } from "@/lib/bench/variants";
 import { formatUsd } from "@/lib/domain/money";
 import { totalCents } from "@/lib/receipts/invoice";
 
@@ -65,5 +65,20 @@ describe("summarise: three columns, never one", () => {
     expect(s.errorInCleared).toBeCloseTo(1 / 3);
     expect(docHasError(rows[2])).toBe(true);
     expect(docHasError(rows[3])).toBe(false);
+  });
+});
+
+describe("recoveryDecision: the pre-registered perspective rule (docs/PERSPECTIVE.md)", () => {
+  it("≥ 70 % build, ≤ 30 % do not build, between spike", () => {
+    expect(recoveryDecision({ a0: 0, a1: 10, a2: 2 }, 20)).toEqual({ gap: 10, recovered: 8, recoveryPct: 0.8, verdict: "build" });
+    expect(recoveryDecision({ a0: 0, a1: 10, a2: 3 }, 20).verdict).toBe("build"); // exactly 70 %
+    expect(recoveryDecision({ a0: 0, a1: 10, a2: 7 }, 20).verdict).toBe("do-not-build"); // exactly 30 %
+    expect(recoveryDecision({ a0: 0, a1: 10, a2: 5 }, 20).verdict).toBe("spike");
+  });
+
+  it("negative recovery (rectifying made it worse) does not build; a gap of one document is no gap", () => {
+    expect(recoveryDecision({ a0: 1, a1: 6, a2: 8 }, 20).verdict).toBe("do-not-build");
+    expect(recoveryDecision({ a0: 1, a1: 2, a2: 2 }, 20)).toMatchObject({ recoveryPct: null, verdict: "no-measurable-gap" });
+    expect(recoveryDecision({ a0: 0, a1: 0, a2: 0 }, 20).verdict).toBe("no-measurable-gap");
   });
 });

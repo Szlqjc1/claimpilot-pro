@@ -46,6 +46,7 @@ async function main() {
   const { PROMPT_VERSION_EXTRACT } = await import("../src/lib/domain/constants");
   const { upperBound, lowerBound } = await import("../src/lib/bench/stats");
   const V = await import("../src/lib/bench/variants");
+  const C = await import("../src/lib/bench/capture");
 
   const plan = buildSeedPlan();
   // The 20 documents: seeded claims that AUTO-CLEAR on their reference extraction, evenly spaced by claim ID, so
@@ -57,11 +58,16 @@ async function main() {
   const model = aiConfig().model;
   console.log(`bench:variants — ${picked.length} documents per axis, model ${model}, prompt ${PROMPT_VERSION_EXTRACT}, OCR ${OCR_PIPELINE.mode}/PSM ${OCR_PIPELINE.psm}`);
 
-  type Job = { key: string; claimId: string; label: (typeof V.LABEL_VARIANTS)[number]; layout: (typeof V.LAYOUT_VARIANTS)[number] };
+  type Job = { key: string; claimId: string; label: (typeof V.LABEL_VARIANTS)[number]; layout: (typeof V.LAYOUT_VARIANTS)[number]; capture: import("../src/lib/bench/capture").CaptureId };
   const jobs = new Map<string, Job>();
   for (const c of picked) {
-    for (const label of V.LABEL_VARIANTS) jobs.set(`${c.claimId}|${label}|label-left`, { key: `${c.claimId}|${label}|label-left`, claimId: c.claimId, label, layout: "label-left" });
-    for (const layout of V.LAYOUT_VARIANTS) jobs.set(`${c.claimId}|canonical|${layout}`, { key: `${c.claimId}|canonical|${layout}`, claimId: c.claimId, label: "canonical", layout });
+    for (const label of V.LABEL_VARIANTS) jobs.set(`${c.claimId}|${label}|label-left`, { key: `${c.claimId}|${label}|label-left`, claimId: c.claimId, label, layout: "label-left", capture: "none" });
+    for (const layout of V.LAYOUT_VARIANTS) jobs.set(`${c.claimId}|canonical|${layout}`, { key: `${c.claimId}|canonical|${layout}`, claimId: c.claimId, label: "canonical", layout, capture: "none" });
+    // Perspective arms (Task 14 A): the canonical render, photographed (A1) or photographed and oracle-rectified (A2).
+    for (const arm of C.PERSPECTIVE_ARMS.filter((a) => a.id !== "none")) {
+      const key = `${c.claimId}|canonical|label-left|${arm.id}`;
+      jobs.set(key, { key, claimId: c.claimId, label: "canonical", layout: "label-left", capture: arm.id });
+    }
   }
   await mkdir(CACHE, { recursive: true });
 
@@ -74,15 +80,22 @@ async function main() {
   if (OCR_PIPELINE.psm !== "default") await worker.setParameters({ tessedit_pageseg_mode: OCR_PIPELINE.psm as never });
   try {
     let n = 0;
+    // The last render, kept so the perspective arms of one document do not re-render it.
+    let last = null as { html: string; png: Buffer } | null;
     for (const j of jobs.values()) {
       const doc = plan.claims.find((c) => c.claimId === j.claimId)!.doc;
       const html = V.variantHtml(doc, j.label, j.layout);
-      const file = path.join(CACHE, `ocr-${sha(`${html}|${OCR_PIPELINE.mode}|${OCR_PIPELINE.psm}`)}.json`);
+      // A clean render keeps its Task 13 cache key, so the baseline is reused, never re-read.
+      const capKey = j.capture === "none" ? "" : `|${j.capture}|${C.CAPTURE_VERSION}`;
+      const file = path.join(CACHE, `ocr-${sha(`${html}${capKey}|${OCR_PIPELINE.mode}|${OCR_PIPELINE.psm}`)}.json`);
       if (existsSync(file)) {
         ocr.set(j.key, JSON.parse(await readFile(file, "utf8")));
       } else {
-        await page.setContent(html, { waitUntil: "load" });
-        const png = await page.screenshot({ fullPage: true, type: "png" });
+        if (last?.html !== html) {
+          await page.setContent(html, { waitUntil: "load" });
+          last = { html, png: await page.screenshot({ fullPage: true, type: "png" }) };
+        }
+        const png = j.capture === "none" ? last.png : C.encodePng(C.applyCapture(j.capture, C.decodePng(last.png), j.claimId));
         const { image } = OCR_PIPELINE.mode === "off" ? { image: png } : prepareForOcr(png, "image/png", { mode: OCR_PIPELINE.mode, psm: OCR_PIPELINE.psm });
         const { data } = await worker.recognize(image);
         const entry = { text: data.text, confidence: Math.max(0, Math.min(1, (data.confidence ?? 0) / 100)) };
@@ -138,9 +151,12 @@ async function main() {
     const truth = plan.fixtures.get(j.claimId)!.fixture.extraction;
     const o = ocr.get(j.key)!;
     const x = extracted.get(j.key)!;
-    const axes: ("label" | "layout")[] = [];
-    if (j.layout === "label-left") axes.push("label");
-    if (j.label === "canonical") axes.push("layout");
+    const axes: { axis: string; variant: string }[] = [];
+    if (j.capture === "none") {
+      if (j.layout === "label-left") axes.push({ axis: "label", variant: j.label });
+      if (j.label === "canonical") axes.push({ axis: "layout", variant: j.layout });
+      if (j.label === "canonical" && j.layout === "label-left") axes.push({ axis: "perspective", variant: C.PERSPECTIVE_ARMS[0].label });
+    } else axes.push({ axis: "perspective", variant: C.PERSPECTIVE_ARMS.find((a) => a.id === j.capture)!.label });
     let outcomes: Row["outcomes"];
     let escalated = true; // a failed extraction is a human's: escalated, never cleared
     let cleared = false;
@@ -159,7 +175,7 @@ async function main() {
       rules = result.findings.map((f) => f.ruleId).join(" ") || "—";
       decision = result.decision;
     } else outcomes = Object.fromEntries(V.BENCH_FIELDS.map((f) => [f, (f === "vendorName" ? truth.vendor.name : truth[f]) === null ? "correct-null" : "missed"])) as Row["outcomes"];
-    for (const axis of axes) rows.push({ axis, variant: axis === "label" ? j.label : j.layout, claimId: j.claimId, outcomes, escalated, cleared, rules, decision, ocrConfidence: o.confidence, error: x.error });
+    for (const { axis, variant } of axes) rows.push({ axis, variant, claimId: j.claimId, outcomes, escalated, cleared, rules, decision, ocrConfidence: o.confidence, error: x.error });
   }
 
   // ── 4. write ────────────────────────────────────────────────────────────────────────────────────────────
@@ -173,7 +189,7 @@ async function main() {
 
   const p = (x: number) => `${(x * 100).toFixed(1)} %`;
   const bound = (k: number, n: number) => (n ? `${p(lowerBound(k, n))}–${p(upperBound(k, n))}` : "—");
-  const table = (axis: "label" | "layout", variants: string[]) => {
+  const table = (axis: string, variants: string[]) => {
     const lines = [
       "| Variant | Docs | Field accuracy (returned values) | Escalation rate (R-14 / R-19 / R-20) | Error in auto-cleared claims | Values returned |",
       "|---|---:|---|---|---|---:|",
@@ -186,7 +202,7 @@ async function main() {
     }
     return lines.join("\n");
   };
-  const fieldTable = (axis: "label" | "layout", variants: string[]) => {
+  const fieldTable = (axis: string, variants: string[]) => {
     const lines = [`| Variant | ${V.BENCH_FIELDS.join(" | ")} |`, `|---|${V.BENCH_FIELDS.map(() => "---").join("|")}|`];
     for (const v of variants) {
       const rs = rows.filter((r) => r.axis === axis && r.variant === v);
@@ -237,6 +253,58 @@ async function main() {
   const end = existing.indexOf(END);
   await writeFile(docPath, at >= 0 && end > at ? `${existing.slice(0, at)}${tables}${existing.slice(end + END.length)}` : `${existing.trimEnd()}\n\n${tables}\n`);
   console.log(`\nWrote docs/variants.csv (${rows.length} rows) and the tables in docs/EXTRACTION_VARIANTS.md.`);
+
+  // ── 5. perspective (Task 14 A): results + the pre-registered decision, into docs/PERSPECTIVE.md ─────────────
+  const persp = C.PERSPECTIVE_ARMS.map((a) => V.summarise(rows, "perspective", a.label));
+  if (persp.every((s) => s.docs > 0)) {
+    const by = (label: string) => persp.find((s) => s.variant === label)!;
+    const a0 = by("A0 baseline");
+    const pairs = [
+      { a1: by("A1 pitch 20 / yaw 15"), a2: by("A2 oracle-rectified (20/15)"), decides: true },
+      { a1: by("A1 pitch 10 / yaw 10"), a2: by("A2 oracle-rectified (10/10)"), decides: false },
+    ].map((pr) => ({ ...pr, d: V.recoveryDecision({ a0: a0.bad, a1: pr.a1.bad, a2: pr.a2.bad }, a0.docs) }));
+    const recCell = (s: (typeof persp)[number]) => {
+      const pr = pairs.find((x) => x.a2 === s);
+      if (!pr) return "—";
+      return pr.d.recoveryPct === null ? `n/a (gap ${pr.d.gap})` : `**${p(pr.d.recoveryPct)}** (${pr.d.recovered} of ${pr.d.gap})`;
+    };
+    const VERDICT: Record<string, string> = {
+      build: "≥ 70 % → **build corner detection**: geometry is the bottleneck.",
+      "do-not-build": "≤ 30 % → **do not build corner detection**: the OCR, not the geometry, is the bottleneck.",
+      spike: "between 30 % and 70 % → **recommend a spike, not a build**.",
+      "no-measurable-gap": "gap ≤ 1 document → perspective costs nothing measurable at these angles; **do not build**.",
+    };
+    const decider = pairs[0];
+    const block = [
+      "<!-- results:start (generated by pnpm bench:variants; do not edit by hand) -->",
+      "",
+      `Documents: **${a0.docs}** (${picked.map((c) => c.claimId).join(", ")}). Model \`${model}\`, prompt \`${PROMPT_VERSION_EXTRACT}\`, capture \`${C.CAPTURE_VERSION}\`.`,
+      "",
+      "| Arm | Field accuracy (returned values) | Escalation (R-14 / R-19 / R-20) | Error in auto-cleared | bad (not a correct auto-clear) | Recovery % |",
+      "|---|---|---|---|---|---|",
+      ...persp.map(
+        (s) =>
+          `| ${s.variant} | **${p(s.accuracy)}** (${s.correct}/${s.returned}) | **${p(s.escalationRate)}** (${s.escalated}/${s.docs}) | **${s.cleared ? p(s.errorInCleared) : "—"}** (${s.clearedWithError}/${s.cleared}) | ${s.bad}/${s.docs} | ${recCell(s)} |`,
+      ),
+      "",
+      "Per field:",
+      "",
+      fieldTable("perspective", C.PERSPECTIVE_ARMS.map((a) => a.label)),
+      "",
+      `**Decision (pre-registered rule, deciding pair 20/15):** gap = ${decider.d.gap}, recovered = ${decider.d.recovered}, recovery% = ${decider.d.recoveryPct === null ? "undefined" : p(decider.d.recoveryPct)}: ${VERDICT[decider.d.verdict]}`,
+      `For reference, the 10/10 pair: gap = ${pairs[1].d.gap}, recovered = ${pairs[1].d.recovered}, recovery% = ${pairs[1].d.recoveryPct === null ? "undefined" : p(pairs[1].d.recoveryPct)} (${pairs[1].d.verdict}).`,
+      "",
+      "<!-- results:end -->",
+    ].join("\n");
+    const pPath = path.resolve("docs/PERSPECTIVE.md");
+    if (existsSync(pPath)) {
+      const doc = await readFile(pPath, "utf8");
+      const s0 = doc.indexOf("<!-- results:start");
+      const e0 = doc.indexOf("<!-- results:end -->");
+      if (s0 >= 0 && e0 > s0) await writeFile(pPath, `${doc.slice(0, s0)}${block}${doc.slice(e0 + "<!-- results:end -->".length)}`);
+    }
+    console.log(`Perspective: ${persp.map((s) => `${s.variant}: bad ${s.bad}/${s.docs}`).join(" · ")} → ${decider.d.verdict}`);
+  }
   console.log(`Model calls this run: ${calls} (${inTok} input / ${outTok} output tokens); the rest came from the cache.`);
   console.log(JSON.stringify({ label: json.label, layout: json.layout }, null, 1));
 }
