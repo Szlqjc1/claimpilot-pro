@@ -24,6 +24,7 @@
     "cost:curve": "tsx --conditions=react-server scripts/cost-curve.ts",
     "bench:degrade": "tsx scripts/degrade.ts",
     "bench:grounding": "tsx scripts/grounding-bench.ts",
+    "bench:variants": "tsx --conditions=react-server scripts/extraction-variants.ts",
     "a11y:audit": "tsx scripts/a11y-audit.ts",
     "evidence:shots": "tsx scripts/evidence-shots.ts"
   },

@@ -20,11 +20,12 @@ mode.
 
 | Evidence | Where | How to verify |
 |---|---|---|
-| 333 automated tests (unit + integration against a real SQLite DB) | `src/tests/` (28 files) | `pnpm test` → "Tests 333 passed" |
+| 339 automated tests (unit + integration against a real SQLite DB) | `src/tests/` (29 files) | `pnpm test` → "Tests 339 passed" |
 | CI runs install, migrate, lint, typecheck, test, build | `.github/workflows/ci.yml:27-35` | GitHub Actions badge at the top of `README.md` |
 | Deterministic risk engine: 19 rules (R-01…R-19); 7 hero claims with exact scores | `src/lib/risk/score.ts:28`, `src/tests/risk.test.ts:13` | `pnpm test src/tests/risk.test.ts`; `pnpm db:seed` throws if any hero score drifts (`src/lib/seed/run.ts:130`) |
 | KPI targets | `src/lib/kpi/formulas.ts:44`, `scripts/kpi-report.ts` | `pnpm kpi:report` → every row `OK` |
 | Grounding benchmark: false alarms **harsh 55.8 %**, **realistic 15.2 % → 12.2 %** after OCR clean-up; 852 injected errors, 69.7 % caught end-to-end | `docs/GROUNDING_BENCH.md`, `scripts/grounding-bench.ts:111` | Read the report; `pnpm bench:grounding` (needs `./eng.traineddata`, ~31 min cold, seconds cached) |
+| Extraction variants (labels × layout), live model, 20 docs per axis: layouts 100 % accuracy / 0 % escalation / 0 % error in cleared; labels 98–100 % accuracy, but **4 of 98 auto-cleared documents carried a wrong field** (truncated vendor name ×3, OCR digit insertion in a PO ×1) | [`docs/EXTRACTION_VARIANTS.md`](EXTRACTION_VARIANTS.md), `docs/variants.csv`, `scripts/extraction-variants.ts` | Read the report; `pnpm bench:variants` (needs `AI_MODE=live`, a key and `./eng.traineddata`; exits 0 with a message otherwise; cached re-runs make no model calls) |
 | Field presence: present / absent / unreadable / conflict per critical field; required-vs-optional policy; R-19 escalates a missing required or conflicting field, R-14 a scan too poor to verify. 0 seeded claims trigger R-19 (seed and KPI output byte-identical) | `src/lib/ai/presence.ts:25`, `src/lib/domain/field-policy.ts`, `src/lib/risk/rules.ts:480`, `docs/RISK_RULES.md` | `pnpm test src/tests/presence.test.ts`; a travel claim such as `/claims/CLM-2026-0071` → PO chip "— absent" |
 | Review economics and cost curve (`review ⇔ p·L > c`) | `docs/ECONOMICS.md`, `src/lib/risk/economics.ts:19` | `/economics`; `pnpm cost:curve` |
 | Spend by site: five sites from the invoice ship-to plant, travel/entertainment attributed to the submitter's home site and disclosed per row; totals reconcile with Total Claim Spend | `src/lib/locations.ts:70`, `src/lib/kpi/locations.ts:28` | `/dashboard` → Spend by site; `pnpm test src/tests/locations.test.ts` |
@@ -50,7 +51,7 @@ mode.
 | CSV export of claims and the audit log, filter-aware, capped at 10 000 rows, injection-safe, bare-decimal money and UTC dates | `src/lib/export/csv.ts`, `src/lib/export/exports.ts`, `src/app/api/claims/export/route.ts`, `src/app/api/audit/export/route.ts` | `/claims` or `/audit` → **Export CSV** (carries the current filters); `pnpm test src/tests/csv.test.ts` |
 | Every API route requires a session | `src/lib/auth/session.ts:54`, `src/tests/api-auth.test.ts:17` | `pnpm test src/tests/api-auth.test.ts` |
 
-## Decisions (DECISIONS.md D-01 … D-44)
+## Decisions (DECISIONS.md D-01 … D-45)
 
 | ID | Decision | Implementation | How to verify |
 |---|---|---|---|
@@ -98,6 +99,7 @@ mode.
 | D-42 | Accessibility fixes: contrast, dialog focus return, reflow, text alternatives | `src/components/ui/button.tsx:10`, `src/components/claims/exception-actions.tsx`, `src/components/ui/table.tsx:5`, `src/components/dashboard/charts.tsx` | `docs/ACCESSIBILITY.md` (before → after); `pnpm a11y:audit` → 0 violations |
 | D-43 | Spend by site: ship-to plant, else the submitter's home site; split disclosed per row | `src/lib/locations.ts:70`, `src/lib/kpi/locations.ts:28`, `src/lib/kpi/queries.ts:154` | `/dashboard` → Spend by site; `src/tests/locations.test.ts` |
 | D-44 | Field presence (4 states), PO required only on procurement ≥ $1,000, R-19 (20, High), R-14 rescan message; `PO Number: —` is absent, a blank after a label is unreadable | `src/lib/ai/labels.ts:48`, `src/lib/ai/presence.ts:25`, `src/lib/domain/field-policy.ts`, `src/lib/risk/rules.ts:383`, `src/lib/risk/rules.ts:480` | `src/tests/presence.test.ts`; `docs/RISK_RULES.md` → Field presence |
+| D-45 | Variant benchmark: three columns, never one; R-14 label-without-value tightened to required fields | `src/lib/bench/variants.ts`, `scripts/extraction-variants.ts`, `src/lib/risk/rules.ts:384` | `docs/EXTRACTION_VARIANTS.md`; `src/tests/variants.test.ts`, `src/tests/presence.test.ts` |
 
 ## Known limitations (README)
 
@@ -108,6 +110,6 @@ mode.
 | Uploads cannot be audited in mock mode; Tesseract boxes are not mapped to fields | Explicit 422 with an explanation (D-13). Word-level OCR is now captured for uploads (D-40), the data a field mapping would need. |
 | PDF uploads need rasterising before OCR | Out of scope: no PDF rasteriser dependency. PNG/JPEG work in live OCR. |
 | Posting to SAP is simulated | Out of scope without an SAP system. Posting records a MIRO number and audit rows exactly where a real integration would (`src/lib/audit/disposition.ts:14`). |
-| No end-to-end browser test suite | Mitigated by integration tests against a real DB (333 tests) and recorded manual runs (`docs/images/manual/`). |
+| No end-to-end browser test suite | Mitigated by integration tests against a real DB (339 tests) and recorded manual runs (`docs/images/manual/`). |
 | No self-service sign-up | Deliberate (D-29): an approval system must not let users pick their own role. |
 | Simulated extraction confidence | Labelled in the UI ("OCR: fixture (simulated)"), never used by the model, and grounding has been measured separately on real Tesseract output (D-25, D-37, D-40). |
