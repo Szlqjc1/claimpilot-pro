@@ -14,7 +14,7 @@ import { homographyFromQuad, warpPerspective, type Pt, type Rgba } from "./persp
 import { otsuThreshold, toGray, type GrayImage } from "./preprocess";
 
 /** Part of the benchmark's cache key for detected arms. Bump on any change to the detector or the rectifier. */
-export const CORNER_DETECTOR_VERSION = "corners-v1";
+export const CORNER_DETECTOR_VERSION = "corners-v2";
 export const DETECT_MAX_DIM = 400;
 /** The page must cover at least this fraction of the photo. */
 export const MIN_PAGE_FRACTION = 0.1;
@@ -294,7 +294,51 @@ export function detectPageCorners(img: Rgba): CornerDetection | null {
   // A sane page lies (almost) inside the photo; a corner far outside means a side fit went wrong.
   const slack = 0.05 * Math.max(img.width, img.height);
   if (corners.some((p) => p.x < -slack || p.y < -slack || p.x > img.width + slack || p.y > img.height + slack)) return null;
+  // A page edge is a STEP: paper inside, darker background outside. A table border inside a flat scan is a line with
+  // paper on both sides; without this check its interior could pass for the page and the header would be cropped.
+  if (!corners.every((_, i) => sideIsStep(gray, corners, i))) return null;
   return { corners, threshold, contrast, solidity, factor };
+}
+
+/** Minimum median (inside − outside) gray difference across an interior page side. */
+export const MIN_EDGE_STEP = 30;
+/** Band either side of a page side, px from the fitted edge. */
+const STEP_BAND = { from: 3, to: 20 };
+
+const median = (v: number[]) => {
+  const s = [...v].sort((x, y) => x - y);
+  return s[Math.floor(s.length / 2)];
+};
+
+/**
+ * Is side i (corner i → i+1) a page/background step? At 16 stations along the side, the MEDIAN gray of a band 3–20 px
+ * inside is compared with the median of the band 3–20 px outside. Medians, so a ruled line (a table border, up to
+ * ~8 px) does not count as a darker background. Stations whose outside band leaves the photo are skipped: a side on
+ * the frame edge (a flat scan) cannot be judged and passes, leaving it to the caller's flat-scan guard.
+ */
+function sideIsStep(g: GrayImage, q: PageQuad, i: number): boolean {
+  const [a, b] = [q[i], q[(i + 1) % 4]];
+  const c = { x: (q[0].x + q[1].x + q[2].x + q[3].x) / 4, y: (q[0].y + q[1].y + q[2].y + q[3].y) / 4 };
+  const len = Math.hypot(b.x - a.x, b.y - a.y);
+  let n = { x: -(b.y - a.y) / len, y: (b.x - a.x) / len };
+  const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+  if ((mid.x - c.x) * n.x + (mid.y - c.y) * n.y < 0) n = { x: -n.x, y: -n.y }; // outward
+  const inFrame = (x: number, y: number) => x >= 0 && y >= 0 && x <= g.width && y <= g.height;
+  const diffs: number[] = [];
+  for (let k = 0; k < 16; k++) {
+    const u = 0.15 + (0.7 * k) / 15;
+    const p = { x: a.x + (b.x - a.x) * u, y: a.y + (b.y - a.y) * u };
+    if (!inFrame(p.x + n.x * STEP_BAND.to, p.y + n.y * STEP_BAND.to)) continue;
+    const inside: number[] = [];
+    const outside: number[] = [];
+    for (let d = STEP_BAND.from; d <= STEP_BAND.to; d++) {
+      inside.push(sampleGray(g, p.x - n.x * d, p.y - n.y * d));
+      outside.push(sampleGray(g, p.x + n.x * d, p.y + n.y * d));
+    }
+    diffs.push(median(inside) - median(outside));
+  }
+  if (diffs.length < 4) return true;
+  return median(diffs) >= MIN_EDGE_STEP;
 }
 
 /** The flat-page size for a quad: the longer of each pair of opposite sides (no upscaling, no aspect snapping). */

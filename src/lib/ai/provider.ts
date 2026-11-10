@@ -9,6 +9,8 @@ export type AiConfig = {
   baseUrl: string;
   model: string;
   ocrMode: "fixture" | "tesseract";
+  /** D-50: page rectification for Tesseract uploads (OCR_RECTIFY). */
+  ocrRectify: boolean;
   maxUploadBytes: number;
 };
 
@@ -21,6 +23,7 @@ export function aiConfig(): AiConfig {
     baseUrl: env.DEEPSEEK_BASE_URL.replace(/\/+$/, ""),
     model: env.DEEPSEEK_MODEL,
     ocrMode: env.OCR_MODE,
+    ocrRectify: env.OCR_RECTIFY === "on",
     maxUploadBytes: env.MAX_UPLOAD_MB * 1024 * 1024,
   };
 }

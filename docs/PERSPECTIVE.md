@@ -119,7 +119,7 @@ Per field, capture quality:
 **Decision (pre-registered rule, deciding pair 20/15):** gap = 12, recovered = 12, recovery% = 100.0 %: ≥ 70 % → **build corner detection**: geometry is the bottleneck.
 For reference, the 10/10 pair: gap = 11, recovered = 11, recovery% = 100.0 % (build).
 
-**Detected corners (A3, D-49, detector `corners-v1`):**
+**Detected corners (A3, D-49, detector `corners-v2`):**
 
 | Angle | Page found | Corner error, mean / worst (px, photo ≈ 2550 px wide) | bad A1 → A3 (oracle A2) | Recovery % (A3) |
 |---|---|---|---|---|
@@ -196,13 +196,34 @@ works on real phone photos.
 Unit tests (`src/tests/corners.test.ts`) pin it: corners within 1 px at 0/0, 10/10, 20/15, 25/−20 and −15/25 and
 with 8° roll, and `null` on a bare desk, flat gray, a small white patch and a white disc.
 
-**Not wired into uploads.** `prepareForOcr` (`src/lib/ai/ocr-prep.ts`) is unchanged; whether uploads should
-rectify is a separate decision. Points to settle first:
-- **Flat scans.** On a page that fills the frame, the detector returns ≈ the frame itself. That needs a "skip when
-  the quad is within a few px of the frame" guard, so scans are not resampled for nothing.
-- **Coordinates.** Word boxes (`OcrResult.words`, data only, no field boxes claimed) would refer to the rectified
-  page, not the uploaded photo.
-- **Real photos.** A handful of real phone photos should be checked before trusting the detector on uploads.
+**Wired into uploads (D-50).** Uploads with `OCR_MODE=tesseract` now go through `rectifyForOcr` inside
+`prepareForOcr`, before the grayscale clean-up. Two safeguards ship with it:
+- **Flat-scan guard.** If the detected quad covers more than 90 % of the frame and every corner is within 2 % of its
+  frame corner, the photo goes to OCR as uploaded, not resampled. A flat render of our invoice measures area 0.997
+  and offset 0.0018.
+- **Page/background step check** (in the detector, `corners-v2`). A full-frame scan whose ruled table covers most of
+  the page can make the table's white interior the largest bright region; its quad is well under 90 % of the frame,
+  so the area guard alone would warp it and crop the header off. Every page side not on the frame edge must now show
+  a darker surround: the median gray 3–20 px outside must be at least 30 below the median 3–20 px inside. A ruled line
+  is paper on both sides and fails. With the check disabled, the unit test for this case fails.
+  The benchmark re-run with `corners-v2` gave the same A3 results and made 0 model calls.
+
+Word boxes (`runDetail.ocrWords`) are mapped back onto the photo as uploaded by `wordsToOriginal`: it undoes the
+clean-up's deskew rotation, then maps page → photo through the homography. On a live upload of a 20°/15° photo, 52
+distinct words landed a median 0.4 px from where they should be (90th percentile 1.2 px, worst 3.6 px; words are
+≈ 62 px tall). Unmapped, they would have been up to 308 px off. (The overlay does not draw word boxes for uploads
+today; `boxes` stays `[]`. The stored words are now right for anything that does.)
+
+Every Tesseract upload logs one `ocr.rectify` line with `scope` (`page` or `full-frame`) and `reason`:
+- `rectified` (scope `page`);
+- `no-page`, `flat-scan`, `disabled`, `error` or `prep-fallback` (scope `full-frame`).
+
+When the scope is `full-frame`, the claim page shows an inline hint under the original invoice. `OCR_RECTIFY=off`
+switches the step off; the OCR input is then byte-identical to before D-50. The benchmarks call `prepareForOcr`
+without the option and are unaffected.
+
+**Still synthetic.** All of this was measured on synthetic photos and our own renders. Release waits on 3–5 real
+phone photos, including a flat scan and a blank sheet on a white table (see D-50).
 
 ## Typography and capture quality (Part B)
 

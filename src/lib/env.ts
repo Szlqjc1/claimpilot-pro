@@ -9,6 +9,8 @@ export const envSchema = z.object({
   DATABASE_URL: z.string({ required_error: "DATABASE_URL is required" }).min(1, "DATABASE_URL is required"),
   AI_MODE: z.preprocess(emptyToUndefined, z.enum(["mock", "live"]).default("mock")),
   OCR_MODE: z.preprocess(emptyToUndefined, z.enum(["fixture", "tesseract"]).default("fixture")),
+  /** D-50: detect the page in an uploaded photo and warp it flat before OCR. "off" reads every upload as uploaded. */
+  OCR_RECTIFY: z.preprocess(emptyToUndefined, z.enum(["on", "off"]).default("on")),
   MAX_UPLOAD_MB: z.preprocess(emptyToUndefined, z.coerce.number().int().positive().default(10)),
   DEEPSEEK_API_KEY: z.preprocess((v) => (typeof v === "string" ? v.trim() || undefined : v), z.string().optional()),
   DEEPSEEK_BASE_URL: z.preprocess(emptyToUndefined, z.string().url().default("https://api.deepseek.com")),

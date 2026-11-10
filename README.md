@@ -125,6 +125,7 @@ Stack: Next.js 15 (App Router, React 19, TypeScript strict), Tailwind CSS 4 with
 | `DEEPSEEK_BASE_URL` | | `https://api.deepseek.com` |
 | `DEEPSEEK_MODEL` | | `deepseek-chat` |
 | `OCR_MODE` | `fixture` · `tesseract` | `fixture` |
+| `OCR_RECTIFY` | `on` · `off`: find the page in an uploaded photo and warp it flat before OCR (D-50) | `on` |
 | `MAX_UPLOAD_MB` | | `10` |
 
 - **Mock (default):** seeded claims use deterministic fixtures generated with each receipt. No network. The badge reads *Demo AI*.

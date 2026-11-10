@@ -112,7 +112,7 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
     } else {
       if (!cfg.apiKey) throw new AuditError(503, "AI_NOT_CONFIGURED", "AI provider is not configured");
       if (fixture) ocr = ocrFromFixture(fixture);
-      else if (cfg.ocrMode === "tesseract" && (mime === "image/png" || mime === "image/jpeg")) ocr = await ocrWithTesseract(receipt, mime);
+      else if (cfg.ocrMode === "tesseract" && (mime === "image/png" || mime === "image/jpeg")) ocr = await ocrWithTesseract(receipt, mime, { rectify: cfg.ocrRectify });
       else throw new AuditError(422, "OCR_UNAVAILABLE", "No OCR source for this receipt. Enable OCR_MODE=tesseract for PNG/JPEG uploads.");
       try {
         const live = await extractWithDeepSeek(ocr.text, { category: claim.category }, opts.requestId);
@@ -143,6 +143,12 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
     }
     warnings.push(...extraction.warnings);
     if (ocr.prep?.warning) warnings.push(ocr.prep.warning);
+    // D-50: one line per upload on what OCR read; scope "full-frame" when the page was not detected, the flat-scan
+    // guard skipped the warp, rectification is switched off, or the clean-up fell back to the original.
+    if (ocr.prep?.rectify) {
+      const r = ocr.prep.rectify;
+      console.info(JSON.stringify({ evt: "ocr.rectify", requestId: opts.requestId, claimId, scope: r.scope, reason: r.reason, areaFraction: r.areaFraction, maxCornerOffset: r.maxCornerOffset }));
+    }
     // D-37: deterministic grounding is part of the extraction stage, attached before scoring (R-14 reads it).
     extraction = { ...extraction, fieldChecks: groundExtraction(extraction, ocr.text) };
     // D-44: presence of each critical field (present / absent / unreadable / conflict); R-14 and R-19 read it.

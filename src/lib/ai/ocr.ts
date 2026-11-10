@@ -1,7 +1,7 @@
 import "server-only";
 import { fixtureSchema, type BoundingBox, type ReceiptFixture } from "@/lib/domain/schemas";
 import { readReceiptFile } from "@/lib/receipts/storage";
-import { OCR_PIPELINE, imageSize, prepareForOcr, wordsFromBlocks, type OcrPrep, type OcrWord } from "./ocr-prep";
+import { OCR_PIPELINE, imageSize, prepareForOcr, wordsFromBlocks, wordsToOriginal, type OcrPrep, type OcrWord } from "./ocr-prep";
 
 // OCR adapter. Seeded claims use deterministic fixtures generated with the receipt;
 // uploads use Tesseract.js when OCR_MODE=tesseract.
@@ -32,10 +32,11 @@ export function ocrFromFixture(f: ReceiptFixture): OcrResult {
  * Uploads: optional clean-up (OCR_PIPELINE, chosen by docs/GROUNDING_BENCH.md), then Tesseract. Preprocessing never
  * fails an upload: on any problem it falls back to the original image and records a warning in `prep`.
  */
-export async function ocrWithTesseract(image: Buffer, mime = "image/png"): Promise<OcrResult> {
+export async function ocrWithTesseract(image: Buffer, mime = "image/png", opts: { rectify: boolean } = { rectify: true }): Promise<OcrResult> {
   let input = image;
   let prep: OcrPrep = { preprocessed: false, skewDeg: null, threshold: null, method: null, inkRatio: null, psm: OCR_PIPELINE.psm };
-  if (OCR_PIPELINE.mode !== "off") ({ image: input, prep } = prepareForOcr(image, mime, { mode: OCR_PIPELINE.mode, psm: OCR_PIPELINE.psm }));
+  // D-50: page detection + rectification runs inside the clean-up (flat-scan guard, OCR_RECTIFY switch).
+  if (OCR_PIPELINE.mode !== "off") ({ image: input, prep } = prepareForOcr(image, mime, { mode: OCR_PIPELINE.mode, psm: OCR_PIPELINE.psm, rectify: opts.rectify }));
   const { createWorker } = await import("tesseract.js");
   const worker = await createWorker("eng");
   try {
@@ -44,7 +45,8 @@ export async function ocrWithTesseract(image: Buffer, mime = "image/png"): Promi
     let words: OcrWord[] = [];
     try {
       const size = imageSize(input, mime, prep.preprocessed);
-      words = wordsFromBlocks(data.blocks as never, size.width, size.height);
+      // Normalised to the image Tesseract read; mapped back onto the photo as uploaded (D-50).
+      words = wordsToOriginal(wordsFromBlocks(data.blocks as never, size.width, size.height), prep);
     } catch {
       // Word capture is data only; never fail the OCR over it.
     }

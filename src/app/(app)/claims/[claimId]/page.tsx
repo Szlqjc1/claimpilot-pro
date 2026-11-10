@@ -3,13 +3,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { aiStatus } from "@/lib/ai/provider";
 import { canReview, requireUser } from "@/lib/auth/session";
-import { AlertTriangle, FolderKanban, Send } from "lucide-react";
+import { AlertTriangle, FolderKanban, ScanLine, Send } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { claimIdSchema, parseExtractedData } from "@/lib/domain/schemas";
 import { FIELD_LABELS } from "@/lib/domain/fields";
 import { presenceOf } from "@/lib/ai/presence";
 import { groundExtraction } from "@/lib/ai/grounding";
 import { ocrSourceOf } from "@/lib/domain/ocr-source";
+import { rectifyHint, type OcrPrep } from "@/lib/ai/ocr-prep";
 import { formatUsd, toCents } from "@/lib/domain/money";
 import { formatEt } from "@/lib/domain/dates";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -59,6 +60,8 @@ export default async function ClaimReviewPage({ params }: { params: Params }) {
       ? Object.fromEntries(Object.entries(presenceOf({ ...extracted.data, fieldChecks: checks }, claim.ocrText)).map(([f, p]) => [f, p.state]))
       : null;
   const otherFields = (lastRun?.runDetail as { otherFields?: { label: string; value: string }[] } | null)?.otherFields ?? (extracted?.ok ? extracted.data.otherFields : []);
+  // D-50: when OCR read an upload's full frame (no page found, flat scan, switched off), say so next to the original.
+  const ocrHint = rectifyHint((lastRun?.runDetail as { stageMetrics?: { ocrPrep?: OcrPrep | null } } | null)?.stageMetrics?.ocrPrep?.rectify);
   const differing = diff ? Object.entries(diff).filter(([, d]) => !d.match).map(([f]) => FIELD_LABELS[f] ?? f) : [];
   const openExceptions = claim.exceptions.filter((e) => e.status === "Open").length;
   // UI mirror of the server-side checks (D-27): reviewer/admin, and never on your own claim.
@@ -131,6 +134,12 @@ export default async function ClaimReviewPage({ params }: { params: Params }) {
               ]}
             />
           </Card>
+          {showAi && ocrHint && (
+            <p data-testid="rectify-hint" className="mt-2 flex items-start gap-1.5 text-xs text-muted">
+              <ScanLine className="mt-px h-3.5 w-3.5 shrink-0" aria-hidden />
+              {ocrHint}
+            </p>
+          )}
           <p className="mt-2 text-xs text-muted">SAMPLE — NOT A REAL INVOICE. Fictional vendor and tax data.</p>
         </div>
 
