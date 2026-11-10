@@ -2,13 +2,24 @@
 // OCR. Pure and deterministic: the same render and claim ID always give the same image bytes.
 import { PNG } from "pngjs";
 import jpeg from "jpeg-js";
+import { cornerError, detectPageCorners, rectifyPage, type PageQuad } from "@/lib/ai/corners";
 import { mat3Inverse, warpPerspective, type Rgba } from "./perspective";
-import { deskTexture, photograph, rng } from "./photo";
+import { deskTexture, photograph, projectedCorners, rng } from "./photo";
 
 /** Bump when any capture's pixels change, so cached OCR text from an older capture is never reused. */
 export const CAPTURE_VERSION = "cap1";
 
-export type CaptureId = "none" | "photo-10-10" | "photo-20-15" | "oracle-10-10" | "oracle-20-15" | "shadow" | "clutter" | "low-contrast";
+export type CaptureId =
+  | "none"
+  | "photo-10-10"
+  | "photo-20-15"
+  | "oracle-10-10"
+  | "oracle-20-15"
+  | "detected-10-10"
+  | "detected-20-15"
+  | "shadow"
+  | "clutter"
+  | "low-contrast";
 
 export const PERSPECTIVE_ARMS: { id: CaptureId; label: string }[] = [
   { id: "none", label: "A0 baseline" },
@@ -16,7 +27,12 @@ export const PERSPECTIVE_ARMS: { id: CaptureId; label: string }[] = [
   { id: "photo-20-15", label: "A1 pitch 20 / yaw 15" },
   { id: "oracle-10-10", label: "A2 oracle-rectified (10/10)" },
   { id: "oracle-20-15", label: "A2 oracle-rectified (20/15)" },
+  { id: "detected-10-10", label: "A3 detected-rectified (10/10)" },
+  { id: "detected-20-15", label: "A3 detected-rectified (20/15)" },
 ];
+
+/** What the detector found on one A3 photo, against the true projected corners. */
+export type DetectionReport = { found: boolean; corners: PageQuad | null; errorPx: { mean: number; max: number } | null; size: { w: number; h: number } | null };
 
 /** Capture-quality arms (Task 14 B2, D-48), each layered on the canonical render. */
 export const QUALITY_ARMS: { id: CaptureId; label: string }[] = [
@@ -54,6 +70,21 @@ export function photoOptions(angles: { pitchDeg: number; yawDeg: number }, docKe
 
 const ANGLES: Record<string, { pitchDeg: number; yawDeg: number }> = { "10-10": { pitchDeg: 10, yawDeg: 10 }, "20-15": { pitchDeg: 20, yawDeg: 15 } };
 
+/**
+ * A3: photograph as A1, detect the page corners (src/lib/ai/corners.ts, D-49), rectify to the detected quad's own
+ * size (no knowledge of the render's size or the true corners). No page found → the raw photo goes to OCR, as an
+ * upload would.
+ */
+export function detectedCapture(render: Rgba, docKey: string, angleKey: string): { image: Rgba; detection: DetectionReport } {
+  const opts = photoOptions(ANGLES[angleKey], docKey);
+  const shot = photograph(render, opts);
+  const d = detectPageCorners(shot.image);
+  if (!d) return { image: shot.image, detection: { found: false, corners: null, errorPx: null, size: null } };
+  const image = rectifyPage(shot.image, d.corners);
+  const truth = projectedCorners({ w: render.width, h: render.height }, opts);
+  return { image, detection: { found: true, corners: d.corners, errorPx: cornerError(d.corners, truth), size: { w: image.width, h: image.height } } };
+}
+
 /** Apply a capture arm to a decoded render. `docKey` (the claim ID) seeds everything random. */
 export function applyCapture(id: CaptureId, render: Rgba, docKey: string): Rgba {
   if (id === "none") return render;
@@ -61,6 +92,7 @@ export function applyCapture(id: CaptureId, render: Rgba, docKey: string): Rgba 
   if (id === "clutter") return clutter(render, docKey);
   if (id === "low-contrast") return lowContrast(render, 0.6);
   const [kind, angleKey] = [id.split("-")[0], id.slice(id.indexOf("-") + 1)];
+  if (kind === "detected") return detectedCapture(render, docKey, angleKey).image;
   const shot = photograph(render, photoOptions(ANGLES[angleKey], docKey));
   if (kind === "photo") return shot.image;
   // Oracle: undo the geometry with the TRUE homography (page → photo is the sampling map for the page frame).
@@ -90,7 +122,11 @@ export function encodeJpeg(img: Rgba, quality: number): Buffer {
 }
 
 /** The bytes and type the OCR pipeline receives for an arm: PNG, except low contrast, which is a quality-25 JPEG. */
-export function captureBytes(id: CaptureId, render: Rgba, docKey: string): { buf: Buffer; mime: "image/png" | "image/jpeg" } {
+export function captureBytes(id: CaptureId, render: Rgba, docKey: string): { buf: Buffer; mime: "image/png" | "image/jpeg"; detection?: DetectionReport } {
+  if (id.startsWith("detected-")) {
+    const { image, detection } = detectedCapture(render, docKey, id.slice("detected-".length));
+    return { buf: encodePng(image), mime: "image/png", detection };
+  }
   const img = applyCapture(id, render, docKey);
   return id === "low-contrast" ? { buf: encodeJpeg(img, 25), mime: "image/jpeg" } : { buf: encodePng(img), mime: "image/png" };
 }

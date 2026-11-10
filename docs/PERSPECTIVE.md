@@ -47,6 +47,7 @@ auto-cleared claims). `bad` only combines them for this one decision.
 | **A1** pitch 10 / yaw 10 | the render, photographed |
 | **A1** pitch 20 / yaw 15 | the render, photographed |
 | **A2** oracle (10/10 and 20/15) | the A1 photo, warped back with `mat3Inverse(groundTruth)` before OCR |
+| **A3** detected (10/10 and 20/15), added in D-49 | the A1 photo, corners found by `detectPageCorners` and warped back by `rectifyPage` to the detected quad's own size, before OCR |
 
 Photo parameters (`src/lib/bench/photo.ts`, deterministic):
 - pinhole camera about 0.8 frame diagonals from the page (≈ 64° diagonal field of view, like a phone);
@@ -74,6 +75,8 @@ Documents: **20** (CLM-2025-0001, CLM-2025-0009, CLM-2025-0016, CLM-2025-0020, C
 | A1 pitch 20 / yaw 15 | **84.4 %** (81/96) | **50.0 %** (10/20) | **0.0 %** (0/8) | 12/20 | — |
 | A2 oracle-rectified (10/10) | **100.0 %** (98/98) | **0.0 %** (0/20) | **0.0 %** (0/20) | 0/20 | **100.0 %** (11 of 11) |
 | A2 oracle-rectified (20/15) | **100.0 %** (98/98) | **0.0 %** (0/20) | **0.0 %** (0/20) | 0/20 | **100.0 %** (12 of 12) |
+| A3 detected-rectified (10/10) | **100.0 %** (98/98) | **0.0 %** (0/20) | **0.0 %** (0/20) | 0/20 | **100.0 %** (11 of 11) |
+| A3 detected-rectified (20/15) | **100.0 %** (98/98) | **0.0 %** (0/20) | **0.0 %** (0/20) | 0/20 | **100.0 %** (12 of 12) |
 | Font: serif (Times New Roman) | **99.0 %** (98/99) | **5.0 %** (1/20) | **0.0 %** (0/19) | 1/20 | — |
 | Font: condensed (Arial Narrow) | **100.0 %** (98/98) | **0.0 %** (0/20) | **0.0 %** (0/20) | 0/20 | — |
 | Font: small print (8 pt body) | **100.0 %** (98/98) | **0.0 %** (0/20) | **0.0 %** (0/20) | 0/20 | — |
@@ -92,6 +95,8 @@ Per field, perspective:
 | A1 pitch 20 / yaw 15 | 19 ok · 1 wrong · 0 missed | 11 ok · 7 wrong · 2 missed | 13 ok · 7 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed |
 | A2 oracle-rectified (10/10) | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed |
 | A2 oracle-rectified (20/15) | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed |
+| A3 detected-rectified (10/10) | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed |
+| A3 detected-rectified (20/15) | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed |
 
 Per field, font:
 
@@ -113,6 +118,13 @@ Per field, capture quality:
 
 **Decision (pre-registered rule, deciding pair 20/15):** gap = 12, recovered = 12, recovery% = 100.0 %: ≥ 70 % → **build corner detection**: geometry is the bottleneck.
 For reference, the 10/10 pair: gap = 11, recovered = 11, recovery% = 100.0 % (build).
+
+**Detected corners (A3, D-49, detector `corners-v1`):**
+
+| Angle | Page found | Corner error, mean / worst (px, photo ≈ 2550 px wide) | bad A1 → A3 (oracle A2) | Recovery % (A3) |
+|---|---|---|---|---|
+| 20/15 | 20/20 | 0.04 px / 0.16 px | 12/20 → **0/20** (0/20) | 100.0 % (12 of 12) |
+| 10/10 | 20/20 | 0.04 px / 0.09 px | 11/20 → **0/20** (0/20) | 100.0 % (11 of 11) |
 
 <!-- results:end -->
 
@@ -139,6 +151,58 @@ R-20 was the only finding on a document with a wrong field. Without it, those 5 
 so the build should be judged by how close it gets to A2, measured with this same harness: same 20 documents, detected
 corners instead of `groundTruth`. These photos are also the easy case for corner detection: a white page with clean
 edges on a dark wood desk, no motion blur, no sensor noise, no page curl. Those are separate axes, not measured here.
+
+## Corner detection: how close does a real detector get to the oracle? (D-49)
+
+Built because the pre-registered rule said to (recovery 100 %). The detector is `src/lib/ai/corners.ts`, pure
+TypeScript with no new dependency:
+1. **Coarse.** Grayscale, box-downscale to at most 400 px, Otsu threshold, largest 4-connected bright component.
+   Then its outer boundary, the four extreme points (min/max of x ± y), and a total-least-squares line per side
+   through the boundary samples between them. The corners are where those lines intersect.
+2. **Fine.** Back at full resolution, each side is scanned across at 48 stations for the strongest page/desk step,
+   with sub-pixel peaks and a robust line fit, and the corners are intersected again.
+3. **Refusal.** It returns `null` rather than guessing when:
+   - the bright region covers under 10 % of the photo;
+   - the bright and dark classes differ by under 50 gray levels;
+   - the region is not quadrilateral (filled area / quad area < 0.9);
+   - the result is non-convex or far outside the frame.
+
+`rectifyPage` warps the quad to a flat page using the D-47 primitives, which moved to `src/lib/ai/perspective.ts`
+(the bench path re-exports them). The output size is the longer of each pair of opposite sides, so the arm never
+learns the render's size or aspect. It reads at about 85 % of the oracle's linear resolution (≈ 2160–2280 × 2750
+instead of ≈ 2550 × 3300).
+
+**Result** (the A3 rows and the detection table above):
+- **A3 equals A2 at both angles.** bad 0/20, field accuracy 100 % (98/98), escalation 0/20, error in auto-cleared
+  0/20. That recovers 12 of 12 at 20/15 and 11 of 11 at 10/10.
+- The page was found on 40 of 40 photos, with a mean corner error of 0.04 px and a worst of 0.16 px on a
+  ≈ 2550 px-wide photo.
+- On a 2550 × 3300 photo, detection takes ≈ 90 ms and the rectifying warp ≈ 220 ms (single thread, this machine).
+- It took 40 live calls, 45,579 input / 21,238 output tokens.
+
+**What this does and does not show.** The detector and the benchmark share one photo model: a white page with
+straight edges, wholly inside the frame, on a dark wood desk, with smooth uneven light and no blur, sensor noise,
+page curl, shadow edge or object over the border. On that model the corner problem is easy, and sub-pixel error is
+expected. The number says the rectifier adds nothing on top of the oracle's loss. It does **not** say the detector
+works on real phone photos.
+
+**Known limits, by construction:**
+- It needs a page brighter than its background. A white desk returns `null`.
+- The page must be wholly in frame. A cropped corner is fitted to the frame edge.
+- It must be roughly upright: the corner order comes from x ± y extremes, so it breaks near 45° of roll.
+- The page must be the largest bright region.
+- An object over an edge either fails the solidity check (`null`) or is voted out by the robust line fit.
+
+Unit tests (`src/tests/corners.test.ts`) pin it: corners within 1 px at 0/0, 10/10, 20/15, 25/−20 and −15/25 and
+with 8° roll, and `null` on a bare desk, flat gray, a small white patch and a white disc.
+
+**Not wired into uploads.** `prepareForOcr` (`src/lib/ai/ocr-prep.ts`) is unchanged; whether uploads should
+rectify is a separate decision. Points to settle first:
+- **Flat scans.** On a page that fills the frame, the detector returns ≈ the frame itself. That needs a "skip when
+  the quad is within a few px of the frame" guard, so scans are not resampled for nothing.
+- **Coordinates.** Word boxes (`OcrResult.words`, data only, no field boxes claimed) would refer to the rectified
+  page, not the uploaded photo.
+- **Real photos.** A handful of real phone photos should be checked before trusting the detector on uploads.
 
 ## Typography and capture quality (Part B)
 

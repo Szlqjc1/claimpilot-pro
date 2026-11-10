@@ -47,6 +47,7 @@ async function main() {
   const { upperBound, lowerBound } = await import("../src/lib/bench/stats");
   const V = await import("../src/lib/bench/variants");
   const C = await import("../src/lib/bench/capture");
+  const { CORNER_DETECTOR_VERSION } = await import("../src/lib/ai/corners");
 
   const plan = buildSeedPlan();
   // The 20 documents: seeded claims that AUTO-CLEAR on their reference extraction, evenly spaced by claim ID, so
@@ -63,7 +64,8 @@ async function main() {
   for (const c of picked) {
     for (const label of V.LABEL_VARIANTS) jobs.set(`${c.claimId}|${label}|label-left`, { key: `${c.claimId}|${label}|label-left`, claimId: c.claimId, label, layout: "label-left", capture: "none", font: "default" });
     for (const layout of V.LAYOUT_VARIANTS) jobs.set(`${c.claimId}|canonical|${layout}`, { key: `${c.claimId}|canonical|${layout}`, claimId: c.claimId, label: "canonical", layout, capture: "none", font: "default" });
-    // Perspective arms (Task 14 A): the canonical render, photographed (A1) or photographed and oracle-rectified (A2).
+    // Perspective arms (Task 14 A): the canonical render, photographed (A1), photographed and oracle-rectified (A2), or
+    // photographed, corner-detected and rectified (A3, D-49).
     for (const arm of C.PERSPECTIVE_ARMS.filter((a) => a.id !== "none")) {
       const key = `${c.claimId}|canonical|label-left|${arm.id}`;
       jobs.set(key, { key, claimId: c.claimId, label: "canonical", layout: "label-left", capture: arm.id, font: "default" });
@@ -82,7 +84,8 @@ async function main() {
   await mkdir(CACHE, { recursive: true });
 
   // ── 1. render + OCR (cached by HTML) ─────────────────────────────────────────────────────────────────────
-  const ocr = new Map<string, { text: string; confidence: number }>();
+  type OcrEntry = { text: string; confidence: number; detection?: import("../src/lib/bench/capture").DetectionReport };
+  const ocr = new Map<string, OcrEntry>();
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 850, height: 1100 }, deviceScaleFactor: 3 }); // ≈ 300 dpi
   const { createWorker } = await import("tesseract.js");
@@ -96,7 +99,8 @@ async function main() {
       const doc = plan.claims.find((c) => c.claimId === j.claimId)!.doc;
       const html = V.variantHtml(doc, j.label, j.layout, j.font);
       // A clean render keeps its Task 13 cache key, so the baseline is reused, never re-read.
-      const capKey = j.capture === "none" ? "" : `|${j.capture}|${C.CAPTURE_VERSION}`;
+      // Detected arms also key on the detector version, so a detector change re-reads them (and only them).
+      const capKey = j.capture === "none" ? "" : `|${j.capture}|${C.CAPTURE_VERSION}${j.capture.startsWith("detected-") ? `|${CORNER_DETECTOR_VERSION}` : ""}`;
       const file = path.join(CACHE, `ocr-${sha(`${html}${capKey}|${OCR_PIPELINE.mode}|${OCR_PIPELINE.psm}`)}.json`);
       if (existsSync(file)) {
         ocr.set(j.key, JSON.parse(await readFile(file, "utf8")));
@@ -108,7 +112,7 @@ async function main() {
         const input = j.capture === "none" ? { buf: last.png, mime: "image/png" as const } : C.captureBytes(j.capture, C.decodePng(last.png), j.claimId);
         const { image } = OCR_PIPELINE.mode === "off" ? { image: input.buf } : prepareForOcr(input.buf, input.mime, { mode: OCR_PIPELINE.mode, psm: OCR_PIPELINE.psm });
         const { data } = await worker.recognize(image);
-        const entry = { text: data.text, confidence: Math.max(0, Math.min(1, (data.confidence ?? 0) / 100)) };
+        const entry: OcrEntry = { text: data.text, confidence: Math.max(0, Math.min(1, (data.confidence ?? 0) / 100)), ...("detection" in input && input.detection ? { detection: input.detection } : {}) };
         await writeFile(file, JSON.stringify(entry));
         ocr.set(j.key, entry);
       }
@@ -286,11 +290,28 @@ async function main() {
       { a1: by("A1 pitch 20 / yaw 15"), a2: by("A2 oracle-rectified (20/15)"), decides: true },
       { a1: by("A1 pitch 10 / yaw 10"), a2: by("A2 oracle-rectified (10/10)"), decides: false },
     ].map((pr) => ({ ...pr, d: V.recoveryDecision({ a0: a0.bad, a1: pr.a1.bad, a2: pr.a2.bad }, a0.docs) }));
+    // A3 (D-49): the same recovery arithmetic with detected corners in place of the true ones; reported, not a decision.
+    const detected = [
+      { angle: "20/15", id: "detected-20-15", a1: by("A1 pitch 20 / yaw 15"), a2: by("A2 oracle-rectified (20/15)"), a3: by("A3 detected-rectified (20/15)") },
+      { angle: "10/10", id: "detected-10-10", a1: by("A1 pitch 10 / yaw 10"), a2: by("A2 oracle-rectified (10/10)"), a3: by("A3 detected-rectified (10/10)") },
+    ].map((x) => {
+      const reports = picked.map((c) => ocr.get(`${c.claimId}|canonical|label-left|${x.id}`)?.detection).filter((r) => r !== undefined);
+      const errs = reports.flatMap((r) => (r.errorPx ? [r.errorPx] : []));
+      return {
+        ...x,
+        d: V.recoveryDecision({ a0: a0.bad, a1: x.a1.bad, a2: x.a3.bad }, a0.docs),
+        found: reports.filter((r) => r.found).length,
+        reported: reports.length,
+        meanErr: errs.length ? errs.reduce((s, e) => s + e.mean, 0) / errs.length : null,
+        maxErr: errs.length ? Math.max(...errs.map((e) => e.max)) : null,
+      };
+    });
     const recCell = (s: (typeof persp)[number]) => {
-      const pr = pairs.find((x) => x.a2 === s);
+      const pr = pairs.find((x) => x.a2 === s) ?? detected.find((x) => x.a3 === s);
       if (!pr) return "—";
       return pr.d.recoveryPct === null ? `n/a (gap ${pr.d.gap})` : `**${p(pr.d.recoveryPct)}** (${pr.d.recovered} of ${pr.d.gap})`;
     };
+    const px = (v: number | null) => (v === null ? "—" : `${v.toFixed(2)} px`);
     const VERDICT: Record<string, string> = {
       build: "≥ 70 % → **build corner detection**: geometry is the bottleneck.",
       "do-not-build": "≤ 30 % → **do not build corner detection**: the OCR, not the geometry, is the bottleneck.",
@@ -322,6 +343,15 @@ async function main() {
       `**Decision (pre-registered rule, deciding pair 20/15):** gap = ${decider.d.gap}, recovered = ${decider.d.recovered}, recovery% = ${decider.d.recoveryPct === null ? "undefined" : p(decider.d.recoveryPct)}: ${VERDICT[decider.d.verdict]}`,
       `For reference, the 10/10 pair: gap = ${pairs[1].d.gap}, recovered = ${pairs[1].d.recovered}, recovery% = ${pairs[1].d.recoveryPct === null ? "undefined" : p(pairs[1].d.recoveryPct)} (${pairs[1].d.verdict}).`,
       "",
+      `**Detected corners (A3, D-49, detector \`${CORNER_DETECTOR_VERSION}\`):**`,
+      "",
+      "| Angle | Page found | Corner error, mean / worst (px, photo ≈ 2550 px wide) | bad A1 → A3 (oracle A2) | Recovery % (A3) |",
+      "|---|---|---|---|---|",
+      ...detected.map(
+        (x) =>
+          `| ${x.angle} | ${x.found}/${x.reported} | ${px(x.meanErr)} / ${px(x.maxErr)} | ${x.a1.bad}/${x.a1.docs} → **${x.a3.bad}/${x.a3.docs}** (${x.a2.bad}/${x.a2.docs}) | ${x.d.recoveryPct === null ? "undefined" : p(x.d.recoveryPct)} (${x.d.recovered} of ${x.d.gap}) |`,
+      ),
+      "",
       "<!-- results:end -->",
     ].join("\n");
     const pPath = path.resolve("docs/PERSPECTIVE.md");
@@ -331,6 +361,7 @@ async function main() {
       const e0 = doc.indexOf("<!-- results:end -->");
       if (s0 >= 0 && e0 > s0) await writeFile(pPath, `${doc.slice(0, s0)}${block}${doc.slice(e0 + "<!-- results:end -->".length)}`);
     }
+    console.log(`Detection: ${detected.map((x) => `${x.angle} found ${x.found}/${x.reported}, mean ${px(x.meanErr)}, worst ${px(x.maxErr)}`).join(" · ")}`);
     console.log(`Perspective: ${persp.map((s) => `${s.variant}: bad ${s.bad}/${s.docs}`).join(" · ")} → ${decider.d.verdict}`);
   }
   console.log(`Model calls this run: ${calls} (${inTok} input / ${outTok} output tokens); the rest came from the cache.`);
