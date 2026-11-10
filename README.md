@@ -199,6 +199,7 @@ Each card shows a delta against the previous equal-length period. The **KPI Watc
 
 - SQLite and an in-memory rate limiter / in-flight guard assume a single node process.
 - Minimum legible character height: an x-height of about **7 px** at the OCR input. That is 8 pt text scanned at about 125 dpi, or a sharp 12-megapixel phone photo of an A4 page from about 0.6 m. At 6 px and below, the field values stop being verifiable and the claim goes to review (R-14 / R-20); it is not auto-approved. See [docs/RESOLUTION.md](docs/RESOLUTION.md).
+- One page per photo: an upload is cropped to the largest page found, so a photo of two invoices is read as whichever is larger, with no warning; with no page found the whole frame is read and a hint says so. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#what-ocr-reads-on-an-upload-scope) and [docs/SCOPE.md](docs/SCOPE.md).
 - Authentication is local email/password only (no SSO, MFA, password reset or account lockout beyond rate limiting). Role enforcement is deliberately minimal: three server-side checks, not a permission matrix (D-27). Seeded historical audit rows remain attributed to "AP Shared Services".
 - In mock mode, uploads can be stored and reviewed but not audited. Tesseract boxes aren't mapped to fields, so annotated uploads show a "Fields extracted" panel instead of boxes.
 - PDF uploads need rasterization before OCR (not implemented); use PNG/JPEG for live OCR.

@@ -39,6 +39,22 @@ All document text is wrapped in `<document>` tags, and the system prompt says *"
 | `live` | missing | 503 `AI provider is not configured` | 503 |
 | `live` | set | fixture OCR text → DeepSeek → `live`. On provider failure: fixture, `fallback`, warning banner | Tesseract (PNG/JPEG, `OCR_MODE=tesseract`) → DeepSeek. On failure: 502, claim stays Pending |
 
+## What OCR reads on an upload (scope)
+
+An uploaded photo is cropped to **the largest page the detector finds** and flattened before OCR (D-50); everything
+outside that quad is discarded. This is what keeps a shipping label or another sheet's corner on the desk out of the
+text (none of their values reached the OCR text in [docs/SCOPE.md](SCOPE.md), against 54 % with the crop off). It
+also means a photo containing two pages is read as **one**, and which one is chosen depends on area, in practice on
+which page is nearer the camera. Nothing in the OCR output marks that choice: the wrong page reads with the same
+confidence and the same `page · rectified` log line. In the benchmark the wrong page was taken 11 times in 20 and
+never auto-approved, but that protection comes from the claim's own record (R-20) and the vendor master (R-17), not
+from the image. When no page is detected the whole frame is read unresampled, and the claim page says so under the
+original invoice ("Page edges not found in this photo, so OCR read the full frame…"). The detector's validated
+envelope is narrow: a white page on a darker background, wholly in frame (a few percent cut off at one edge still
+works), roughly upright, the largest bright region. A white or very bright desk, or a page no brighter than its surroundings,
+falls back to the full frame; a second, larger page wins; a page cut off by more than the 3 % tested is untested.
+Measured on synthetic scenes and three generated desk photos only; real phone photos are still the release check.
+
 ## Idempotency and integrity
 
 - **Status guard:** only `Pending` claims are audited (otherwise 409, nothing written). In the transaction, `updateMany({ where: { claimId, status: "Pending" } })` must update exactly one row or the whole transaction rolls back. Concurrent audits produce one winner and one 409.
