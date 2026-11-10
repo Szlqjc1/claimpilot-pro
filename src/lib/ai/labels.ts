@@ -44,6 +44,12 @@ const SOURCES: Record<CriticalField, string[]> = Object.fromEntries(
   Object.entries(FIELD_LABEL_ALIASES).map(([f, aliases]) => [f, aliases.map(aliasSource)]),
 ) as Record<CriticalField, string[]>;
 
+/** True if `text` (a few OCR words) is exactly a label of the field, give or take trailing ":", "#", "." or "|". */
+export function labelIsWhole(field: CriticalField, text: string): boolean {
+  const t = normalise(text).trim();
+  return SOURCES[field].some((s) => new RegExp(`^(?:${s})[\\s:#.|]*$`).test(t));
+}
+
 /** True if any alias of the field's label occurs in the OCR text. */
 export function labelPresent(field: CriticalField, text: string): boolean {
   const t = normalise(text);

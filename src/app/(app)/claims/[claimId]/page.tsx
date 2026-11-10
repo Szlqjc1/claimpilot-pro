@@ -10,7 +10,7 @@ import { FIELD_LABELS } from "@/lib/domain/fields";
 import { presenceOf } from "@/lib/ai/presence";
 import { groundExtraction } from "@/lib/ai/grounding";
 import { ocrSourceOf } from "@/lib/domain/ocr-source";
-import { rectifyHint, type OcrPrep } from "@/lib/ai/ocr-prep";
+import { rectifyHint, type OcrPrep, type OcrWord } from "@/lib/ai/ocr-prep";
 import { formatUsd, toCents } from "@/lib/domain/money";
 import { formatEt } from "@/lib/domain/dates";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,13 +55,16 @@ export default async function ClaimReviewPage({ params }: { params: Params }) {
   const diff = (lastRun?.runDetail as { extractionDiff?: Record<string, { match: boolean }> | null } | null)?.extractionDiff ?? null;
   // D-37 / D-44: grounding and presence of the scored extraction against the stored OCR text, recomputed (pure).
   const checks = extracted?.ok && claim.ocrText ? groundExtraction(extracted.data, claim.ocrText) : null;
+  // D-55: the stored word boxes drop far-from-label candidates, exactly as the audit did.
+  const runDetail = lastRun?.runDetail as { ocrWords?: OcrWord[] | null; stageMetrics?: { ocrPrep?: OcrPrep | null } } | null;
+  const geometry = runDetail?.ocrWords?.length ? { words: runDetail.ocrWords, size: runDetail.stageMetrics?.ocrPrep?.rectify?.photo ?? null } : null;
   const presence =
     extracted?.ok && claim.ocrText && checks
-      ? Object.fromEntries(Object.entries(presenceOf({ ...extracted.data, fieldChecks: checks }, claim.ocrText)).map(([f, p]) => [f, p.state]))
+      ? Object.fromEntries(Object.entries(presenceOf({ ...extracted.data, fieldChecks: checks }, claim.ocrText, geometry)).map(([f, p]) => [f, p.state]))
       : null;
   const otherFields = (lastRun?.runDetail as { otherFields?: { label: string; value: string }[] } | null)?.otherFields ?? (extracted?.ok ? extracted.data.otherFields : []);
   // D-50: when OCR read an upload's full frame (no page found, flat scan, switched off), say so next to the original.
-  const ocrHint = rectifyHint((lastRun?.runDetail as { stageMetrics?: { ocrPrep?: OcrPrep | null } } | null)?.stageMetrics?.ocrPrep?.rectify);
+  const ocrHint = rectifyHint(runDetail?.stageMetrics?.ocrPrep?.rectify);
   const differing = diff ? Object.entries(diff).filter(([, d]) => !d.match).map(([f]) => FIELD_LABELS[f] ?? f) : [];
   const openExceptions = claim.exceptions.filter((e) => e.status === "Open").length;
   // UI mirror of the server-side checks (D-27): reviewer/admin, and never on your own claim.

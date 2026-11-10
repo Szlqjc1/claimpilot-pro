@@ -152,7 +152,9 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
     // D-37: deterministic grounding is part of the extraction stage, attached before scoring (R-14 reads it).
     extraction = { ...extraction, fieldChecks: groundExtraction(extraction, ocr.text) };
     // D-44: presence of each critical field (present / absent / unreadable / conflict); R-14 and R-19 read it.
-    extraction = { ...extraction, fieldPresence: presenceOf(extraction, ocr.text) };
+    // D-55: with OCR word boxes (uploads), candidates far from their field's label do not make a conflict.
+    const geometry = ocr.words?.length ? { words: ocr.words, size: ocr.prep?.rectify?.photo ?? null } : null;
+    extraction = { ...extraction, fieldPresence: presenceOf(extraction, ocr.text, geometry) };
 
     // 7. Deterministic risk — the LLM never touches the score.
     const riskInput = await buildRiskInput(claim, extraction);
