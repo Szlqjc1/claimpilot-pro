@@ -50,12 +50,12 @@ export function labelPresent(field: CriticalField, text: string): boolean {
   return SOURCES[field].some((s) => new RegExp(s).test(t));
 }
 
-// What may follow a label to say "there is none": a dash, N/A, n.a., none, not applicable or 无, then the end of the
-// line or the next table cell. A BLANK after the label is not a statement: OCR may simply have dropped the value,
-// so that stays "unreadable".
-const EMPTY_AFTER_LABEL = /^[ \t]*[:#.|]*[ \t]*(?:n\/?a|n\.a\.|none|not applicable|无)[ \t]*(?:\n|\||$)/;
-/** A run of dashes standing alone before the end of a line or cell ("PO Number: —") → "n/a", before normalise. */
-const DASH_ONLY_VALUE = /(^|[\s:|#])[‐-―−-]+(?=[ \t]*(?:\r?\n|\||$))/gm;
+// What may follow a label to say "there is none": a dash, N/A, n.a., none, not applicable or 无, standing alone (then
+// whitespace, the next table cell or the end). OCR flattens table cells into spaces, so "PO Number: — Release: —" must
+// count (D-45). A BLANK after the label is not a statement: OCR may simply have dropped the value → "unreadable".
+const EMPTY_AFTER_LABEL = /^[ \t]*[:#.|]*[ \t]*(?:n\/?a|n\.a\.|none|not applicable|无)(?=\s|\||$)/;
+/** A run of dashes standing alone ("PO Number: —", "— Release") → "n/a", before normalise turns dashes into spaces. */
+const DASH_ONLY_VALUE = /(^|[\s:|#])[‐-―−-]+(?=\s|\||$)/gm;
 
 /**
  * True if the document states the field is empty: its label occurs, and every occurrence is followed only by an

@@ -381,11 +381,14 @@ export const RULES: Rule[] = [
   },
   {
     id: "R-14",
-    evaluate: ({ extraction }) => {
+    evaluate: ({ claim, extraction }) => {
       // D-37, D-44. Three triggers, all from the OCR layer, never from the model's self-reported confidence:
       //   (1) a non-null critical value that is not in the OCR text (fieldChecks "not_found", attached before scoring);
       //   (2) the OCR layer's confidence for a non-null critical value is below 0.75;
-      //   (3) D-44: a null critical value whose label is on the document (fieldPresence "unreadable").
+      //   (3) D-44: a null REQUIRED critical value whose label is on the document (fieldPresence "unreadable").
+      //       An optional field never escalates (field-policy): the variant benchmark showed a travel invoice's
+      //       "PO Number: —" read by Tesseract with the dash detached from its label, which fired R-14 on a PO
+      //       the claim does not need (D-45).
       // A field the document does not have (fieldPresence "absent") never fires R-14; a required one fires R-19.
       const value = (f: (typeof CRITICAL_FIELDS)[number]) => (f === "vendorName" ? extraction.vendor?.name : extraction[f]);
       const isNull = (f: (typeof CRITICAL_FIELDS)[number]) => {
@@ -395,7 +398,7 @@ export const RULES: Rule[] = [
       const present = CRITICAL_FIELDS.filter((f) => !isNull(f));
       const ungrounded = present.filter((f) => extraction.fieldChecks?.[f] === "not_found");
       const low = present.filter((f) => (extraction.fieldConfidence[f] ?? 1) < 0.75);
-      const labelNoValue = CRITICAL_FIELDS.filter((f) => isNull(f) && extraction.fieldPresence?.[f]?.state === "unreadable");
+      const labelNoValue = CRITICAL_FIELDS.filter((f) => isNull(f) && extraction.fieldPresence?.[f]?.state === "unreadable" && isRequired(f, claim));
       const flagged = CRITICAL_FIELDS.filter((f) => ungrounded.includes(f) || low.includes(f) || labelNoValue.includes(f));
       if (flagged.length === 0) return null;
       return {

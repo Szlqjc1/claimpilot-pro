@@ -62,6 +62,10 @@ describe("labelPresent (A1)", () => {
     expect(labelExplicitlyEmpty("poNumber", "PO Number:\nRelease: 4")).toBe(false); // blank: OCR may have dropped it
     expect(labelExplicitlyEmpty("poNumber", "PO Number | – | Release")).toBe(true);
     expect(labelExplicitlyEmpty("poNumber", "PO Number: 45-00012345")).toBe(false);
+    // OCR flattens a table row into spaces (D-45): the dash is still the PO's value.
+    expect(labelExplicitlyEmpty("poNumber", "PO Number: — Release: —")).toBe(true);
+    // The label's value printed on another line, detached from it: not a statement, so not "empty".
+    expect(labelExplicitlyEmpty("poNumber", "PO Number Release\n— —")).toBe(false);
     expect(labelExplicitlyEmpty("poNumber", "PO Number: 4500012345")).toBe(false);
     expect(labelExplicitlyEmpty("poNumber", "PO Number: —\nPurchase Order 4500012345")).toBe(false);
     expect(labelExplicitlyEmpty("poNumber", "Ship To: Toledo")).toBe(false);
@@ -164,6 +168,16 @@ describe("R-14 routes unreadable (A4)", () => {
     expect(f).toMatchObject({ points: 15, riskLevel: "Low", evidence: { labelWithoutValue: ["invoiceNumber"] } });
     expect(f.message).toBe("Scan too poor to verify invoiceNumber — rescan or check this field manually.");
     expect(finding(input, "R-19")).toBeNull();
+  });
+
+  it("a label with no value on an OPTIONAL field fires nothing (a travel PO whose dash OCR detached)", () => {
+    const travel = inputFor("CLM-2026-0147");
+    const text = textOf("CLM-2026-0147").replace(/^PO Number: —$/m, "PO Number");
+    const input = withPresence(travel, text);
+    expect(input.extraction.fieldPresence?.poNumber.state).toBe("unreadable");
+    expect(finding(input, "R-14")).toBeNull();
+    expect(finding(input, "R-19")).toBeNull();
+    expect(evaluateRisk(input)).toMatchObject({ score: 50, decision: "REVIEW" });
   });
 
   it("an ungrounded value keeps its R-14 trigger, with the new message", () => {
