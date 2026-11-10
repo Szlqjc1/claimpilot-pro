@@ -80,6 +80,18 @@ Claims are always owned by the signed-in user: employee and department come from
 
 **Grading index:** [docs/SUBMISSION.md](docs/SUBMISSION.md) maps every requirement, decision (D-01 … D-42) and known limitation to the code and to a way to check it.
 
+## Promo materials
+
+| | |
+|---|---|
+| **Landing page** | <https://szlqjc1.github.io/claimpilot-pro/> — public, no sign-in, served by GitHub Pages from `docs/` |
+| **Poster** | [`promo/poster-1080x1080.png`](promo/poster-1080x1080.png) — 1080×1080, carries the QR that opens the page |
+| **Logo** | `promo/claimpilot-logo-kit.svg` (vector), `promo/claimpilot-mark-{512,128,32}.png` |
+| **Video end card** | `promo/video-endcard-1080x1920.png` — 1080×1920, QR and call to action |
+| **Status of every asset** | [`promo/README.md`](promo/README.md) — what exists, what is still missing |
+
+<a href="promo/poster-1080x1080.png"><img src="promo/poster-1080x1080.png" width="380" alt="ClaimPilot PRO poster"></a>
+
 ## Screenshots
 
 Captured with `pnpm shots` (Playwright, 1440×900, against a running server with `AI_MODE="mock"` and `OCR_MODE="fixture"` after `pnpm db:seed`). The script captures `/login` while signed out, then signs in as Priya Natarajan (reviewer), the account `docs/DEMO_SCRIPT.md` uses, and audits CLM-2026-0147 so her queue has routed work. Frames for an audit GIF are in `docs/images/audit-frames/` (idle → running → done). Both `pnpm shots` and `pnpm a11y:audit` refuse to run unless `AI_MODE` is mock — in `.env`, in the environment, and as reported by the running server — so they can never call the live model by accident; `--allow-live` overrides.
