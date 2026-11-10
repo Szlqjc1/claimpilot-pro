@@ -139,3 +139,33 @@ describe("photograph", () => {
     expect(rect.data[(20 * 100 + 80) * 4]).toBeGreaterThan(100);
   });
 });
+
+describe("capture-quality arms (Task 14 B2)", () => {
+  it("are deterministic, and each does what it says", async () => {
+    const { applyCapture, captureBytes, lowContrast, shadow } = await import("@/lib/bench/capture");
+    const white: Rgba = { data: new Uint8ClampedArray(300 * 200 * 4).fill(255), width: 300, height: 200 };
+    // Shadow: the left two thirds untouched, the right edge at ~40 %.
+    const s = shadow(white);
+    expect(s.data[(100 * 300 + 50) * 4]).toBe(255);
+    expect(s.data[(100 * 300 + 299) * 4]).toBeLessThan(110);
+    // Low contrast 0.6: white → 204, black → 51.
+    expect(lowContrast(white, 0.6).data[0]).toBe(204);
+    expect(lowContrast({ data: new Uint8ClampedArray([0, 0, 0, 255]), width: 1, height: 1 }, 0.6).data[0]).toBe(51);
+    // Clutter: same document key → same bytes; a desk shows round the page.
+    const a = applyCapture("clutter", white, "CLM-X");
+    expect(Buffer.from(a.data)).toEqual(Buffer.from(applyCapture("clutter", white, "CLM-X").data));
+    expect(a.data[0]).toBeLessThan(200);
+    // Low contrast is handed to OCR as a quality-25 JPEG, everything else as PNG.
+    expect(captureBytes("low-contrast", white, "CLM-X").mime).toBe("image/jpeg");
+    expect(captureBytes("shadow", white, "CLM-X").mime).toBe("image/png");
+  });
+
+  it("the font option leaves the default render byte-identical (so cached baselines stay valid)", async () => {
+    const { variantHtml, FONT_CSS } = await import("@/lib/bench/variants");
+    const { buildSeedPlan } = await import("@/lib/seed/run");
+    const doc = buildSeedPlan().claims[0].doc;
+    expect(variantHtml(doc, "canonical", "label-left", "default")).toBe(variantHtml(doc, "canonical", "label-left"));
+    expect(variantHtml(doc, "canonical", "label-left")).toContain("font-size:13px}\n</style>");
+    expect(variantHtml(doc, "canonical", "label-left", "serif")).toContain(FONT_CSS.serif);
+  });
+});

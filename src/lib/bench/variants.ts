@@ -175,7 +175,22 @@ function headerHtml(fields: [string, string][], layout: LayoutVariant): string {
 }
 
 /** A complete one-page invoice as HTML, ~850 px wide (one letter page at 100 px/in). */
-export function variantHtml(doc: InvoiceDoc, label: LabelVariant, layout: LayoutVariant): string {
+export type FontVariant = "default" | "serif" | "condensed" | "small-print";
+export const FONT_VARIANTS: FontVariant[] = ["default", "serif", "condensed", "small-print"];
+
+/**
+ * Type only (Task 14 B1, D-48); appended after the base stylesheet so "default" renders byte-identically to before.
+ * serif / condensed change every face, amounts included, at the same sizes; small print sets the body text (address
+ * lines, parties, footer notes) to 8 pt instead of ~10–11 pt and leaves the tables (header, items, totals) unchanged.
+ */
+export const FONT_CSS: Record<FontVariant, string> = {
+  default: "",
+  serif: '*{font-family:"Times New Roman",Georgia,serif !important}',
+  condensed: '*{font-family:"Arial Narrow","Roboto Condensed",sans-serif !important}',
+  "small-print": ".sub,.parties,.foot,.parties b{font-size:8pt !important}",
+};
+
+export function variantHtml(doc: InvoiceDoc, label: LabelVariant, layout: LayoutVariant, font: FontVariant = "default"): string {
   const l = LABEL_SETS[label];
   const money = (c: number) => esc(formatUsd(c));
   const lines = doc.lines
@@ -206,7 +221,7 @@ table{border-collapse:collapse}.right{text-align:right}.mono{font-family:Consola
 .items{width:100%;margin-top:22px;font-size:13px}.items th{background:#eee;text-align:left;padding:5px}.items td{padding:4px 5px;border-bottom:1px solid #ddd}
 .totals{margin-left:auto;margin-top:14px;font-size:14px}.totals td{padding:2px 8px}.totals .grand td{font-weight:700;border-top:2px solid #111}
 .foot{margin-top:24px;font-size:13px}
-</style></head><body><div class="page">
+${FONT_CSS[font]}</style></head><body><div class="page">
 <div class="top"><div><h1>${esc(doc.vendor.name)}</h1><p class="sub">${esc(`${doc.vendor.street}, ${doc.vendor.cityState}`)}</p><p class="sub">EIN ${esc(doc.vendor.taxId)}</p></div>
 <div><div class="title right">INVOICE</div>${layout === "label-left" ? headerHtml(headerFields(doc, l), layout) : ""}</div></div>
 ${layout === "label-left" ? "" : headerHtml(headerFields(doc, l), layout)}

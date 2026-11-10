@@ -1,4 +1,8 @@
-# Perspective: is image rectification worth building?
+# Perspective, typography and capture quality
+
+Part A asks whether image rectification is worth building; Part B adds the font and capture-quality axes.
+
+## Part A: is image rectification worth building?
 
 **Question.** A phone photo of an invoice is a tilted page on a desk. If extraction degrades, is the loss caused by
 the geometry, which corner detection plus rectification would fix, or by everything else a photo does to the
@@ -70,8 +74,16 @@ Documents: **20** (CLM-2025-0001, CLM-2025-0009, CLM-2025-0016, CLM-2025-0020, C
 | A1 pitch 20 / yaw 15 | **84.4 %** (81/96) | **50.0 %** (10/20) | **0.0 %** (0/8) | 12/20 | — |
 | A2 oracle-rectified (10/10) | **100.0 %** (98/98) | **0.0 %** (0/20) | **0.0 %** (0/20) | 0/20 | **100.0 %** (11 of 11) |
 | A2 oracle-rectified (20/15) | **100.0 %** (98/98) | **0.0 %** (0/20) | **0.0 %** (0/20) | 0/20 | **100.0 %** (12 of 12) |
+| Font: serif (Times New Roman) | **99.0 %** (98/99) | **5.0 %** (1/20) | **0.0 %** (0/19) | 1/20 | — |
+| Font: condensed (Arial Narrow) | **100.0 %** (98/98) | **0.0 %** (0/20) | **0.0 %** (0/20) | 0/20 | — |
+| Font: small print (8 pt body) | **100.0 %** (98/98) | **0.0 %** (0/20) | **0.0 %** (0/20) | 0/20 | — |
+| Quality: shadow (one third) | **50.0 %** (20/40) | **100.0 %** (20/20) | **—** (0/0) | 20/20 | — |
+| Quality: clutter (desk + 2 objects) | **76.1 %** (67/88) | **100.0 %** (20/20) | **—** (0/0) | 20/20 | — |
+| Quality: low contrast 60 % + JPEG q25 | **100.0 %** (98/98) | **0.0 %** (0/20) | **0.0 %** (0/20) | 0/20 | — |
 
-Per field:
+The font and quality rows hold everything else at the canonical render; their baselines are the A0 documents.
+
+Per field, perspective:
 
 | Variant | vendorName | invoiceNumber | invoiceDate | poNumber | total |
 |---|---|---|---|---|---|
@@ -80,6 +92,24 @@ Per field:
 | A1 pitch 20 / yaw 15 | 19 ok · 1 wrong · 0 missed | 11 ok · 7 wrong · 2 missed | 13 ok · 7 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed |
 | A2 oracle-rectified (10/10) | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed |
 | A2 oracle-rectified (20/15) | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed |
+
+Per field, font:
+
+| Variant | vendorName | invoiceNumber | invoiceDate | poNumber | total |
+|---|---|---|---|---|---|
+| sans (baseline) | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed |
+| serif (Times New Roman) | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 19 ok · 1 wrong · 0 missed | 20 ok · 0 wrong · 0 missed |
+| condensed (Arial Narrow) | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed |
+| small print (8 pt body) | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed |
+
+Per field, capture quality:
+
+| Variant | vendorName | invoiceNumber | invoiceDate | poNumber | total |
+|---|---|---|---|---|---|
+| clean scan | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed |
+| shadow (one third) | 20 ok · 0 wrong · 0 missed | 0 ok · 0 wrong · 20 missed | 0 ok · 0 wrong · 20 missed | 2 ok · 0 wrong · 18 missed | 0 ok · 20 wrong · 0 missed |
+| clutter (desk + 2 objects) | 20 ok · 0 wrong · 0 missed | 0 ok · 17 wrong · 3 missed | 9 ok · 4 wrong · 7 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed |
+| low contrast 60 % + JPEG q25 | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed | 20 ok · 0 wrong · 0 missed |
 
 **Decision (pre-registered rule, deciding pair 20/15):** gap = 12, recovered = 12, recovery% = 100.0 %: ≥ 70 % → **build corner detection**: geometry is the bottleneck.
 For reference, the 10/10 pair: gap = 11, recovered = 11, recovery% = 100.0 % (build).
@@ -109,3 +139,35 @@ R-20 was the only finding on a document with a wrong field. Without it, those 5 
 so the build should be judged by how close it gets to A2, measured with this same harness: same 20 documents, detected
 corners instead of `groundTruth`. These photos are also the easy case for corner detection: a white page with clean
 edges on a dark wood desk, no motion blur, no sensor noise, no page curl. Those are separate axes, not measured here.
+
+## Typography and capture quality (Part B)
+
+Same harness, same 20 documents, everything else held at the canonical render; the rows are in the table above.
+The table is regenerated on every run, and the per-field breakdown sits under it.
+
+**What broke first, per axis:**
+- **Font: nothing broke.** Serif, condensed and 8 pt body text stayed at 99–100 % accuracy. The only miss was serif
+  on one travel invoice, where the model copied the project code into the empty PO field; R-20 caught it, so 1/20 bad.
+- **Capture quality: the shadow broke first and worst.** All 20 documents escalated: every value in the shaded third,
+  invoice number, date and total, vanished from the OCR text. The clutter arm followed (mug over the header: invoice
+  number wrong on 17/20). Low contrast at 60 % with JPEG blocking at quality 25 broke nothing (100 %, 0 escalations).
+
+**Why the shadow is the one to fix, and that it is not the model's fault.** On a shadow document the OCR text simply
+does not contain the shaded third. Page confidence on the rest stays at 0.93, so nothing in the OCR output warns that
+a third of the page is missing. This is the clean-up step (grayscale, then Tesseract's global threshold): a 40 %-bright
+region with dark text falls entirely on one side of a single threshold. The 60 % low-contrast arm is uniform, so one
+threshold still separates ink from paper there, and it costs nothing. A shadow is **non-uniform**, and one threshold
+cannot handle both halves. The fix is illumination normalisation before OCR (for example, divide by a heavily blurred
+copy of the page). That is a few lines in `src/lib/ai/preprocess.ts`, not a model or rule change, and this harness
+can measure it on the same 20 documents. Not built here (benchmark-only task).
+
+**Two things that kept the third column at 0 %:**
+- **R-20.** With no total visible, the model still has to return a number (`total` is required in the schema), so it
+  returned **0**. R-20 flagged every one as a total mismatch, High. Without R-20 that total of 0 would have reached
+  the risk engine with nothing to contradict it.
+- **Clutter.** The occluded invoice numbers came back wrong rather than missing (17 of 20). Grounding can't see that,
+  but the claim record can (R-20).
+
+**The clutter arm is deliberately harsh.** The mug sits over the page's top-right corner, which on this template is
+exactly where the header values are. On a template with the header on the left it would cost far less. It measures
+"an object over the header", not clutter in general.
