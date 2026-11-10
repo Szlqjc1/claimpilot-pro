@@ -1,8 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileStack, Inbox, MessageSquareText, Scale, ScrollText, BookOpenCheck, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, FileStack, Inbox, MessageSquareText, Scale, ScrollText, BookOpenCheck } from "lucide-react";
+import mark from "@/assets/claimpilot-mark.png";
 import { cn } from "@/lib/utils";
 
 export const NAV = [
@@ -18,9 +20,7 @@ export const NAV = [
 export function Brand() {
   return (
     <Link href="/dashboard" className="flex items-center gap-2.5 px-5 py-5 text-white">
-      <span className="grid h-9 w-9 place-items-center rounded-lg bg-accent">
-        <ShieldCheck className="h-5 w-5" aria-hidden />
-      </span>
+      <Image src={mark} alt="" width={36} height={36} className="h-9 w-9 shrink-0" priority />
       <span className="leading-tight">
         <span className="block text-[15px] font-semibold tracking-tight">ClaimPilot PRO</span>
         <span className="block text-[11px] text-slate-300">AI-RPA expense review</span>

@@ -5,7 +5,7 @@ Everything Week 8 asks for, in one folder. Status is honest: what exists, what i
 | # | Item | File / link | Status |
 |---|---|---|---|
 | 1 | Landing page | https://szlqjc1.github.io/claimpilot-pro/ | ✅ live |
-| 2a | Logo | [`logo.svg`](logo.svg) + [`logo-512.png`](logo-512.png) / [`logo-128.png`](logo-128.png) / [`logo-32.png`](logo-32.png) | ✅ |
+| 2a | Logo (shield, invoice, arrow; navy page border) | Lockup with the wordmark: [`logo.png`](logo.png) (transparent), [`logo-on-white.png`](logo-on-white.png), [`logo-dark.png`](logo-dark.png) (for dark backgrounds), [`logo.svg`](logo.svg) (the PNG wrapped in SVG; there is no vector source). Mark only: [`logo-mark-transparent.png`](logo-mark-transparent.png), [`logo-512.png`](logo-512.png) / [`logo-128.png`](logo-128.png) / [`logo-32.png`](logo-32.png). Source: [`logo-mark-bordered.png`](logo-mark-bordered.png) | ✅ |
 | 2b | Poster 1080×1080 with QR | [`poster-1080x1080.png`](poster-1080x1080.png) | ✅ |
 | 2c | QR code (standalone, for reuse in Canva or print) | [`qr-code.png`](qr-code.png) | ✅ |
 | 3 | 1-minute video (phone, real people) | — | ⬜ to shoot |
