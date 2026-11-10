@@ -20,7 +20,7 @@ mode.
 
 | Evidence | Where | How to verify |
 |---|---|---|
-| 393 automated tests (unit + integration against a real SQLite DB) | `src/tests/` (34 files) | `pnpm test` → "Tests 393 passed" |
+| 406 automated tests (unit + integration against a real SQLite DB) | `src/tests/` (36 files) | `pnpm test` → "Tests 406 passed" |
 | CI runs install, migrate, lint, typecheck, test, build | `.github/workflows/ci.yml:27-35` | GitHub Actions badge at the top of `README.md` |
 | Deterministic risk engine: 20 rules (R-01…R-20); 7 hero claims with exact scores | `src/lib/risk/score.ts:28`, `src/tests/risk.test.ts:13` | `pnpm test src/tests/risk.test.ts`; `pnpm db:seed` throws if any hero score drifts (`src/lib/seed/run.ts:130`) |
 | KPI targets | `src/lib/kpi/formulas.ts:44`, `scripts/kpi-report.ts` | `pnpm kpi:report` → every row `OK` |
@@ -31,6 +31,7 @@ mode.
 | Illumination normalisation (model-free A/B, 20 docs × 6 capture arms): the shadow arm's critical values found 20 % → 100 %, CER 30.7 % → 3.9 %; live check 20/20 bad → 0/20; no regression on clean, low-contrast, clutter or photo arms | [`docs/ILLUMINATION.md`](ILLUMINATION.md), `src/lib/ai/preprocess.ts` (`normalizeIllumination`), `scripts/illumination-ab.ts` | `pnpm bench:illumination` (model-free; `--live` for the one live check); `src/tests/ocr-metrics.test.ts` |
 | Text-size sweep at a fixed 200 dpi, model-free (x-height measured in px): every critical value found down to **7 px** x-height (5 pt), breaks at **6 px** (4 pt: 47 % found, CER 45 %); R-14 escalates every failing document; live check at 4 pt: 20/20 review, 0 auto-approved | [`docs/RESOLUTION.md`](RESOLUTION.md), `scripts/resolution-sweep.ts`, `docs/resolution.csv` | `pnpm bench:resolution` (model-free; `--live 4` for the one live check) |
 | Field presence: present / absent / unreadable / conflict per critical field; required-vs-optional policy; R-19 escalates a missing required or conflicting field, R-14 a scan too poor to verify. 0 seeded claims trigger R-19 (seed and KPI output byte-identical) | `src/lib/ai/presence.ts:25`, `src/lib/domain/field-policy.ts`, `src/lib/risk/rules.ts:480`, `docs/RISK_RULES.md` | `pnpm test src/tests/presence.test.ts`; a travel claim such as `/claims/CLM-2026-0071` → PO chip "— absent" |
+| Scope arms through the upload path, 20 docs per arm: background text (label, another page's corner) never reaches the OCR text with the crop on (0/100; 54/100 with it off); 3 % of the page out of frame costs nothing; **two invoices side by side: the larger page is read (wrong page 11/20), with no signal in the OCR output; live, all 11 went to review via R-20 / R-17, 0 auto-approved with a wrong-document binding** | [`docs/SCOPE.md`](SCOPE.md), `scripts/scope-variants.ts`, `src/lib/bench/scope.ts` | Read the report; `pnpm bench:scope` (needs `./eng.traineddata`; `--live S1` for the bindings) |
 | Review economics and cost curve (`review ⇔ p·L > c`) | `docs/ECONOMICS.md`, `src/lib/risk/economics.ts:19` | `/economics`; `pnpm cost:curve` |
 | Spend by site: five sites from the invoice ship-to plant, travel/entertainment attributed to the submitter's home site and disclosed per row; totals reconcile with Total Claim Spend | `src/lib/locations.ts:70`, `src/lib/kpi/locations.ts:28` | `/dashboard` → Spend by site; `pnpm test src/tests/locations.test.ts` |
 | Retrieval-first grounded Q&A with citation check | `docs/AI_GOVERNANCE.md`, `src/lib/ask/answer.ts:79` | `/ask` → click an example; the badge says **Template** in mock mode |
@@ -55,7 +56,7 @@ mode.
 | CSV export of claims and the audit log, filter-aware, capped at 10 000 rows, injection-safe, bare-decimal money and UTC dates | `src/lib/export/csv.ts`, `src/lib/export/exports.ts`, `src/app/api/claims/export/route.ts`, `src/app/api/audit/export/route.ts` | `/claims` or `/audit` → **Export CSV** (carries the current filters); `pnpm test src/tests/csv.test.ts` |
 | Every API route requires a session | `src/lib/auth/session.ts:54`, `src/tests/api-auth.test.ts:17` | `pnpm test src/tests/api-auth.test.ts` |
 
-## Decisions (DECISIONS.md D-01 … D-53)
+## Decisions (DECISIONS.md D-01 … D-56)
 
 | ID | Decision | Implementation | How to verify |
 |---|---|---|---|
@@ -112,6 +113,9 @@ mode.
 | D-51 | Edge candidate stage for photos on lit desks | `src/lib/ai/corners.ts` | `src/tests/corners.test.ts`, `src/tests/fixtures/photos/` |
 | D-52 | Illumination normalisation in the OCR preparation (prep-v2) | `src/lib/ai/preprocess.ts`, `src/lib/ai/ocr-prep.ts` (`OCR_PIPELINE.illumination`) | `docs/ILLUMINATION.md`; `src/tests/ocr-metrics.test.ts` |
 | D-53 | Point size is not a variable without a resolution; the measured threshold is an x-height of ≈ 7 px at the OCR input | `scripts/resolution-sweep.ts`, `src/lib/bench/variants.ts` (`sizeCss`, `variantTranscript`), `src/lib/bench/ocr-metrics.ts` | `docs/RESOLUTION.md` |
+| D-54 | Every OCR table states its pipeline; the R-20 table re-measured after D-52 (identical: 140/140 OCR texts unchanged) | `scripts/extraction-variants.ts` (`VARIANT_AXES`, `VARIANT_OCR_ONLY`, `ocr_prep` column) | `docs/EXTRACTION_VARIANTS.md` ("before / after D-52") |
+| D-55 | Distant-anchor rejection: a conflict candidate more than 3 line heights from every label of its field is dropped | `src/lib/ai/presence.ts` (`anchorCandidates`), `src/lib/ai/labels.ts` (`labelIsWhole`) | `src/tests/anchors.test.ts` |
+| D-56 | Scope arms S0–S3: background removed by the crop; two pages → the larger is read, caught by the claim record | `scripts/scope-variants.ts`, `src/lib/bench/scope.ts` | `docs/SCOPE.md`; `src/tests/scope.test.ts` |
 
 ## Known limitations (README)
 
@@ -121,7 +125,8 @@ mode.
 | Local email/password only; minimal roles | Out of scope: SSO/MFA belong to the identity provider. Server-side role checks and no self-approval are enforced (D-27). |
 | Uploads cannot be audited in mock mode; Tesseract boxes are not mapped to fields | Explicit 422 with an explanation (D-13). Word-level OCR is now captured for uploads (D-40), the data a field mapping would need. |
 | PDF uploads need rasterising before OCR | Out of scope: no PDF rasteriser dependency. PNG/JPEG work in live OCR. |
+| One page per photo: the crop takes the largest page | Documented (ARCHITECTURE.md, "What OCR reads on an upload"). Measured in `docs/SCOPE.md`: with two invoices in one photo the larger is read, with no signal in the OCR output; the claim record (R-20) and vendor master (R-17) sent every such case to review, 0 auto-approved with a wrong-document binding. |
 | Posting to SAP is simulated | Out of scope without an SAP system. Posting records a MIRO number and audit rows exactly where a real integration would (`src/lib/audit/disposition.ts:14`). |
-| No end-to-end browser test suite | Mitigated by integration tests against a real DB (393 tests) and recorded manual runs (`docs/images/manual/`). |
+| No end-to-end browser test suite | Mitigated by integration tests against a real DB (406 tests) and recorded manual runs (`docs/images/manual/`). |
 | No self-service sign-up | Deliberate (D-29): an approval system must not let users pick their own role. |
 | Simulated extraction confidence | Labelled in the UI ("OCR: fixture (simulated)"), never used by the model, and grounding has been measured separately on real Tesseract output (D-25, D-37, D-40). |

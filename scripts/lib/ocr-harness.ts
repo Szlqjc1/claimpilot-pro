@@ -6,13 +6,14 @@ import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { chromium, type Browser, type Page } from "playwright";
-import { OCR_PIPELINE, OCR_PREP_VERSION, prepareForOcr } from "../../src/lib/ai/ocr-prep";
+import { CORNER_DETECTOR_VERSION } from "../../src/lib/ai/corners";
+import { OCR_PIPELINE, OCR_PREP_VERSION, imageSize, prepareForOcr, wordsFromBlocks, wordsToOriginal, type OcrRectify, type OcrWord } from "../../src/lib/ai/ocr-prep";
 
 export const MODEL_PATH = path.resolve("eng.traineddata");
 const CACHE = path.resolve(".bench-cache/ocr-harness");
 const sha = (b: string | Buffer) => createHash("sha256").update(b).digest("hex").slice(0, 32);
 
-export type OcrOut = { text: string; confidence: number };
+export type OcrOut = { text: string; confidence: number; rectify?: OcrRectify | null; words?: OcrWord[] };
 
 export async function openHarness() {
   await mkdir(CACHE, { recursive: true });
@@ -61,14 +62,24 @@ export async function openHarness() {
         await page.close();
       }
     },
-    /** The app's OCR preparation (illumination per argument, default the app's) then Tesseract; cached by bytes. */
-    async ocr(image: Buffer, mime: "image/png" | "image/jpeg", opts: { illumination?: boolean } = {}): Promise<OcrOut> {
+    /**
+     * The app's OCR preparation (illumination per argument, default the app's) then Tesseract; cached by bytes.
+     * `upload: true` is the upload path (D-50): page detection and rectification first, and the word boxes mapped
+     * back onto the photo, exactly as ocrWithTesseract does. Without it, the keys and results are as before.
+     */
+    async ocr(image: Buffer, mime: "image/png" | "image/jpeg", opts: { illumination?: boolean; upload?: boolean } = {}): Promise<OcrOut> {
       const illumination = opts.illumination ?? OCR_PIPELINE.illumination;
-      const file = path.join(CACHE, `${sha(image)}-${OCR_PIPELINE.mode}-psm${OCR_PIPELINE.psm}-${OCR_PREP_VERSION}-illum${illumination ? 1 : 0}.json`);
+      const up = opts.upload ? `-upload-${CORNER_DETECTOR_VERSION}` : "";
+      const file = path.join(CACHE, `${sha(image)}-${OCR_PIPELINE.mode}-psm${OCR_PIPELINE.psm}-${OCR_PREP_VERSION}-illum${illumination ? 1 : 0}${up}.json`);
       if (existsSync(file)) return JSON.parse(await readFile(file, "utf8")) as OcrOut;
-      const { image: input } = prepareForOcr(image, mime, { mode: OCR_PIPELINE.mode as "gray", psm: OCR_PIPELINE.psm, illumination });
-      const { data } = await worker.recognize(input);
+      const { image: input, prep } = prepareForOcr(image, mime, { mode: OCR_PIPELINE.mode as "gray", psm: OCR_PIPELINE.psm, illumination, ...(opts.upload ? { rectify: true } : {}) });
+      const { data } = opts.upload ? await worker.recognize(input, {}, { text: true, blocks: true }) : await worker.recognize(input);
       const out: OcrOut = { text: data.text, confidence: Math.max(0, Math.min(1, (data.confidence ?? 0) / 100)) };
+      if (opts.upload) {
+        const size = imageSize(input, mime, prep.preprocessed);
+        out.rectify = prep.rectify ?? null;
+        out.words = wordsToOriginal(wordsFromBlocks(data.blocks as never, size.width, size.height), prep);
+      }
       await writeFile(file, JSON.stringify(out));
       fresh++;
       return out;
