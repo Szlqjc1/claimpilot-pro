@@ -26,6 +26,7 @@
     "bench:grounding": "tsx scripts/grounding-bench.ts",
     "bench:variants": "tsx --conditions=react-server scripts/extraction-variants.ts",
     "bench:illumination": "tsx --conditions=react-server scripts/illumination-ab.ts",
+    "bench:resolution": "tsx --conditions=react-server scripts/resolution-sweep.ts",
     "a11y:audit": "tsx scripts/a11y-audit.ts",
     "evidence:shots": "tsx scripts/evidence-shots.ts"
   },

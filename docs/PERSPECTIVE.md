@@ -285,8 +285,13 @@ Same harness, same 20 documents, everything else held at the canonical render; t
 The table is regenerated on every run, and the per-field breakdown sits under it.
 
 **What broke first, per axis:**
-- **Font: nothing broke.** Serif, condensed and 8 pt body text stayed at 99–100 % accuracy. The only miss was serif
-  on one travel invoice, where the model copied the project code into the empty PO field; R-20 caught it, so 1/20 bad.
+- **Font: family does not matter.** Serif and condensed stayed at 99–100 % accuracy. The only miss was serif on one
+  travel invoice, where the model copied the project code into the empty PO field; R-20 caught it, so 1/20 bad.
+  *Corrected (D-53):* the "small print" arm does **not** show that 8 pt is fine. It was measured at ≈ 300 dpi, and it
+  shrank only the address and footer lines, not the tables that hold the critical values. Point size is not a variable
+  without a resolution. What matters is the character height in pixels. See [RESOLUTION.md](RESOLUTION.md): at the OCR
+  input the five critical values stay verifiable down to an **x-height of ≈ 7 px** and fail at **6 px** (8 pt text
+  needs ≳ 125 dpi).
 - **Capture quality: the shadow broke first and worst.** All 20 documents escalated: every value in the shaded third,
   invoice number, date and total, vanished from the OCR text. The clutter arm followed (mug over the header: invoice
   number wrong on 17/20). Low contrast at 60 % with JPEG blocking at quality 25 broke nothing (100 %, 0 escalations).
