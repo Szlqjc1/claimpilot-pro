@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:1080px; height:1920px; }
+  body {
+    font-family: "Inter", "Segoe UI", "Microsoft YaHei", sans-serif;
+    background:#ffffff; color:#101828;
+  }
+  .card {
+    width:1080px; height:1920px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:110px 90px;
+    background:
+      radial-gradient(900px 700px at 50% -10%, rgba(249,115,22,.10), transparent 62%),
+      #ffffff;
+    text-align:center;
+  }
+  .brand { display:flex; align-items:center; gap:18px; margin-bottom:78px; }
+  .brand svg { width:64px; height:64px; }
+  .brand .name { font-size:50px; font-weight:800; letter-spacing:-.8px; }
+  .brand .name span { color:#c2410c; }
+
+  .qr { width:700px; height:700px; padding:34px; background:#fff; border:2px solid #e4e8ee; border-radius:34px; box-shadow:0 22px 60px rgba(16,24,40,.12); }
+  .qr img { width:100%; height:100%; display:block; }
+
+  h1 { margin-top:74px; font-size:92px; line-height:1.1; font-weight:800; letter-spacing:-2px; }
+  h1 em { font-style:normal; color:#c2410c; }
+  p.sub { margin-top:26px; font-size:38px; line-height:1.45; color:#475467; max-width:860px; }
+  .url { margin-top:44px; font-size:32px; color:#667085; font-family: ui-monospace, Consolas, monospace; }
+  .foot { margin-top:70px; font-size:26px; color:#98a2b3; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <rect width="32" height="32" rx="7" fill="#f97316"/>
+      <path d="M16 6.5 8.5 9.3v6.1c0 4.7 3.2 8.6 7.5 10.1 4.3-1.5 7.5-5.4 7.5-10.1V9.3L16 6.5Z" stroke="#fff" stroke-width="2.2" stroke-linejoin="round" fill="none"/>
+      <path d="m12.6 16 2.4 2.4 4.6-4.7" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </svg>
+    <div class="name">ClaimPilot <span>PRO</span></div>
+  </div>
+
+  <div class="qr"><img src="qr-code.png" alt="QR code to the ClaimPilot PRO landing page"></div>
+
+  <h1>Scan to <em>try it</em></h1>
+  <p class="sub">No install, no API key — the demo account is on the page.</p>
+  <div class="url">szlqjc1.github.io/claimpilot-pro</div>
+  <div class="foot">Demo data · all records fictional</div>
+</div>
+</body>
+</html>
