@@ -41,6 +41,7 @@ export const ANOMALY_TYPES = [
   "Bank Detail Change",
   "Capitalization Mismatch",
   "Incomplete or Conflicting Extraction",
+  "Invoice Does Not Match Claim",
 ] as const;
 export type AnomalyType = (typeof ANOMALY_TYPES)[number];
 

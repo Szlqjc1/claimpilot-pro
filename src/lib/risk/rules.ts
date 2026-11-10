@@ -507,4 +507,46 @@ export const RULES: Rule[] = [
       };
     },
   },
+  {
+    id: "R-20",
+    evaluate: ({ claim, extraction }) => {
+      // D-46. Does the invoice belong to this claim? Compares the extraction with what the claim records (vendor,
+      // invoice #, PO, amount). Grounding cannot see a value that is in the OCR text but wrong (a vendor name cut by
+      // a line wrap, an OCR digit insertion); the claim's own record can (D-45). A missing value on either side never
+      // fires: a missing extracted value is R-14 / R-19's, a field the claim does not carry has nothing to compare.
+      const mismatches: string[] = [];
+      const evidence: Record<string, unknown> = {};
+      const name = extraction.vendor?.name;
+      if (name && normalizeVendorName(name) !== normalizeVendorName(claim.vendorName)) {
+        mismatches.push(`vendor '${name}' vs ${claim.vendorName}`);
+        evidence.vendor = { invoice: name, claim: claim.vendorName };
+      }
+      const inv = normalizeInvoiceNumber(extraction.invoiceNumber);
+      if (inv && claim.invoiceNumber && inv !== normalizeInvoiceNumber(claim.invoiceNumber)) {
+        mismatches.push(`invoice # ${extraction.invoiceNumber} vs ${claim.invoiceNumber}`);
+        evidence.invoiceNumber = { invoice: extraction.invoiceNumber, claim: claim.invoiceNumber };
+      }
+      const po = normalizeInvoiceNumber(extraction.poNumber);
+      if (po && po !== normalizeInvoiceNumber(claim.poNumber)) {
+        mismatches.push(claim.poNumber ? `PO ${extraction.poNumber} vs ${claim.poNumber}` : `PO ${extraction.poNumber}, which the claim does not reference`);
+        evidence.poNumber = { invoice: extraction.poNumber, claim: claim.poNumber };
+      }
+      const totalCents = toCents(extraction.total);
+      const totalOff = totalCents !== claim.amountCents;
+      if (totalOff) {
+        mismatches.push(`total ${formatUsd(totalCents)} vs claimed ${formatUsd(claim.amountCents)}`);
+        evidence.total = { invoice: formatUsd(totalCents), claim: formatUsd(claim.amountCents), differenceCents: Math.abs(totalCents - claim.amountCents) };
+      }
+      if (mismatches.length === 0) return null;
+      return {
+        ruleId: "R-20",
+        anomalyType: "Invoice Does Not Match Claim",
+        // Money paid would differ from money invoiced → High; an identity mismatch alone → Medium.
+        riskLevel: totalOff ? "High" : "Medium",
+        points: totalOff ? 40 : 25,
+        message: `Invoice does not match the claim: ${mismatches.join("; ")}. Verify the invoice belongs to this claim.`,
+        evidence,
+      };
+    },
+  },
 ];

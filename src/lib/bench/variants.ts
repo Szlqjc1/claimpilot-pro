@@ -249,7 +249,7 @@ export type DocResult = {
   variant: string;
   claimId: string;
   outcomes: Record<CriticalField, FieldOutcome>;
-  escalated: boolean; // R-14 or R-19 fired
+  escalated: boolean; // R-14, R-19 or R-20 fired (the extraction-quality rules)
   cleared: boolean; // decision AUTO_APPROVE
 };
 

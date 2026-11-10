@@ -16,9 +16,11 @@ and what OCR does to a digit:**
 - **Chinese labels** come out of the English-only OCR as noise (`HFHEHEA`, `ZIHAH`). The model still found every value
   from its shape, but page confidence dropped to 0.73–0.77, so R-14 escalated 2 of 20 correct documents.
 
-The third column is the one that matters, and it is **not** zero on the label axis: 4 of 98 auto-cleared documents
-carried a wrong field. All four are the class grounding cannot see by design (D-37): a value that is wrong but
-present in the OCR text.
+The third column is the one that matters. On the first run it was **not** zero on the label axis: 4 of 98
+auto-cleared documents carried a wrong field. All four are the class grounding cannot see by design (D-37): a value
+that is wrong but present in the OCR text. **R-20 (D-46) now compares the extraction with the claim's own record and
+routes all four to review: column 3 is 0 % on every variant**, with no new false alarms. The tables below include
+R-20 in the escalation column.
 
 ## Method
 
@@ -51,13 +53,13 @@ Documents per axis: **20** seeded claims that auto-clear on their reference extr
 
 ### Label axis (layout held at label-left)
 
-| Variant | Docs | Field accuracy (returned values) | Escalation rate (R-14 / R-19) | Error in auto-cleared claims | Values returned |
+| Variant | Docs | Field accuracy (returned values) | Escalation rate (R-14 / R-19 / R-20) | Error in auto-cleared claims | Values returned |
 |---|---:|---|---|---|---:|
 | canonical | 20 | **100.0 %** (98/98; 95 % 97.0 %–100.0 %) | **0.0 %** (0/20) | **0.0 %** (0/20; ≤ 13.9 %) | 98/100 |
-| abbreviated | 20 | **99.0 %** (97/98; 95 % 95.3 %–99.9 %) | **0.0 %** (0/20) | **5.0 %** (1/20; ≤ 21.6 %) | 98/100 |
-| verbose | 20 | **98.0 %** (96/98; 95 % 93.7 %–99.6 %) | **0.0 %** (0/20) | **10.0 %** (2/20; ≤ 28.3 %) | 98/100 |
+| abbreviated | 20 | **99.0 %** (97/98; 95 % 95.3 %–99.9 %) | **5.0 %** (1/20) | **0.0 %** (0/19; ≤ 14.6 %) | 98/100 |
+| verbose | 20 | **98.0 %** (96/98; 95 % 93.7 %–99.6 %) | **10.0 %** (2/20) | **0.0 %** (0/18; ≤ 15.3 %) | 98/100 |
 | german | 20 | **100.0 %** (98/98; 95 % 97.0 %–100.0 %) | **0.0 %** (0/20) | **0.0 %** (0/20; ≤ 13.9 %) | 98/100 |
-| chinese | 20 | **99.0 %** (97/98; 95 % 95.3 %–99.9 %) | **10.0 %** (2/20) | **5.6 %** (1/18; ≤ 23.8 %) | 98/100 |
+| chinese | 20 | **99.0 %** (97/98; 95 % 95.3 %–99.9 %) | **15.0 %** (3/20) | **0.0 %** (0/17; ≤ 16.2 %) | 98/100 |
 
 Per field (ok includes a correct null, e.g. no PO on a travel invoice):
 
@@ -71,7 +73,7 @@ Per field (ok includes a correct null, e.g. no PO on a travel invoice):
 
 ### Layout axis (labels held at canonical)
 
-| Variant | Docs | Field accuracy (returned values) | Escalation rate (R-14 / R-19) | Error in auto-cleared claims | Values returned |
+| Variant | Docs | Field accuracy (returned values) | Escalation rate (R-14 / R-19 / R-20) | Error in auto-cleared claims | Values returned |
 |---|---:|---|---|---|---:|
 | label-left | 20 | **100.0 %** (98/98; 95 % 97.0 %–100.0 %) | **0.0 %** (0/20) | **0.0 %** (0/20; ≤ 13.9 %) | 98/100 |
 | label-above | 20 | **100.0 %** (98/98; 95 % 97.0 %–100.0 %) | **0.0 %** (0/20) | **0.0 %** (0/20; ≤ 13.9 %) | 98/100 |
@@ -113,14 +115,24 @@ The tables above are after the fix, re-scored from the cached extractions with n
 - **20 documents per axis.** A 0 % row has a 95 % upper bound of about 14 %. These rows show where things break, not
   rates to quote.
 
-## What would close column 3 (not implemented)
+## What closed column 3: R-20 (D-46)
 
-Both failure kinds are values that are in the text but disagree with SAP master data the claim already carries:
-- the extracted vendor vs `Claim.vendorName` (normalised): this catches the truncated names;
-- the extracted PO vs `Claim.poNumber`: this catches the OCR digit insertion.
+Both failure kinds are values that are in the text but disagree with what the claim already records. R-20 "Invoice
+Does Not Match Claim" compares, after normalisation:
+- the extracted vendor with `Claim.vendorName`: this catches the 3 truncated names;
+- the extracted PO with `Claim.poNumber`: this catches the OCR digit insertion;
+- the invoice # with `Claim.invoiceNumber`, and the total with the claimed amount.
 
-A cross-check rule would have caught all 4. It is a new rule with points, i.e. a scoring change, so it is left for a
-separate decision rather than added here.
+An identity mismatch is Medium (25), a total mismatch High (40).
+
+| | Before R-20 | With R-20 |
+|---|---|---|
+| Auto-cleared documents with a wrong field (label axis) | 4 / 98 | **0 / 94** |
+| Documents R-20 fires on, of 140 | — | 4, all of them the wrong ones (0 false alarms) |
+| Seeded claims R-20 fires on | — | 0 of 130 (seed and KPI output byte-identical) |
+
+The escalation rate rises by exactly those 4 documents (abbreviated 0 → 5 %, verbose 0 → 10 %, Chinese 10 → 15 %).
+Those are correct escalations, not false alarms.
 
 ## Reproduce
 

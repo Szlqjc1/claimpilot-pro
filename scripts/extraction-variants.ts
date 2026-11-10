@@ -154,7 +154,7 @@ async function main() {
       e = { ...e, fieldPresence: presenceOf(e, o.text) };
       const result = evaluateRisk({ ...seedRiskInput(plan, claim), extraction: e });
       outcomes = Object.fromEntries(V.BENCH_FIELDS.map((f) => [f, V.fieldOutcome(f, e, truth)])) as Row["outcomes"];
-      escalated = result.findings.some((f) => f.ruleId === "R-14" || f.ruleId === "R-19");
+      escalated = result.findings.some((f) => ["R-14", "R-19", "R-20"].includes(f.ruleId));
       cleared = result.decision === "AUTO_APPROVE";
       rules = result.findings.map((f) => f.ruleId).join(" ") || "—";
       decision = result.decision;
@@ -167,7 +167,7 @@ async function main() {
     const s = String(v ?? "");
     return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
-  const header = ["axis", "variant", "claim_id", ...V.BENCH_FIELDS, "escalated_r14_r19", "auto_cleared", "doc_has_error", "decision", "rules", "ocr_confidence", "error"];
+  const header = ["axis", "variant", "claim_id", ...V.BENCH_FIELDS, "escalated_r14_r19_r20", "auto_cleared", "doc_has_error", "decision", "rules", "ocr_confidence", "error"];
   const csv = [header.join(","), ...rows.map((r) => [r.axis, r.variant, r.claimId, ...V.BENCH_FIELDS.map((f) => r.outcomes[f]), r.escalated, r.cleared, V.docHasError(r), r.decision, r.rules, r.ocrConfidence.toFixed(3), r.error].map(csvCell).join(","))];
   await writeFile(path.resolve("docs/variants.csv"), `${csv.join("\n")}\n`);
 
@@ -175,7 +175,7 @@ async function main() {
   const bound = (k: number, n: number) => (n ? `${p(lowerBound(k, n))}–${p(upperBound(k, n))}` : "—");
   const table = (axis: "label" | "layout", variants: string[]) => {
     const lines = [
-      "| Variant | Docs | Field accuracy (returned values) | Escalation rate (R-14 / R-19) | Error in auto-cleared claims | Values returned |",
+      "| Variant | Docs | Field accuracy (returned values) | Escalation rate (R-14 / R-19 / R-20) | Error in auto-cleared claims | Values returned |",
       "|---|---:|---|---|---|---:|",
     ];
     for (const v of variants) {

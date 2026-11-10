@@ -103,6 +103,13 @@ export function exposureFor(finding: Pick<Finding, "ruleId" | "evidence">, input
       return priced(Math.max(overCap, alcohol), amount);
     }
 
+    case "R-20": {
+      // Invoice vs claim (D-46): only a total mismatch is monetisable — the difference between what was claimed
+      // and what was invoiced. An identity mismatch alone (vendor, invoice #, PO) prices at nothing → null.
+      const diff = (finding.evidence.total as { differenceCents?: number } | undefined)?.differenceCents;
+      return typeof diff === "number" ? priced(diff, amount) : null;
+    }
+
     case "R-15": {
       // Approval breach: the amount above what the actual approver may sign; no approver → all of it.
       const actual = typeof finding.evidence.actual === "string" ? APPROVAL_MATRIX.find((r) => r.level === finding.evidence.actual) : undefined;
