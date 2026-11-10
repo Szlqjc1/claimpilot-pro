@@ -5,12 +5,14 @@
 //      downscaled, binarised copy (text lines produce sharp peaks only when they are horizontal)
 //   3. rotate back and upscale 2× in one bilinear resample
 //   4. binarise with Otsu; under a strong illumination gradient, fall back to a 32 px tiled threshold
+// Optional before step 2 (D-52): illumination normalisation — divide by an estimate of the paper brightness, so a
+// shadow or uneven light does not push a region of text below Tesseract's single global threshold.
 
 export type RgbaImage = { data: Uint8Array | Uint8ClampedArray; width: number; height: number };
 export type GrayImage = { data: Uint8Array; width: number; height: number };
 export type PreprocessResult = GrayImage & { skewDeg: number; threshold: number; method: "otsu" | "tiled" | "gray"; inkRatio: number };
 /** binarize: false keeps the deskewed, upscaled grayscale (Tesseract then applies its own binarisation). */
-export type PreprocessOptions = { binarize?: boolean };
+export type PreprocessOptions = { binarize?: boolean; illumination?: boolean };
 
 export const SKEW_RANGE_DEG = 3;
 export const SKEW_STEP_DEG = 0.5;
@@ -243,7 +245,7 @@ export function inkRatio(bin: GrayImage): number {
 }
 
 export function preprocess(img: RgbaImage, opts: PreprocessOptions = {}): PreprocessResult {
-  const gray = toGray(img);
+  const gray = opts.illumination ? normalizeIllumination(toGray(img)) : toGray(img);
   const skewDeg = estimateSkew(gray);
   const scaled = deskewAndScale(gray, skewDeg, UPSCALE);
   let bin: GrayImage;
@@ -265,4 +267,61 @@ export function preprocess(img: RgbaImage, opts: PreprocessOptions = {}): Prepro
     method = "otsu";
   }
   return { ...bin, skewDeg, threshold, method, inkRatio: inkRatio(bin) };
+}
+
+/** Block size (px) for the paper-brightness estimate; 3×3 blocks (96 px) must be wider than any glyph stroke run. */
+export const ILLUM_BLOCK = 32;
+
+/**
+ * Illumination normalisation (D-52). Estimates the paper brightness at every pixel as the brightest value in its
+ * neighbourhood (max over 32 px blocks, dilated 3×3 blocks so a heading glyph never fills a window, then smoothed
+ * 3×3 and bilinearly upsampled), and divides by it: paper becomes white everywhere, ink keeps its contrast against
+ * the paper around it. A uniformly lit page is unchanged; a shadow is flattened instead of thresholded away.
+ */
+export function normalizeIllumination(g: GrayImage, block = ILLUM_BLOCK): GrayImage {
+  const { width: w, height: h, data } = g;
+  const bw = Math.ceil(w / block);
+  const bh = Math.ceil(h / block);
+  const pooled = new Float32Array(bw * bh);
+  for (let y = 0; y < h; y++) {
+    const row = Math.floor(y / block) * bw;
+    for (let x = 0; x < w; x++) {
+      const i = row + Math.floor(x / block);
+      const v = data[y * w + x];
+      if (v > pooled[i]) pooled[i] = v;
+    }
+  }
+  const at = (a: Float32Array, x: number, y: number) => a[Math.min(bh - 1, Math.max(0, y)) * bw + Math.min(bw - 1, Math.max(0, x))];
+  const dilated = new Float32Array(bw * bh);
+  const bg = new Float32Array(bw * bh);
+  for (let y = 0; y < bh; y++)
+    for (let x = 0; x < bw; x++) {
+      let m = 0;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) m = Math.max(m, at(pooled, x + dx, y + dy));
+      dilated[y * bw + x] = m;
+    }
+  for (let y = 0; y < bh; y++)
+    for (let x = 0; x < bw; x++) {
+      let s = 0;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) s += at(dilated, x + dx, y + dy);
+      bg[y * bw + x] = s / 9;
+    }
+  const out = new Uint8Array(w * h);
+  for (let y = 0; y < h; y++) {
+    const fy = Math.min(bh - 1, Math.max(0, (y + 0.5) / block - 0.5));
+    const y0 = Math.floor(fy);
+    const y1 = Math.min(bh - 1, y0 + 1);
+    const ty = fy - y0;
+    for (let x = 0; x < w; x++) {
+      const fx = Math.min(bw - 1, Math.max(0, (x + 0.5) / block - 0.5));
+      const x0 = Math.floor(fx);
+      const x1 = Math.min(bw - 1, x0 + 1);
+      const tx = fx - x0;
+      const top = bg[y0 * bw + x0] + (bg[y0 * bw + x1] - bg[y0 * bw + x0]) * tx;
+      const bot = bg[y1 * bw + x0] + (bg[y1 * bw + x1] - bg[y1 * bw + x0]) * tx;
+      const paper = Math.max(16, top + (bot - top) * ty);
+      out[y * w + x] = Math.min(255, Math.round((data[y * w + x] * 255) / paper));
+    }
+  }
+  return { data: out, width: w, height: h };
 }

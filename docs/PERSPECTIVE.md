@@ -310,3 +310,9 @@ can measure it on the same 20 documents. Not built here (benchmark-only task).
 **The clutter arm is deliberately harsh.** The mug sits over the page's top-right corner, which on this template is
 exactly where the header values are. On a template with the header on the left it would cost far less. It measures
 "an object over the header", not clutter in general.
+
+**Update (D-52).** The fix recommended above was built: illumination normalisation is now part of the app's OCR
+preparation. On the shadow arm, critical values found went from 20 % to 100 % and the live end-to-end result from 20/20
+bad to 0/20 bad; nothing else regressed. See [ILLUMINATION.md](ILLUMINATION.md). The tables in this file were measured
+with the earlier preparation (`prep-v1`).
+

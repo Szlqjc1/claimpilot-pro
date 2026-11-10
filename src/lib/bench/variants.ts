@@ -190,7 +190,7 @@ export const FONT_CSS: Record<FontVariant, string> = {
   "small-print": ".sub,.parties,.foot,.parties b{font-size:8pt !important}",
 };
 
-export function variantHtml(doc: InvoiceDoc, label: LabelVariant, layout: LayoutVariant, font: FontVariant = "default"): string {
+export function variantHtml(doc: InvoiceDoc, label: LabelVariant, layout: LayoutVariant, font: FontVariant = "default", extraCss = ""): string {
   const l = LABEL_SETS[label];
   const money = (c: number) => esc(formatUsd(c));
   const lines = doc.lines
@@ -221,7 +221,7 @@ table{border-collapse:collapse}.right{text-align:right}.mono{font-family:Consola
 .items{width:100%;margin-top:22px;font-size:13px}.items th{background:#eee;text-align:left;padding:5px}.items td{padding:4px 5px;border-bottom:1px solid #ddd}
 .totals{margin-left:auto;margin-top:14px;font-size:14px}.totals td{padding:2px 8px}.totals .grand td{font-weight:700;border-top:2px solid #111}
 .foot{margin-top:24px;font-size:13px}
-${FONT_CSS[font]}</style></head><body><div class="page">
+${FONT_CSS[font]}${extraCss}</style></head><body><div class="page">
 <div class="top"><div><h1>${esc(doc.vendor.name)}</h1><p class="sub">${esc(`${doc.vendor.street}, ${doc.vendor.cityState}`)}</p><p class="sub">EIN ${esc(doc.vendor.taxId)}</p></div>
 <div><div class="title right">INVOICE</div>${layout === "label-left" ? headerHtml(headerFields(doc, l), layout) : ""}</div></div>
 ${layout === "label-left" ? "" : headerHtml(headerFields(doc, l), layout)}
@@ -325,4 +325,41 @@ export function recoveryDecision(bad: { a0: number; a1: number; a2: number }, do
   if (gap <= Math.max(1, Math.floor(docs * 0.05))) return { gap, recovered, recoveryPct: null, verdict: "no-measurable-gap" };
   const recoveryPct = recovered / gap;
   return { gap, recovered, recoveryPct, verdict: recoveryPct >= 0.7 ? "build" : recoveryPct <= 0.3 ? "do-not-build" : "spike" };
+}
+
+// ── text size and ground truth (Task 15, D-53) ───────────────────────────────────────────────────────────────
+
+/**
+ * Every text element sized from ONE body size, with the default stylesheet's ratios (header/body 15 px, headings
+ * 26 / 30 px, small text 12–14 px), so the whole page scales with the body size while margins, column widths and the
+ * page width stay fixed. Appended after the base stylesheet (an empty string leaves the default render unchanged).
+ */
+export function sizeCss(bodyPx: number, pageWidthPx: number): string {
+  const r = (k: number) => `${(bodyPx * k).toFixed(2)}px !important`;
+  return [
+    `body{font-size:${r(1)}}.page{width:${pageWidthPx}px !important}`,
+    `h1{font-size:${r(26 / 15)}}.sub{font-size:${r(13 / 15)}}.title{font-size:${r(2)}}`,
+    `.hdr.above .small{font-size:${r(12 / 15)}}.hdr.dense{font-size:${r(13 / 15)}}`,
+    `.parties{font-size:${r(13 / 15)}}.parties b{font-size:${r(12 / 15)}}.items{font-size:${r(13 / 15)}}.totals{font-size:${r(14 / 15)}}.foot{font-size:${r(13 / 15)}}`,
+  ].join("");
+}
+
+/**
+ * The reference transcript: every string variantHtml draws, in reading order (vendor block, title, header fields,
+ * parties, line items, totals, footer). The OCR is scored against it (character error rate).
+ */
+export function variantTranscript(doc: InvoiceDoc, label: LabelVariant): string {
+  const l = LABEL_SETS[label];
+  const lines: string[] = [doc.vendor.name, `${doc.vendor.street}, ${doc.vendor.cityState}`, `EIN ${doc.vendor.taxId}`, "INVOICE"];
+  for (const [k, v] of headerFields(doc, l)) lines.push(`${k} ${v}`);
+  lines.push(l.billTo, BILL_TO.name, BILL_TO.address, l.shipTo, doc.shipTo.plant, doc.shipTo.address);
+  lines.push(l.cols.join(" "));
+  for (const li of doc.lines) lines.push([li.partNumber ?? "—", li.description, String(li.quantity), li.unit, formatUsd(li.unitPriceCents), formatUsd(lineAmountCents(li))].join(" "));
+  lines.push(`${l.subtotal} ${formatUsd(subtotalCents(doc))}`, `${l.tax} ${formatUsd(doc.salesTaxCents)}`, `${l.freight} ${formatUsd(doc.freightCents)}`);
+  if (doc.otherChargesCents) lines.push(`${l.other} ${formatUsd(doc.otherChargesCents)}`);
+  lines.push(`${l.total} ${formatUsd(totalCents(doc))}`);
+  lines.push(...doc.notes);
+  lines.push(`${l.remitTo}: ${doc.vendor.name}, ${doc.vendor.bankName}, ACH ••••${doc.vendor.accountLast4}`);
+  lines.push(`${l.approvedBy}: ${doc.approval ? `${doc.approval.name}, ${doc.approval.level}` : l.notSigned}`);
+  return lines.join(String.fromCharCode(10));
 }

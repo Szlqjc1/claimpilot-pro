@@ -18,9 +18,10 @@ export type Psm = "default" | "3" | "6";
  * binarised, PSM 3 vs PSM 6, realistic profile) — not by assumption. "default" PSM = tesseract.js's own setting.
  * Set by the benchmark result; see DECISIONS D-39.
  */
-export const OCR_PIPELINE: { mode: PrepMode; psm: Psm } = { mode: "gray", psm: "3" };
+/** illumination (D-52): normalise uneven light before OCR; measured in docs/ILLUMINATION.md. */
+export const OCR_PIPELINE: { mode: PrepMode; psm: Psm; illumination: boolean } = { mode: "gray", psm: "3", illumination: true };
 /** Version of the preprocessing code, part of the benchmark cache key (Task 7b A3). Bump on any change. */
-export const OCR_PREP_VERSION = "prep-v1";
+export const OCR_PREP_VERSION = "prep-v2"; // v2 (D-52): illumination normalisation
 export const MIN_INK_RATIO = 0.01;
 export const MAX_INK_RATIO = 0.5;
 
@@ -159,7 +160,7 @@ export function encodePgm(img: GrayImage): Buffer {
  * `rectify` (D-50): true = detect the page and warp it flat first (subject to the flat-scan guard); false = record
  * that it is switched off; omitted = no rectification step at all (the benchmarks, byte-identical to before D-50).
  */
-export function prepareForOcr(image: Buffer, mime: string, opts: { mode: Exclude<PrepMode, "off">; psm: Psm; rectify?: boolean }): { image: Buffer; prep: OcrPrep } {
+export function prepareForOcr(image: Buffer, mime: string, opts: { mode: Exclude<PrepMode, "off">; psm: Psm; rectify?: boolean; illumination?: boolean }): { image: Buffer; prep: OcrPrep } {
   let rectify: OcrRectify | undefined;
   // A raw fallback reads the photo as uploaded, so whatever rectification found, the scope is the full frame.
   const raw = (warning: string): { image: Buffer; prep: OcrPrep } => ({
@@ -189,7 +190,7 @@ export function prepareForOcr(image: Buffer, mime: string, opts: { mode: Exclude
       input = r.image;
       rectify = r.rectify;
     }
-    const out = preprocess(input, { binarize: opts.mode === "binary" });
+    const out = preprocess(input, { binarize: opts.mode === "binary", illumination: opts.illumination ?? OCR_PIPELINE.illumination });
     if (out.inkRatio < MIN_INK_RATIO || out.inkRatio > MAX_INK_RATIO) {
       return raw(`Preprocessing produced a degenerate image (${(out.inkRatio * 100).toFixed(1)} % ink); OCR ran on the original.`);
     }

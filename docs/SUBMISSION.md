@@ -20,7 +20,7 @@ mode.
 
 | Evidence | Where | How to verify |
 |---|---|---|
-| 359 automated tests (unit + integration against a real SQLite DB) | `src/tests/` (31 files) | `pnpm test` → "Tests 359 passed" |
+| 393 automated tests (unit + integration against a real SQLite DB) | `src/tests/` (34 files) | `pnpm test` → "Tests 393 passed" |
 | CI runs install, migrate, lint, typecheck, test, build | `.github/workflows/ci.yml:27-35` | GitHub Actions badge at the top of `README.md` |
 | Deterministic risk engine: 20 rules (R-01…R-20); 7 hero claims with exact scores | `src/lib/risk/score.ts:28`, `src/tests/risk.test.ts:13` | `pnpm test src/tests/risk.test.ts`; `pnpm db:seed` throws if any hero score drifts (`src/lib/seed/run.ts:130`) |
 | KPI targets | `src/lib/kpi/formulas.ts:44`, `scripts/kpi-report.ts` | `pnpm kpi:report` → every row `OK` |
@@ -28,6 +28,7 @@ mode.
 | Extraction variants (labels × layout), live model, 20 docs per axis: layouts 100 % accuracy / 0 % escalation / 0 % error in cleared; labels 98–100 % accuracy, and 4 of 98 auto-cleared documents carried a wrong field (truncated vendor name ×3, OCR digit insertion in a PO ×1); **with R-20, 0 % error in auto-cleared claims on every variant** | [`docs/EXTRACTION_VARIANTS.md`](EXTRACTION_VARIANTS.md), `docs/variants.csv`, `scripts/extraction-variants.ts` | Read the report; `pnpm bench:variants` (needs `AI_MODE=live`, a key and `./eng.traineddata`; exits 0 with a message otherwise; cached re-runs make no model calls) |
 | Perspective benchmark with a pre-registered decision rule: phone-photo synthesis (homography, pinhole, desk, uneven light) at pitch/yaw 10/10 and 20/15 vs an oracle rectification with the true corners. Photos: 11–12 of 20 documents lose their correct auto-clear (invoice number breaks first); oracle: 0 of 20. **Recovery 100 % → build corner detection** | [`docs/PERSPECTIVE.md`](PERSPECTIVE.md), `src/lib/bench/perspective.ts`, `src/lib/bench/photo.ts` | Read the report; `pnpm bench:variants` (cached re-runs make no model calls); `src/tests/perspective.test.ts` |
 | Typography and capture quality on the same harness: serif / condensed / 8 pt body 99–100 % accuracy (font broke nothing); low contrast 60 % + JPEG q25 100 %; **a one-third shadow escalated 20/20** (the shaded values vanish from the OCR text; a global threshold cannot handle non-uniform light); a mug over the header escalated 20/20. Error in auto-cleared 0 % on all six, through R-20 | [`docs/PERSPECTIVE.md`](PERSPECTIVE.md) → Part B, `src/lib/bench/capture.ts` | Read the report; `pnpm bench:variants` (cached re-runs make no model calls) |
+| Illumination normalisation (model-free A/B, 20 docs × 6 capture arms): the shadow arm's critical values found 20 % → 100 %, CER 30.7 % → 3.9 %; live check 20/20 bad → 0/20; no regression on clean, low-contrast, clutter or photo arms | [`docs/ILLUMINATION.md`](ILLUMINATION.md), `src/lib/ai/preprocess.ts` (`normalizeIllumination`), `scripts/illumination-ab.ts` | `pnpm bench:illumination` (model-free; `--live` for the one live check); `src/tests/ocr-metrics.test.ts` |
 | Field presence: present / absent / unreadable / conflict per critical field; required-vs-optional policy; R-19 escalates a missing required or conflicting field, R-14 a scan too poor to verify. 0 seeded claims trigger R-19 (seed and KPI output byte-identical) | `src/lib/ai/presence.ts:25`, `src/lib/domain/field-policy.ts`, `src/lib/risk/rules.ts:480`, `docs/RISK_RULES.md` | `pnpm test src/tests/presence.test.ts`; a travel claim such as `/claims/CLM-2026-0071` → PO chip "— absent" |
 | Review economics and cost curve (`review ⇔ p·L > c`) | `docs/ECONOMICS.md`, `src/lib/risk/economics.ts:19` | `/economics`; `pnpm cost:curve` |
 | Spend by site: five sites from the invoice ship-to plant, travel/entertainment attributed to the submitter's home site and disclosed per row; totals reconcile with Total Claim Spend | `src/lib/locations.ts:70`, `src/lib/kpi/locations.ts:28` | `/dashboard` → Spend by site; `pnpm test src/tests/locations.test.ts` |
@@ -53,7 +54,7 @@ mode.
 | CSV export of claims and the audit log, filter-aware, capped at 10 000 rows, injection-safe, bare-decimal money and UTC dates | `src/lib/export/csv.ts`, `src/lib/export/exports.ts`, `src/app/api/claims/export/route.ts`, `src/app/api/audit/export/route.ts` | `/claims` or `/audit` → **Export CSV** (carries the current filters); `pnpm test src/tests/csv.test.ts` |
 | Every API route requires a session | `src/lib/auth/session.ts:54`, `src/tests/api-auth.test.ts:17` | `pnpm test src/tests/api-auth.test.ts` |
 
-## Decisions (DECISIONS.md D-01 … D-48)
+## Decisions (DECISIONS.md D-01 … D-52)
 
 | ID | Decision | Implementation | How to verify |
 |---|---|---|---|
@@ -105,6 +106,10 @@ mode.
 | D-46 | R-20 Invoice Does Not Match Claim: vendor / invoice # / PO (Medium 25), total (High 40) vs the claim record | `src/lib/risk/rules.ts:511`, `src/lib/risk/exposure.ts` | `src/tests/r20.test.ts`; `docs/EXTRACTION_VARIANTS.md` → What closed column 3 |
 | D-47 | Perspective: synthetic phone photos, oracle rectification, decision rule written before the run | `src/lib/bench/perspective.ts`, `src/lib/bench/photo.ts`, `src/lib/bench/capture.ts`, `src/lib/bench/variants.ts` (`recoveryDecision`) | `docs/PERSPECTIVE.md`; `src/tests/perspective.test.ts`, `src/tests/variants.test.ts` |
 | D-48 | Font and capture-quality axes; shadow traced to global thresholding | `src/lib/bench/variants.ts` (`FONT_CSS`), `src/lib/bench/capture.ts` (`shadow`, `clutter`, `lowContrast`) | `docs/PERSPECTIVE.md` → Part B; `src/tests/perspective.test.ts` |
+| D-49 | Page-corner detection and rectification, measured against the D-47 oracle | `src/lib/ai/corners.ts`, `src/lib/ai/perspective.ts` | `docs/PERSPECTIVE.md` (A3 rows); `src/tests/corners.test.ts` |
+| D-50 | Page rectification on the upload path, with flat-scan and word-box safeguards | `src/lib/ai/ocr-prep.ts` (`rectifyForOcr`), `src/lib/ai/ocr.ts` | `src/tests/rectify-upload.test.ts` |
+| D-51 | Edge candidate stage for photos on lit desks | `src/lib/ai/corners.ts` | `src/tests/corners.test.ts`, `src/tests/fixtures/photos/` |
+| D-52 | Illumination normalisation in the OCR preparation (prep-v2) | `src/lib/ai/preprocess.ts`, `src/lib/ai/ocr-prep.ts` (`OCR_PIPELINE.illumination`) | `docs/ILLUMINATION.md`; `src/tests/ocr-metrics.test.ts` |
 
 ## Known limitations (README)
 
@@ -115,6 +120,6 @@ mode.
 | Uploads cannot be audited in mock mode; Tesseract boxes are not mapped to fields | Explicit 422 with an explanation (D-13). Word-level OCR is now captured for uploads (D-40), the data a field mapping would need. |
 | PDF uploads need rasterising before OCR | Out of scope: no PDF rasteriser dependency. PNG/JPEG work in live OCR. |
 | Posting to SAP is simulated | Out of scope without an SAP system. Posting records a MIRO number and audit rows exactly where a real integration would (`src/lib/audit/disposition.ts:14`). |
-| No end-to-end browser test suite | Mitigated by integration tests against a real DB (359 tests) and recorded manual runs (`docs/images/manual/`). |
+| No end-to-end browser test suite | Mitigated by integration tests against a real DB (393 tests) and recorded manual runs (`docs/images/manual/`). |
 | No self-service sign-up | Deliberate (D-29): an approval system must not let users pick their own role. |
 | Simulated extraction confidence | Labelled in the UI ("OCR: fixture (simulated)"), never used by the model, and grounding has been measured separately on real Tesseract output (D-25, D-37, D-40). |

@@ -42,7 +42,7 @@ async function main() {
   const { presenceOf } = await import("../src/lib/ai/presence");
   const { extractWithDeepSeek } = await import("../src/lib/ai/deepseek");
   const { aiConfig } = await import("../src/lib/ai/provider");
-  const { OCR_PIPELINE, prepareForOcr } = await import("../src/lib/ai/ocr-prep");
+  const { OCR_PIPELINE, OCR_PREP_VERSION, prepareForOcr } = await import("../src/lib/ai/ocr-prep");
   const { PROMPT_VERSION_EXTRACT } = await import("../src/lib/domain/constants");
   const { upperBound, lowerBound } = await import("../src/lib/bench/stats");
   const V = await import("../src/lib/bench/variants");
@@ -101,7 +101,7 @@ async function main() {
       // A clean render keeps its Task 13 cache key, so the baseline is reused, never re-read.
       // Detected arms also key on the detector version, so a detector change re-reads them (and only them).
       const capKey = j.capture === "none" ? "" : `|${j.capture}|${C.CAPTURE_VERSION}${j.capture.startsWith("detected-") ? `|${CORNER_DETECTOR_VERSION}` : ""}`;
-      const file = path.join(CACHE, `ocr-${sha(`${html}${capKey}|${OCR_PIPELINE.mode}|${OCR_PIPELINE.psm}`)}.json`);
+      const file = path.join(CACHE, `ocr-${sha(`${html}${capKey}|${OCR_PIPELINE.mode}|${OCR_PIPELINE.psm}${(OCR_PREP_VERSION as string) === "prep-v1" ? "" : `|${OCR_PREP_VERSION}`}`)}.json`); // prep-v1 keys predate the version in the key
       if (existsSync(file)) {
         ocr.set(j.key, JSON.parse(await readFile(file, "utf8")));
       } else {
