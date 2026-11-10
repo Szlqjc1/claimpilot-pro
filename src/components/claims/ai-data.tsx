@@ -1,6 +1,6 @@
 import { Braces, FileWarning } from "lucide-react";
 import type { Extraction } from "@/lib/domain/schemas";
-import { FIELD_LABELS, chipFor, fieldValue } from "@/lib/domain/fields";
+import { FIELD_LABELS, presenceChipFor, fieldValue, type PresenceChipState } from "@/lib/domain/fields";
 import type { FieldCheck } from "@/lib/ai/grounding";
 import { OCR_SOURCE_LABEL, type OcrSource } from "@/lib/domain/ocr-source";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,9 +8,9 @@ import { Badge } from "@/components/ui/badge";
 
 const usd = (n: number | null) => (n === null ? "—" : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n));
 
-function GroundingChip({ field, check, ocr, source }: { field: string; check: FieldCheck | undefined; ocr: number | undefined; source: OcrSource }) {
-  if (check === undefined && ocr === undefined) return null;
-  const chip = chipFor(check, ocr);
+function GroundingChip({ field, check, ocr, source, presence }: { field: string; check: FieldCheck | undefined; ocr: number | undefined; source: OcrSource; presence: PresenceChipState | undefined }) {
+  if (check === undefined && ocr === undefined && presence === undefined) return null;
+  const chip = presenceChipFor(presence, check, ocr);
   return (
     <span
       className="tabular inline-flex items-center gap-1 rounded-full border px-1.5 text-[11px]"
@@ -32,6 +32,8 @@ export function AiStructuredData({
   result,
   raw,
   checks,
+  presence,
+  otherFields,
   ocrSource,
 }: {
   result: { ok: true; data: Extraction } | { ok: false; error: string } | null;
@@ -40,6 +42,10 @@ export function AiStructuredData({
   ocrSource: OcrSource;
   /** Grounding of the scored extraction against the stored OCR text (D-37); null when no OCR text is stored. */
   checks: Record<string, FieldCheck> | null;
+  /** Presence of the five critical fields (D-44); null when no OCR text is stored. */
+  presence: Record<string, PresenceChipState> | null;
+  /** Labelled values on the invoice the schema has no field for (D-44). */
+  otherFields: { label: string; value: string }[];
 }) {
   return (
     <Card data-testid="ai-structured-data">
@@ -66,14 +72,28 @@ export function AiStructuredData({
             </div>
           </div>
         ) : (
-          <ExtractionBody e={result.data} raw={raw} checks={checks} ocrSource={ocrSource} />
+          <ExtractionBody e={result.data} raw={raw} checks={checks} presence={presence} otherFields={otherFields} ocrSource={ocrSource} />
         )}
       </CardContent>
     </Card>
   );
 }
 
-function ExtractionBody({ e, raw, checks, ocrSource }: { e: Extraction; raw: string | null; checks: Record<string, FieldCheck> | null; ocrSource: OcrSource }) {
+function ExtractionBody({
+  e,
+  raw,
+  checks,
+  presence,
+  otherFields,
+  ocrSource,
+}: {
+  e: Extraction;
+  raw: string | null;
+  checks: Record<string, FieldCheck> | null;
+  presence: Record<string, PresenceChipState> | null;
+  otherFields: { label: string; value: string }[];
+  ocrSource: OcrSource;
+}) {
   const summary: [string, string, string | null][] = [
     ["Vendor", e.vendor.name ?? "—", "vendorName"],
     ["Invoice #", e.invoiceNumber ?? "—", "invoiceNumber"],
@@ -100,7 +120,7 @@ function ExtractionBody({ e, raw, checks, ocrSource }: { e: Extraction; raw: str
         {summary.map(([label, value, field]) => (
           <div key={label} className="min-w-0">
             <dt className="flex items-center gap-1.5 text-xs text-muted">
-              {label} {field && <GroundingChip field={field} check={checks?.[field]} ocr={e.fieldConfidence[field]} source={ocrSource} />}
+              {label} {field && <GroundingChip field={field} check={checks?.[field]} ocr={e.fieldConfidence[field]} source={ocrSource} presence={presence?.[field]} />}
             </dt>
             <dd className={`truncate font-medium ${label === "Total" ? "tabular text-[15px]" : "text-[13px]"} ${/[#.]|PO|GRN|Project/.test(label) ? "font-mono" : ""}`} title={value}>
               {value}
@@ -152,6 +172,23 @@ function ExtractionBody({ e, raw, checks, ocrSource }: { e: Extraction; raw: str
           ))}
         </ul>
       )}
+      <details className="group rounded-lg border border-line" data-testid="other-fields">
+        <summary className="cursor-pointer px-3 py-2 text-[13px] font-medium text-info">Fields it saw but did not map ({otherFields.length})</summary>
+        {otherFields.length === 0 ? (
+          <p className="border-t border-line px-3 py-2 text-[13px] text-muted">None. Every labelled value on the invoice maps to a field above.</p>
+        ) : (
+          <dl className="grid grid-cols-1 gap-x-5 gap-y-2 border-t border-line px-3 py-2 sm:grid-cols-2">
+            {otherFields.map((o, i) => (
+              <div key={`${o.label}-${i}`} className="min-w-0">
+                <dt className="text-xs text-muted">{o.label}</dt>
+                <dd className="truncate text-[13px]" title={o.value}>
+                  {o.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        )}
+      </details>
       <details className="group rounded-lg border border-line">
         <summary className="cursor-pointer px-3 py-2 text-[13px] font-medium text-info">View raw JSON</summary>
         <p className="border-t border-line px-3 py-2 text-xs text-muted">

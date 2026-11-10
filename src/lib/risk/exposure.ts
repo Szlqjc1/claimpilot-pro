@@ -109,7 +109,8 @@ export function exposureFor(finding: Pick<Finding, "ruleId" | "evidence">, input
       return priced(actual?.maxCents != null ? amount - actual.maxCents : amount, amount);
     }
 
-    // R-01 (missing code), R-13 (date anomaly), R-14 (OCR confidence), R-16 (currency): not monetisable.
+    // R-01 (missing code), R-13 (date anomaly), R-14 (OCR confidence), R-16 (currency), R-19 (incomplete or
+    // conflicting extraction): not monetisable.
     default:
       return null;
   }

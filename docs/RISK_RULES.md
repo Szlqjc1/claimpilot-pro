@@ -19,11 +19,37 @@ The risk engine (`src/lib/risk/`) is **pure, synchronous and deterministic**. `e
 | R-11 | Travel: lodging > $184/night, airfare > $650, non-economy fare, per diem > $74 | 25 | Medium | Travel Policy Violation | **CLM-0143**: lodging $250/night |
 | R-12 | Entertainment: > $150/head (+25), alcohol (+10), no attendee list (+15) | ≤ 50 | Medium | Entertainment Policy Violation | **CLM-0147**: $306/head + wine + no list = 50 |
 | R-13 | Invoice dated after submission, after project end, or a weekend business meal | 15 | Low | Invoice Date Anomaly | Saturday dinner |
-| R-14 | A **non-null** critical field (vendor, invoice #, invoice date, PO, total) that either (1) is **not found in the OCR text** (deterministic grounding, `src/lib/ai/grounding.ts`), or (2) has **OCR-layer confidence < 0.75** (fixture value for seeded claims, Tesseract page confidence for uploads). 15 per flagged field, capped at 30. A null / absent value never fires it. The model's self-reported confidence is **never** used. Grounding cannot catch an OCR misread that the extractor copies faithfully (the value is in the text and wrong); that class is left to R-10 / R-07 / R-08 and human review (D-37) | 15–30 | Low | Low OCR Confidence | Total read at 0.68 |
+| R-14 | A **non-null** critical field (vendor, invoice #, invoice date, PO, total) that either (1) is **not found in the OCR text** (deterministic grounding, `src/lib/ai/grounding.ts`), or (2) has **OCR-layer confidence < 0.75** (fixture value for seeded claims, Tesseract page confidence for uploads). (3) **D-44:** is null although its label is on the document (presence `unreadable`). 15 per flagged field, capped at 30. A field the document does not have (presence `absent`) never fires it. Message: *Scan too poor to verify `<field>` — rescan or check this field manually.* The model's self-reported confidence is **never** used. Grounding cannot catch an OCR misread that the extractor copies faithfully (the value is in the text and wrong); that class is left to R-10 / R-07 / R-08 and human review (D-37) | 15–30 | Low | Low OCR Confidence | Total read at 0.68 |
 | R-15 | Approval missing or below the matrix level (<$10k Manager, <$50k Director, <$250k VP, else CFO) | 20 | Medium | Approval Threshold Breach | $22k signed by a Manager |
 | R-16 | Currency not USD | 15 | Low | Currency/FX Mismatch | — |
 | R-17 | Remit-to bank differs from the vendor master | 50 | High | Bank Detail Change | Historical "Fifth Coast Bank ••6672" |
 | R-18 | Tooling/software > $5,000 on an expense-coded PO | 20 | Medium | Capitalization Mismatch | CAE licenses on an Expense PO |
+| R-19 | **Incomplete or conflicting extraction (D-44).** A **required** critical field is `absent` from the invoice, or any critical field is `conflict` (the document gives two different values). `unreadable` is R-14's, never R-19's. Required: vendor, invoice #, invoice date and total always; PO only from **$1,000** on procurement categories (never on Supplier Audit Travel or Client Entertainment) | 20 | High | Incomplete or Conflicting Extraction | Synthetic upload: $14,500 procurement invoice with no PO line |
+
+## Field presence (R-14 and R-19, D-44)
+
+Before scoring, every critical field gets one presence state (`src/lib/ai/presence.ts`), from the extracted value, its
+grounding, and whether the field's **label** is on the document (`src/lib/ai/labels.ts`: English and Chinese aliases,
+case-, dash- and whitespace-insensitive):
+
+| State | When | Routing |
+|---|---|---|
+| `present` | value extracted **and** found in the OCR text | none |
+| `unreadable` | value extracted but **not** in the OCR text, **or** no value although the label is there | **R-14** (Low, 15/field, cap 30): rescan |
+| `absent` | no value and no label, or the label is followed only by an empty marker (`PO Number: —`, `N/A`, `none`) | **R-19** (High, 20) only if the field is required; otherwise nothing |
+| `conflict` | the extractor reports two or more different values for the field | **R-19** (High, 20) |
+
+Required vs optional (`src/lib/domain/field-policy.ts`): vendor, invoice #, invoice date and total are always required.
+A PO is required at **$1,000** and above on procurement categories; Supplier Audit Travel and Client Entertainment never
+require one. Due date, project reference and tax ID are optional and never escalate.
+
+R-07 and R-19 can both fire on a missing PO; they read different things. R-07 checks the claim against SAP (no PO on
+the claim where policy requires one, or a PO without enough balance); R-19 checks the invoice document itself.
+
+**R-19 is never exercised by the demo data.** All 15 seeded claims without a PO number are Supplier Audit Travel or
+Client Entertainment, and their invoices say `PO Number: —`, so the PO is `absent` and not required; every other
+critical field on all 130 seeded claims is `present`. R-19 is covered by unit tests and one synthetic case (a $14,500
+procurement invoice with its PO line removed → R-19, ESCALATE) in `src/tests/presence.test.ts`.
 
 ## Scoring and decision
 

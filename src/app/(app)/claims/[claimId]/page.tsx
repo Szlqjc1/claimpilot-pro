@@ -7,6 +7,7 @@ import { AlertTriangle, FolderKanban, Send } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { claimIdSchema, parseExtractedData } from "@/lib/domain/schemas";
 import { FIELD_LABELS } from "@/lib/domain/fields";
+import { presenceOf } from "@/lib/ai/presence";
 import { groundExtraction } from "@/lib/ai/grounding";
 import { ocrSourceOf } from "@/lib/domain/ocr-source";
 import { formatUsd, toCents } from "@/lib/domain/money";
@@ -51,6 +52,13 @@ export default async function ClaimReviewPage({ params }: { params: Params }) {
   const extracted = parseExtractedData(claim.extractedData);
   // D-37: fields where the live model disagreed with the reference extraction (seeded claims, shadow run).
   const diff = (lastRun?.runDetail as { extractionDiff?: Record<string, { match: boolean }> | null } | null)?.extractionDiff ?? null;
+  // D-37 / D-44: grounding and presence of the scored extraction against the stored OCR text, recomputed (pure).
+  const checks = extracted?.ok && claim.ocrText ? groundExtraction(extracted.data, claim.ocrText) : null;
+  const presence =
+    extracted?.ok && claim.ocrText && checks
+      ? Object.fromEntries(Object.entries(presenceOf({ ...extracted.data, fieldChecks: checks }, claim.ocrText)).map(([f, p]) => [f, p.state]))
+      : null;
+  const otherFields = (lastRun?.runDetail as { otherFields?: { label: string; value: string }[] } | null)?.otherFields ?? (extracted?.ok ? extracted.data.otherFields : []);
   const differing = diff ? Object.entries(diff).filter(([, d]) => !d.match).map(([f]) => FIELD_LABELS[f] ?? f) : [];
   const openExceptions = claim.exceptions.filter((e) => e.status === "Open").length;
   // UI mirror of the server-side checks (D-27): reviewer/admin, and never on your own claim.
@@ -173,7 +181,7 @@ export default async function ClaimReviewPage({ params }: { params: Params }) {
 
           {showAi ? (
             <>
-              <AiStructuredData result={extracted} raw={claim.extractedData} checks={extracted?.ok && claim.ocrText ? groundExtraction(extracted.data, claim.ocrText) : null} ocrSource={ocrSourceOf(claim.source)} />
+              <AiStructuredData result={extracted} raw={claim.extractedData} checks={checks} presence={presence} otherFields={otherFields} ocrSource={ocrSourceOf(claim.source)} />
               {claim.aiAnalyzedReceipt && <AnnotatedInvoice src={claim.aiAnalyzedReceipt} claimId={claim.claimId} ocrSource={ocrSourceOf(claim.source)} />}
             </>
           ) : (

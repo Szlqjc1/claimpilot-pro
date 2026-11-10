@@ -17,6 +17,7 @@ import { evaluateRisk } from "@/lib/risk/score";
 import { normalizeVendorName } from "@/lib/risk/rules";
 import type { RiskInput } from "@/lib/risk/types";
 import { resolveAssignment } from "@/lib/domain/routing";
+import { presenceOf } from "@/lib/ai/presence";
 import { groundExtraction } from "@/lib/ai/grounding";
 import { diffExtractions, type ExtractionDiff } from "./extraction-diff";
 import { auditEntryFor } from "./wording";
@@ -144,6 +145,8 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
     if (ocr.prep?.warning) warnings.push(ocr.prep.warning);
     // D-37: deterministic grounding is part of the extraction stage, attached before scoring (R-14 reads it).
     extraction = { ...extraction, fieldChecks: groundExtraction(extraction, ocr.text) };
+    // D-44: presence of each critical field (present / absent / unreadable / conflict); R-14 and R-19 read it.
+    extraction = { ...extraction, fieldPresence: presenceOf(extraction, ocr.text) };
 
     // 7. Deterministic risk — the LLM never touches the score.
     const riskInput = await buildRiskInput(claim, extraction);
@@ -207,6 +210,9 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
       fieldChecks: { scored: groundExtraction(extraction, ocr.text), model: modelExtraction ? groundExtraction(modelExtraction, ocr.text) : null },
       modelConfidence: modelExtraction ? { note: "model-reported, uncalibrated", fieldConfidence: modelExtraction.fieldConfidence } : null,
       stageMetrics: { ocrSource: ocr.source, ocrConfidence: ocr.confidence, ocrPrep: ocr.prep ?? null, extract: stage.extract, narrative: stage.narrative, totalLatencyMs: latencyMs },
+      // D-44: field presence as scored, and labelled values the schema has no field for.
+      fieldPresence: extraction.fieldPresence ?? null,
+      otherFields: extraction.otherFields ?? [],
       // Task 7b B5: word-level OCR for uploads (Tesseract), data only; null for fixture OCR.
       ocrWords: ocr.words ?? null,
     };

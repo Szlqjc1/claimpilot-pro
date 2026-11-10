@@ -128,7 +128,7 @@ export function RiskPanel({
               </summary>
               <div className="border-t border-line px-3 py-2 text-[13px]">
                 {findings.length === 0 ? (
-                  <p>No rule fired across R-01 … R-18 → score 0 → Low → AUTO_APPROVE.</p>
+                  <p>No rule fired across R-01 … R-19 → score 0 → Low → AUTO_APPROVE.</p>
                 ) : (
                   <ul className="space-y-1">
                     {findings.map((f) => (

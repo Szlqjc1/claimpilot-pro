@@ -70,6 +70,14 @@ export const extractionSchema = z.object({
   fieldConfidence: z.record(z.string(), confidence),
   /** D-37: deterministic grounding against the OCR text, attached before scoring (never produced by the model). */
   fieldChecks: z.record(z.string(), z.enum(["found", "not_found", "not_extracted"])).optional(),
+  /** D-44: when the document gives more than one value for a field, every value it gives (model-reported). */
+  fieldCandidates: z.record(z.string(), z.array(z.string())).optional(),
+  /** D-44: deterministic presence of each critical field, attached before scoring (never produced by the model). */
+  fieldPresence: z
+    .record(z.string(), z.object({ field: z.string(), state: z.enum(["present", "absent", "unreadable", "conflict"]), labelSeen: z.boolean() }))
+    .optional(),
+  /** D-44: labelled values on the document that the schema has no field for. */
+  otherFields: z.array(z.object({ label: z.string(), value: z.string() })).default([]),
   boundingBoxes: z.array(boundingBoxSchema).default([]),
   warnings: z.array(z.string()).default([]),
 });

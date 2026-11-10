@@ -8,7 +8,7 @@ flowchart LR
   SVC --> OCR[OCR adapter<br/>fixture · tesseract.js]
   OCR --> EXT[Extraction adapter<br/>mock fixture · DeepSeek JSON]
   EXT --> ZOD[Zod normalize<br/>totals / dates]
-  ZOD --> RISK[Deterministic risk engine<br/>R-01…R-18]
+  ZOD --> RISK[Deterministic risk engine<br/>R-01…R-19]
   RISK --> NAR[Narrative<br/>template · DeepSeek]
   NAR --> ANN[SVG annotation]
   ANN --> TX[(Prisma transaction<br/>Claims · Exceptions · AuditLog · AiRun)]

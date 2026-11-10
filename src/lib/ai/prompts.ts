@@ -19,6 +19,8 @@ Return exactly one JSON object (no prose, no Markdown) with this shape:
   "total": number, "taxRate": number|null,
   "approval": { "name": string, "level": "Manager"|"Director"|"VP"|"CFO" } | null,
   "fieldConfidence": { "vendorName": n, "invoiceNumber": n, "invoiceDate": n, "poNumber": n, "grnNumber": n, "projectCode": n, "subtotal": n, "salesTax": n, "total": n },
+  "fieldCandidates": { "<field>": string[] },
+  "otherFields": [ { "label": string, "value": string } ],
   "boundingBoxes": [],
   "warnings": string[]
 }
@@ -30,7 +32,12 @@ Rules:
 - If a value is absent or unreadable use null and lower the confidence. Never guess a PO, GRN or project code.
 - Confidence values are between 0 and 1.
 - Leave boundingBoxes empty; geometry comes from the OCR layer.
-- Add a warning if subtotal + salesTax + freight + otherCharges does not equal total.`;
+- Add a warning if subtotal + salesTax + freight + otherCharges does not equal total.
+- Labels vary (e.g. "Inv. #", "Invoice Number", "Rechnungsnummer", "发票号" are all invoiceNumber). Map by meaning.
+- fieldCandidates: only when the document shows two or more DIFFERENT values for one of vendorName, invoiceNumber,
+  invoiceDate, poNumber or total, list every value it shows under that field name. Otherwise return {}.
+- otherFields: every other labelled value on the document that no field above holds (label and value as printed,
+  e.g. { "label": "Carrier", "value": "Penske Logistics" }). Return [] when there are none.`;
 
 export const REPAIR_PROMPT = (error: string) =>
   `Your previous JSON failed validation: ${error}\nReturn the corrected JSON object only, following the same schema.`;

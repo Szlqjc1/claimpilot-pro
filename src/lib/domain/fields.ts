@@ -43,6 +43,26 @@ export function chipFor(check: "found" | "not_found" | "not_extracted" | undefin
   return { text: check === undefined ? `OCR ${ocrConfidence?.toFixed(2) ?? "n/a"}` : `${mark}${ocr}`, band, colors: CONFIDENCE_COLORS[band] };
 }
 
+export type PresenceChipState = "present" | "absent" | "unreadable" | "conflict";
+
+/**
+ * D-44 chip for a critical field: the presence state decides the wording, grounding + OCR the rest.
+ * present → the D-37 chip; unreadable → "✗ not found" (a value not in the text, or a label with no value);
+ * absent → "— absent" (the document has no such field); conflict → "≠ conflict" (two different values).
+ */
+export function presenceChipFor(state: PresenceChipState | undefined, check: "found" | "not_found" | "not_extracted" | undefined, ocrConfidence: number | undefined) {
+  switch (state) {
+    case "absent":
+      return { text: "— absent", band: null, colors: NOT_EXTRACTED_COLORS };
+    case "conflict":
+      return { text: "≠ conflict", band: "low" as const, colors: CONFIDENCE_COLORS.low };
+    case "unreadable":
+      return check === "not_found" ? chipFor(check, ocrConfidence) : { text: "✗ not found · label, no value", band: "low" as const, colors: CONFIDENCE_COLORS.low };
+    default:
+      return chipFor(check, ocrConfidence);
+  }
+}
+
 const usd = (n: number | null) =>
   n === null ? "—" : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
 

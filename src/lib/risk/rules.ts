@@ -9,6 +9,7 @@ import {
 import { formatUsd, toCents } from "@/lib/domain/money";
 import { isWeekend, toIsoDate } from "@/lib/domain/dates";
 import { totalsGap } from "@/lib/domain/schemas";
+import { isRequired } from "@/lib/domain/field-policy";
 import type { Finding, RiskInput } from "./types";
 
 type Rule = { id: string; evaluate: (input: RiskInput, prior: Finding[]) => Finding | null };
@@ -381,31 +382,32 @@ export const RULES: Rule[] = [
   {
     id: "R-14",
     evaluate: ({ extraction }) => {
-      // D-37. Two triggers, both from the OCR layer, never from the model's self-reported confidence:
+      // D-37, D-44. Three triggers, all from the OCR layer, never from the model's self-reported confidence:
       //   (1) a non-null critical value that is not in the OCR text (fieldChecks "not_found", attached before scoring);
-      //   (2) the OCR layer's confidence for a non-null critical value is below 0.75.
-      // A null / absent value ("not_extracted") never fires R-14.
+      //   (2) the OCR layer's confidence for a non-null critical value is below 0.75;
+      //   (3) D-44: a null critical value whose label is on the document (fieldPresence "unreadable").
+      // A field the document does not have (fieldPresence "absent") never fires R-14; a required one fires R-19.
       const value = (f: (typeof CRITICAL_FIELDS)[number]) => (f === "vendorName" ? extraction.vendor?.name : extraction[f]);
-      const present = CRITICAL_FIELDS.filter((f) => {
+      const isNull = (f: (typeof CRITICAL_FIELDS)[number]) => {
         const v = value(f);
-        return v !== null && v !== undefined && !(typeof v === "string" && v.trim() === "") && extraction.fieldChecks?.[f] !== "not_extracted";
-      });
+        return v === null || v === undefined || (typeof v === "string" && v.trim() === "") || extraction.fieldChecks?.[f] === "not_extracted";
+      };
+      const present = CRITICAL_FIELDS.filter((f) => !isNull(f));
       const ungrounded = present.filter((f) => extraction.fieldChecks?.[f] === "not_found");
       const low = present.filter((f) => (extraction.fieldConfidence[f] ?? 1) < 0.75);
-      const flagged = present.filter((f) => ungrounded.includes(f) || low.includes(f));
+      const labelNoValue = CRITICAL_FIELDS.filter((f) => isNull(f) && extraction.fieldPresence?.[f]?.state === "unreadable");
+      const flagged = CRITICAL_FIELDS.filter((f) => ungrounded.includes(f) || low.includes(f) || labelNoValue.includes(f));
       if (flagged.length === 0) return null;
-      const parts: string[] = [];
-      if (low.length) parts.push(`Low OCR confidence on ${low.join(", ")}`);
-      if (ungrounded.length) parts.push(`${parts.length ? "e" : "E"}xtracted value not found in the OCR text for ${ungrounded.join(", ")}`);
       return {
         ruleId: "R-14",
         anomalyType: "Low OCR Confidence",
         riskLevel: "Low",
         points: Math.min(30, 15 * flagged.length),
-        message: `${parts.join("; ")}; verify against the original.`,
+        message: `Scan too poor to verify ${flagged.join(", ")} — rescan or check ${flagged.length === 1 ? "this field" : "these fields"} manually.`,
         evidence: {
           ...Object.fromEntries(low.map((f) => [f, extraction.fieldConfidence[f]])),
           ...(ungrounded.length ? { notInOcrText: ungrounded } : {}),
+          ...(labelNoValue.length ? { labelWithoutValue: labelNoValue } : {}),
         },
       };
     },
@@ -471,6 +473,34 @@ export const RULES: Rule[] = [
         points: 20,
         message: `${formatUsd(claim.amountCents)} of ${claim.category.toLowerCase()} exceeds the ${formatUsd(CAPITALIZATION_THRESHOLD_CENTS)} capitalization threshold but PO ${po.poNumber} is expense-coded.`,
         evidence: { poNumber: po.poNumber, costType: po.costType, threshold: formatUsd(CAPITALIZATION_THRESHOLD_CENTS) },
+      };
+    },
+  },
+  {
+    id: "R-19",
+    evaluate: ({ claim, extraction }) => {
+      // D-44. Reads fieldPresence (attached before scoring). Two triggers only: a REQUIRED critical field the
+      // document does not have, or any critical field the document gives conflicting values for. "unreadable" is
+      // R-14's, and an absent optional field (a PO on travel or entertainment) never fires.
+      const presence = extraction.fieldPresence;
+      if (!presence) return null;
+      const missing = CRITICAL_FIELDS.filter((f) => presence[f]?.state === "absent" && isRequired(f, claim));
+      const conflicting = CRITICAL_FIELDS.filter((f) => presence[f]?.state === "conflict");
+      if (missing.length === 0 && conflicting.length === 0) return null;
+      const parts: string[] = [];
+      if (missing.length) parts.push(`required ${missing.length === 1 ? "field" : "fields"} missing from the invoice: ${missing.join(", ")}`);
+      if (conflicting.length) parts.push(`the invoice gives conflicting values for ${conflicting.join(", ")}`);
+      const text = parts.join("; ");
+      return {
+        ruleId: "R-19",
+        anomalyType: "Incomplete or Conflicting Extraction",
+        riskLevel: "High",
+        points: 20,
+        message: `${text[0].toUpperCase()}${text.slice(1)}. Obtain a complete invoice before posting.`,
+        evidence: {
+          ...(missing.length ? { missing } : {}),
+          ...(conflicting.length ? { conflicting: Object.fromEntries(conflicting.map((f) => [f, extraction.fieldCandidates?.[f] ?? []])) } : {}),
+        },
       };
     },
   },

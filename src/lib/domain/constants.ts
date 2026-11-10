@@ -40,6 +40,7 @@ export const ANOMALY_TYPES = [
   "Currency/FX Mismatch",
   "Bank Detail Change",
   "Capitalization Mismatch",
+  "Incomplete or Conflicting Extraction",
 ] as const;
 export type AnomalyType = (typeof ANOMALY_TYPES)[number];
 
@@ -132,7 +133,7 @@ export const AUDIT_ACTION_VALIDATED = "Automotive Expense Validated";
 export const AUDIT_ACTION_FLAGGED = "Automotive Expense Flagged";
 export const AUDIT_DETAILS_VALIDATED = "Invoice matched with SAP project code successfully.";
 
-export const PROMPT_VERSION_EXTRACT = "extract-v1";
+export const PROMPT_VERSION_EXTRACT = "extract-v2"; // v2 (D-44): fieldCandidates, otherFields, label variants
 export const PROMPT_VERSION_NARRATIVE = "risk-narrative-v1";
 
 export const DISPLAY_TIMEZONE = "America/Detroit";
