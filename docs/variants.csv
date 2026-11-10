@@ -1,461 +1,461 @@
-axis,variant,claim_id,vendorName,invoiceNumber,invoiceDate,poNumber,total,escalated_r14_r19_r20,auto_cleared,doc_has_error,decision,rules,ocr_confidence,error
-label,canonical,CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-layout,label-left,CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-perspective,A0 baseline,CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-font,sans (baseline),CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-quality,clean scan,CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-label,abbreviated,CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,verbose,CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-label,german,CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-label,chinese,CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.760,
-layout,label-above,CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,dense-two-column,CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-perspective,A1 pitch 10 / yaw 10,CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A1 pitch 20 / yaw 15,CLM-2025-0001,correct,wrong,wrong,correct,correct,true,false,true,REVIEW,R-13 R-20,0.880,
-perspective,A2 oracle-rectified (10/10),CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-perspective,A2 oracle-rectified (20/15),CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (10/10),CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (20/15),CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-font,serif (Times New Roman),CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,condensed (Arial Narrow),CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,small print (8 pt body),CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-quality,shadow (one third),CLM-2025-0001,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.920,
-quality,clutter (desk + 2 objects),CLM-2025-0001,correct,wrong,correct,correct,correct,true,false,true,REVIEW,R-14 R-20,0.920,
-quality,low contrast 60 % + JPEG q25,CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-label,canonical,CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.930,
-layout,label-left,CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.930,
-perspective,A0 baseline,CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.930,
-font,sans (baseline),CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.930,
-quality,clean scan,CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.930,
-label,abbreviated,CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,verbose,CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.930,
-label,german,CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,chinese,CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.760,
-layout,label-above,CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,dense-two-column,CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A1 pitch 10 / yaw 10,CLM-2025-0009,correct,missed,correct,correct-null,correct,true,false,true,REVIEW,R-14,0.900,
-perspective,A1 pitch 20 / yaw 15,CLM-2025-0009,correct,missed,correct,correct-null,correct,true,false,true,ESCALATE,R-19,0.860,
-perspective,A2 oracle-rectified (10/10),CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A2 oracle-rectified (20/15),CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (10/10),CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.930,
-perspective,A3 detected-rectified (20/15),CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.930,
-font,serif (Times New Roman),CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,condensed (Arial Narrow),CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,small print (8 pt body),CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.910,
-quality,shadow (one third),CLM-2025-0009,correct,missed,missed,correct-null,wrong,true,false,true,ESCALATE,R-01 R-14 R-20,0.920,
-quality,clutter (desk + 2 objects),CLM-2025-0009,correct,wrong,correct,correct-null,correct,true,false,true,REVIEW,R-20,0.920,
-quality,low contrast 60 % + JPEG q25,CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.930,
-label,canonical,CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-layout,label-left,CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-perspective,A0 baseline,CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-font,sans (baseline),CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-quality,clean scan,CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-label,abbreviated,CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,verbose,CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-label,german,CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,chinese,CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.760,
-layout,label-above,CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-layout,dense-two-column,CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A1 pitch 10 / yaw 10,CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A1 pitch 20 / yaw 15,CLM-2025-0016,correct,wrong,wrong,correct,correct,true,false,true,ESCALATE,R-08 R-13 R-20,0.890,
-perspective,A2 oracle-rectified (10/10),CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A2 oracle-rectified (20/15),CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (10/10),CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-perspective,A3 detected-rectified (20/15),CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-font,serif (Times New Roman),CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,condensed (Arial Narrow),CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,small print (8 pt body),CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-quality,shadow (one third),CLM-2025-0016,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.920,
-quality,clutter (desk + 2 objects),CLM-2025-0016,correct,wrong,correct,correct,correct,true,false,true,REVIEW,R-20,0.920,
-quality,low contrast 60 % + JPEG q25,CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-label,canonical,CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,label-left,CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A0 baseline,CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,sans (baseline),CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-quality,clean scan,CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,abbreviated,CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,verbose,CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,german,CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-label,chinese,CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.760,
-layout,label-above,CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,dense-two-column,CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A1 pitch 10 / yaw 10,CLM-2025-0020,correct,wrong,correct,missed,correct,true,false,true,REVIEW,R-14 R-20,0.910,
-perspective,A1 pitch 20 / yaw 15,CLM-2025-0020,correct,wrong,correct,correct,correct,true,false,true,REVIEW,R-20,0.900,
-perspective,A2 oracle-rectified (10/10),CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A2 oracle-rectified (20/15),CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (10/10),CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (20/15),CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,serif (Times New Roman),CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-font,condensed (Arial Narrow),CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-font,small print (8 pt body),CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-quality,shadow (one third),CLM-2025-0020,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.920,
-quality,clutter (desk + 2 objects),CLM-2025-0020,correct,wrong,wrong,correct,correct,true,false,true,REVIEW,R-20,0.920,
-quality,low contrast 60 % + JPEG q25,CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,canonical,CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,label-left,CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A0 baseline,CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,sans (baseline),CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-quality,clean scan,CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,abbreviated,CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,verbose,CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-label,german,CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,chinese,CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.770,
-layout,label-above,CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,dense-two-column,CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A1 pitch 10 / yaw 10,CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A1 pitch 20 / yaw 15,CLM-2026-0007,correct,missed,wrong,correct,correct,true,false,true,ESCALATE,R-13 R-19,0.870,
-perspective,A2 oracle-rectified (10/10),CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A2 oracle-rectified (20/15),CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (10/10),CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (20/15),CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,serif (Times New Roman),CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-font,condensed (Arial Narrow),CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,small print (8 pt body),CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-quality,shadow (one third),CLM-2026-0007,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.920,
-quality,clutter (desk + 2 objects),CLM-2026-0007,correct,missed,missed,correct,correct,true,false,true,REVIEW,R-14,0.910,
-quality,low contrast 60 % + JPEG q25,CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,canonical,CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,label-left,CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A0 baseline,CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,sans (baseline),CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-quality,clean scan,CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,abbreviated,CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,verbose,CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-label,german,CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,chinese,CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.760,
-layout,label-above,CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,dense-two-column,CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A1 pitch 10 / yaw 10,CLM-2026-0011,correct,wrong,correct,missed,correct,true,false,true,REVIEW,R-14 R-20,0.900,
-perspective,A1 pitch 20 / yaw 15,CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A2 oracle-rectified (10/10),CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A2 oracle-rectified (20/15),CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (10/10),CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (20/15),CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,serif (Times New Roman),CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-font,condensed (Arial Narrow),CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,small print (8 pt body),CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-quality,shadow (one third),CLM-2026-0011,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.920,
-quality,clutter (desk + 2 objects),CLM-2026-0011,correct,missed,missed,correct,correct,true,false,true,REVIEW,R-14,0.910,
-quality,low contrast 60 % + JPEG q25,CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,canonical,CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-layout,label-left,CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A0 baseline,CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-font,sans (baseline),CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-quality,clean scan,CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,abbreviated,CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,verbose,CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,german,CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,chinese,CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.760,
-layout,label-above,CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,dense-two-column,CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A1 pitch 10 / yaw 10,CLM-2026-0015,correct,missed,correct,missed,correct,true,false,true,REVIEW,R-14,0.910,
-perspective,A1 pitch 20 / yaw 15,CLM-2026-0015,correct,wrong,correct,correct,correct,true,false,true,REVIEW,R-20,0.900,
-perspective,A2 oracle-rectified (10/10),CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A2 oracle-rectified (20/15),CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (10/10),CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (20/15),CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-font,serif (Times New Roman),CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-font,condensed (Arial Narrow),CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,small print (8 pt body),CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-quality,shadow (one third),CLM-2026-0015,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.930,
-quality,clutter (desk + 2 objects),CLM-2026-0015,correct,wrong,correct,correct,correct,true,false,true,ESCALATE,R-14 R-17 R-20,0.910,
-quality,low contrast 60 % + JPEG q25,CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-label,canonical,CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,label-left,CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A0 baseline,CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,sans (baseline),CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-quality,clean scan,CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,abbreviated,CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,verbose,CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,german,CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-label,chinese,CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.780,
-layout,label-above,CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,dense-two-column,CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A1 pitch 10 / yaw 10,CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A1 pitch 20 / yaw 15,CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.870,
-perspective,A2 oracle-rectified (10/10),CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A2 oracle-rectified (20/15),CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (10/10),CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (20/15),CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-font,serif (Times New Roman),CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-font,condensed (Arial Narrow),CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-font,small print (8 pt body),CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-quality,shadow (one third),CLM-2026-0023,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.920,
-quality,clutter (desk + 2 objects),CLM-2026-0023,correct,wrong,missed,correct,correct,true,false,true,REVIEW,R-14 R-20,0.920,
-quality,low contrast 60 % + JPEG q25,CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,canonical,CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,label-left,CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A0 baseline,CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,sans (baseline),CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-quality,clean scan,CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,abbreviated,CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,verbose,CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-label,german,CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,chinese,CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.770,
-layout,label-above,CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,dense-two-column,CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A1 pitch 10 / yaw 10,CLM-2026-0029,correct,missed,missed,correct,correct,true,false,true,REVIEW,R-14,0.910,
-perspective,A1 pitch 20 / yaw 15,CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A2 oracle-rectified (10/10),CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A2 oracle-rectified (20/15),CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (10/10),CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-perspective,A3 detected-rectified (20/15),CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,serif (Times New Roman),CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-font,condensed (Arial Narrow),CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-font,small print (8 pt body),CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-quality,shadow (one third),CLM-2026-0029,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.920,
-quality,clutter (desk + 2 objects),CLM-2026-0029,correct,wrong,correct,correct,correct,true,false,true,REVIEW,R-20,0.920,
-quality,low contrast 60 % + JPEG q25,CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,canonical,CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,label-left,CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A0 baseline,CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,sans (baseline),CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-quality,clean scan,CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,abbreviated,CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,verbose,CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,german,CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.890,
-label,chinese,CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.780,
-layout,label-above,CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,dense-two-column,CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A1 pitch 10 / yaw 10,CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-perspective,A1 pitch 20 / yaw 15,CLM-2026-0035,correct,correct,correct,correct,correct,true,false,false,REVIEW,R-14,0.890,
-perspective,A2 oracle-rectified (10/10),CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A2 oracle-rectified (20/15),CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A3 detected-rectified (10/10),CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (20/15),CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-font,serif (Times New Roman),CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,condensed (Arial Narrow),CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-font,small print (8 pt body),CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-quality,shadow (one third),CLM-2026-0035,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.920,
-quality,clutter (desk + 2 objects),CLM-2026-0035,correct,wrong,correct,correct,correct,true,false,true,REVIEW,R-14 R-20,0.920,
-quality,low contrast 60 % + JPEG q25,CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,canonical,CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-layout,label-left,CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A0 baseline,CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-font,sans (baseline),CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-quality,clean scan,CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,abbreviated,CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,verbose,CLM-2026-0042,wrong,correct,correct,correct,correct,true,false,true,REVIEW,R-20,0.930,
-label,german,CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-label,chinese,CLM-2026-0042,correct,correct,correct,correct,correct,true,false,false,REVIEW,R-14,0.730,
-layout,label-above,CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-layout,dense-two-column,CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A1 pitch 10 / yaw 10,CLM-2026-0042,wrong,wrong,correct,correct,correct,true,false,true,REVIEW,R-20,0.910,
-perspective,A1 pitch 20 / yaw 15,CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.890,
-perspective,A2 oracle-rectified (10/10),CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A2 oracle-rectified (20/15),CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-perspective,A3 detected-rectified (10/10),CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (20/15),CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-font,serif (Times New Roman),CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-font,condensed (Arial Narrow),CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,small print (8 pt body),CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-quality,shadow (one third),CLM-2026-0042,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.930,
-quality,clutter (desk + 2 objects),CLM-2026-0042,correct,wrong,wrong,correct,correct,true,false,true,REVIEW,R-14 R-20,0.910,
-quality,low contrast 60 % + JPEG q25,CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-label,canonical,CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,label-left,CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A0 baseline,CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,sans (baseline),CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-quality,clean scan,CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,abbreviated,CLM-2026-0049,correct,correct,correct,wrong,correct,true,false,true,REVIEW,R-20,0.910,
-label,verbose,CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,german,CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-label,chinese,CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.760,
-layout,label-above,CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,dense-two-column,CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A1 pitch 10 / yaw 10,CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A1 pitch 20 / yaw 15,CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A2 oracle-rectified (10/10),CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A2 oracle-rectified (20/15),CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-perspective,A3 detected-rectified (10/10),CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (20/15),CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,serif (Times New Roman),CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,condensed (Arial Narrow),CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,small print (8 pt body),CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-quality,shadow (one third),CLM-2026-0049,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.930,
-quality,clutter (desk + 2 objects),CLM-2026-0049,correct,wrong,missed,correct,correct,true,false,true,REVIEW,R-14 R-20,0.910,
-quality,low contrast 60 % + JPEG q25,CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-label,canonical,CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,label-left,CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A0 baseline,CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,sans (baseline),CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-quality,clean scan,CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,abbreviated,CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,verbose,CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-label,german,CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-label,chinese,CLM-2026-0057,correct,correct,correct,correct,correct,true,false,false,REVIEW,R-14,0.740,
-layout,label-above,CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,dense-two-column,CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A1 pitch 10 / yaw 10,CLM-2026-0057,correct,wrong,correct,correct,correct,true,false,true,REVIEW,R-20,0.910,
-perspective,A1 pitch 20 / yaw 15,CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.890,
-perspective,A2 oracle-rectified (10/10),CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A2 oracle-rectified (20/15),CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (10/10),CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A3 detected-rectified (20/15),CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-font,serif (Times New Roman),CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-font,condensed (Arial Narrow),CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,small print (8 pt body),CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-quality,shadow (one third),CLM-2026-0057,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.920,
-quality,clutter (desk + 2 objects),CLM-2026-0057,correct,wrong,wrong,correct,correct,true,false,true,ESCALATE,R-14 R-19 R-20,0.910,
-quality,low contrast 60 % + JPEG q25,CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,canonical,CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,label-left,CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A0 baseline,CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,sans (baseline),CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-quality,clean scan,CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,abbreviated,CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,verbose,CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,german,CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-label,chinese,CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.760,
-layout,label-above,CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-layout,dense-two-column,CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A1 pitch 10 / yaw 10,CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-perspective,A1 pitch 20 / yaw 15,CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A2 oracle-rectified (10/10),CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A2 oracle-rectified (20/15),CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (10/10),CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A3 detected-rectified (20/15),CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,serif (Times New Roman),CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,condensed (Arial Narrow),CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,small print (8 pt body),CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-quality,shadow (one third),CLM-2026-0062,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.920,
-quality,clutter (desk + 2 objects),CLM-2026-0062,correct,wrong,wrong,correct,correct,true,false,true,REVIEW,R-14 R-20,0.910,
-quality,low contrast 60 % + JPEG q25,CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,canonical,CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,label-left,CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A0 baseline,CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,sans (baseline),CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-quality,clean scan,CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,abbreviated,CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,verbose,CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,german,CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,chinese,CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.750,
-layout,label-above,CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,dense-two-column,CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A1 pitch 10 / yaw 10,CLM-2026-0070,correct,wrong,correct,correct,correct,true,false,true,REVIEW,R-20,0.900,
-perspective,A1 pitch 20 / yaw 15,CLM-2026-0070,correct,wrong,correct,correct,correct,true,false,true,ESCALATE,R-14 R-17 R-20,0.850,
-perspective,A2 oracle-rectified (10/10),CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A2 oracle-rectified (20/15),CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (10/10),CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A3 detected-rectified (20/15),CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,serif (Times New Roman),CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,condensed (Arial Narrow),CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,small print (8 pt body),CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-quality,shadow (one third),CLM-2026-0070,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.920,
-quality,clutter (desk + 2 objects),CLM-2026-0070,correct,missed,missed,correct,correct,true,false,true,REVIEW,R-14,0.910,
-quality,low contrast 60 % + JPEG q25,CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,canonical,CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,label-left,CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A0 baseline,CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,sans (baseline),CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-quality,clean scan,CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,abbreviated,CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,verbose,CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,german,CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-label,chinese,CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.750,
-layout,label-above,CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,dense-two-column,CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A1 pitch 10 / yaw 10,CLM-2026-0076,correct,correct,correct,correct,correct,false,false,false,REVIEW,R-08,0.920,
-perspective,A1 pitch 20 / yaw 15,CLM-2026-0076,correct,wrong,wrong,correct,correct,true,false,true,REVIEW,R-13 R-20,0.870,
-perspective,A2 oracle-rectified (10/10),CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A2 oracle-rectified (20/15),CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (10/10),CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (20/15),CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-font,serif (Times New Roman),CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,condensed (Arial Narrow),CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-font,small print (8 pt body),CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-quality,shadow (one third),CLM-2026-0076,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.930,
-quality,clutter (desk + 2 objects),CLM-2026-0076,correct,wrong,correct,correct,correct,true,false,true,REVIEW,R-20,0.920,
-quality,low contrast 60 % + JPEG q25,CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,
-label,canonical,CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,label-left,CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A0 baseline,CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,sans (baseline),CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-quality,clean scan,CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,abbreviated,CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,verbose,CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,german,CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.890,
-label,chinese,CLM-2026-0084,wrong,correct,correct,correct,correct,true,false,true,REVIEW,R-20,0.770,
-layout,label-above,CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-layout,dense-two-column,CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A1 pitch 10 / yaw 10,CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A1 pitch 20 / yaw 15,CLM-2026-0084,wrong,wrong,wrong,correct,correct,true,false,true,REVIEW,R-13 R-20,0.910,
-perspective,A2 oracle-rectified (10/10),CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A2 oracle-rectified (20/15),CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (10/10),CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (20/15),CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,serif (Times New Roman),CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,condensed (Arial Narrow),CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-font,small print (8 pt body),CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-quality,shadow (one third),CLM-2026-0084,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.920,
-quality,clutter (desk + 2 objects),CLM-2026-0084,correct,wrong,missed,correct,correct,true,false,true,REVIEW,R-14 R-20,0.920,
-quality,low contrast 60 % + JPEG q25,CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,canonical,CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-layout,label-left,CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A0 baseline,CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-font,sans (baseline),CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-quality,clean scan,CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,abbreviated,CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-label,verbose,CLM-2026-0090,wrong,correct,correct,correct,correct,true,false,true,REVIEW,R-20,0.910,
-label,german,CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.890,
-label,chinese,CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.760,
-layout,label-above,CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,dense-two-column,CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-perspective,A1 pitch 10 / yaw 10,CLM-2026-0090,correct,missed,correct,correct,correct,true,false,true,REVIEW,R-14,0.880,
-perspective,A1 pitch 20 / yaw 15,CLM-2026-0090,correct,correct,wrong,correct,correct,false,false,true,REVIEW,R-13,0.880,
-perspective,A2 oracle-rectified (10/10),CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A2 oracle-rectified (20/15),CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-perspective,A3 detected-rectified (10/10),CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-perspective,A3 detected-rectified (20/15),CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-font,serif (Times New Roman),CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,condensed (Arial Narrow),CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,small print (8 pt body),CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-quality,shadow (one third),CLM-2026-0090,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.910,
-quality,clutter (desk + 2 objects),CLM-2026-0090,correct,wrong,missed,correct,correct,true,false,true,REVIEW,R-14 R-20,0.920,
-quality,low contrast 60 % + JPEG q25,CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-label,canonical,CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,label-left,CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A0 baseline,CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,sans (baseline),CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,
-quality,clean scan,CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,abbreviated,CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,verbose,CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,german,CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.900,
-label,chinese,CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.770,
-layout,label-above,CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,dense-two-column,CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A1 pitch 10 / yaw 10,CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A1 pitch 20 / yaw 15,CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.900,
-perspective,A2 oracle-rectified (10/10),CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A2 oracle-rectified (20/15),CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (10/10),CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A3 detected-rectified (20/15),CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.930,
-font,serif (Times New Roman),CLM-2026-0094,correct,correct,correct,wrong,correct,true,false,true,ESCALATE,R-01 R-20,0.920,
-font,condensed (Arial Narrow),CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.910,
-font,small print (8 pt body),CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.900,
-quality,shadow (one third),CLM-2026-0094,correct,missed,missed,correct-null,wrong,true,false,true,ESCALATE,R-01 R-14 R-20,0.920,
-quality,clutter (desk + 2 objects),CLM-2026-0094,correct,wrong,correct,correct-null,correct,true,false,true,REVIEW,R-20,0.920,
-quality,low contrast 60 % + JPEG q25,CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,canonical,CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,label-left,CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A0 baseline,CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,sans (baseline),CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-quality,clean scan,CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,abbreviated,CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-label,verbose,CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-label,german,CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-label,chinese,CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.750,
-layout,label-above,CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-layout,dense-two-column,CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,
-perspective,A1 pitch 10 / yaw 10,CLM-2026-0098,correct,wrong,correct,missed,correct,true,false,true,REVIEW,R-14 R-20,0.910,
-perspective,A1 pitch 20 / yaw 15,CLM-2026-0098,correct,correct,wrong,correct,correct,false,false,true,REVIEW,R-13,0.860,
-perspective,A2 oracle-rectified (10/10),CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A2 oracle-rectified (20/15),CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (10/10),CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-perspective,A3 detected-rectified (20/15),CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,serif (Times New Roman),CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-font,condensed (Arial Narrow),CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,
-font,small print (8 pt body),CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
-quality,shadow (one third),CLM-2026-0098,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.920,
-quality,clutter (desk + 2 objects),CLM-2026-0098,correct,wrong,correct,correct,correct,true,false,true,REVIEW,R-20,0.910,
-quality,low contrast 60 % + JPEG q25,CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,
+axis,variant,claim_id,vendorName,invoiceNumber,invoiceDate,poNumber,total,escalated_r14_r19_r20,auto_cleared,doc_has_error,decision,rules,ocr_confidence,error,ocr_prep
+label,canonical,CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v2
+layout,label-left,CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v2
+perspective,A0 baseline,CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v2
+font,sans (baseline),CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v2
+quality,clean scan,CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v2
+label,abbreviated,CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,verbose,CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v2
+label,german,CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v2
+label,chinese,CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.760,,prep-v2
+layout,label-above,CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,dense-two-column,CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v2
+label,canonical,CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v2
+layout,label-left,CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v2
+perspective,A0 baseline,CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v2
+font,sans (baseline),CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v2
+quality,clean scan,CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v2
+label,abbreviated,CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,verbose,CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v2
+label,german,CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,chinese,CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.760,,prep-v2
+layout,label-above,CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,dense-two-column,CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,canonical,CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v2
+layout,label-left,CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v2
+perspective,A0 baseline,CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v2
+font,sans (baseline),CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v2
+quality,clean scan,CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v2
+label,abbreviated,CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,verbose,CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v2
+label,german,CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,chinese,CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.760,,prep-v2
+layout,label-above,CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v2
+layout,dense-two-column,CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,canonical,CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,label-left,CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+perspective,A0 baseline,CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+font,sans (baseline),CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+quality,clean scan,CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,abbreviated,CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,verbose,CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,german,CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v2
+label,chinese,CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.760,,prep-v2
+layout,label-above,CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,dense-two-column,CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,canonical,CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,label-left,CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+perspective,A0 baseline,CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+font,sans (baseline),CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+quality,clean scan,CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,abbreviated,CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,verbose,CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v2
+label,german,CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,chinese,CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.770,,prep-v2
+layout,label-above,CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,dense-two-column,CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,canonical,CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,label-left,CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+perspective,A0 baseline,CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+font,sans (baseline),CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+quality,clean scan,CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,abbreviated,CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,verbose,CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v2
+label,german,CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,chinese,CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.760,,prep-v2
+layout,label-above,CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,dense-two-column,CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,canonical,CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+layout,label-left,CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+perspective,A0 baseline,CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+font,sans (baseline),CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+quality,clean scan,CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,abbreviated,CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,verbose,CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,german,CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,chinese,CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.760,,prep-v2
+layout,label-above,CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,dense-two-column,CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,canonical,CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,label-left,CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+perspective,A0 baseline,CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+font,sans (baseline),CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+quality,clean scan,CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,abbreviated,CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,verbose,CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,german,CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v2
+label,chinese,CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.780,,prep-v2
+layout,label-above,CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,dense-two-column,CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,canonical,CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,label-left,CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+perspective,A0 baseline,CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+font,sans (baseline),CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+quality,clean scan,CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,abbreviated,CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,verbose,CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v2
+label,german,CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,chinese,CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.770,,prep-v2
+layout,label-above,CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,dense-two-column,CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,canonical,CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,label-left,CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+perspective,A0 baseline,CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+font,sans (baseline),CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+quality,clean scan,CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,abbreviated,CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,verbose,CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,german,CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.890,,prep-v2
+label,chinese,CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.780,,prep-v2
+layout,label-above,CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,dense-two-column,CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,canonical,CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+layout,label-left,CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+perspective,A0 baseline,CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+font,sans (baseline),CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+quality,clean scan,CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,abbreviated,CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,verbose,CLM-2026-0042,wrong,correct,correct,correct,correct,true,false,true,REVIEW,R-20,0.930,,prep-v2
+label,german,CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v2
+label,chinese,CLM-2026-0042,correct,correct,correct,correct,correct,true,false,false,REVIEW,R-14,0.730,,prep-v2
+layout,label-above,CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v2
+layout,dense-two-column,CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,canonical,CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,label-left,CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+perspective,A0 baseline,CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+font,sans (baseline),CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+quality,clean scan,CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,abbreviated,CLM-2026-0049,correct,correct,correct,wrong,correct,true,false,true,REVIEW,R-20,0.910,,prep-v2
+label,verbose,CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,german,CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v2
+label,chinese,CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.760,,prep-v2
+layout,label-above,CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,dense-two-column,CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,canonical,CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,label-left,CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+perspective,A0 baseline,CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+font,sans (baseline),CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+quality,clean scan,CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,abbreviated,CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,verbose,CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v2
+label,german,CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v2
+label,chinese,CLM-2026-0057,correct,correct,correct,correct,correct,true,false,false,REVIEW,R-14,0.740,,prep-v2
+layout,label-above,CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,dense-two-column,CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,canonical,CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,label-left,CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+perspective,A0 baseline,CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+font,sans (baseline),CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+quality,clean scan,CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,abbreviated,CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,verbose,CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,german,CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v2
+label,chinese,CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.760,,prep-v2
+layout,label-above,CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+layout,dense-two-column,CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,canonical,CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,label-left,CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+perspective,A0 baseline,CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+font,sans (baseline),CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+quality,clean scan,CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,abbreviated,CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,verbose,CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,german,CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,chinese,CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.750,,prep-v2
+layout,label-above,CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,dense-two-column,CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,canonical,CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,label-left,CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+perspective,A0 baseline,CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+font,sans (baseline),CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+quality,clean scan,CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,abbreviated,CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,verbose,CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,german,CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v2
+label,chinese,CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.750,,prep-v2
+layout,label-above,CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,dense-two-column,CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,canonical,CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,label-left,CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+perspective,A0 baseline,CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+font,sans (baseline),CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+quality,clean scan,CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,abbreviated,CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,verbose,CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,german,CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.890,,prep-v2
+label,chinese,CLM-2026-0084,wrong,correct,correct,correct,correct,true,false,true,REVIEW,R-20,0.770,,prep-v2
+layout,label-above,CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+layout,dense-two-column,CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,canonical,CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+layout,label-left,CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+perspective,A0 baseline,CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+font,sans (baseline),CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+quality,clean scan,CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,abbreviated,CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v2
+label,verbose,CLM-2026-0090,wrong,correct,correct,correct,correct,true,false,true,REVIEW,R-20,0.910,,prep-v2
+label,german,CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.890,,prep-v2
+label,chinese,CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.760,,prep-v2
+layout,label-above,CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,dense-two-column,CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v2
+label,canonical,CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,label-left,CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+perspective,A0 baseline,CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+font,sans (baseline),CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+quality,clean scan,CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,abbreviated,CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,verbose,CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,german,CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v2
+label,chinese,CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.770,,prep-v2
+layout,label-above,CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,dense-two-column,CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,canonical,CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,label-left,CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+perspective,A0 baseline,CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+font,sans (baseline),CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+quality,clean scan,CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,abbreviated,CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+label,verbose,CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+label,german,CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v2
+label,chinese,CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.750,,prep-v2
+layout,label-above,CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v2
+layout,dense-two-column,CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v2
+perspective,A1 pitch 10 / yaw 10,CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A1 pitch 20 / yaw 15,CLM-2025-0001,correct,wrong,wrong,correct,correct,true,false,true,REVIEW,R-13 R-20,0.880,,prep-v1
+perspective,A2 oracle-rectified (10/10),CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v1
+perspective,A2 oracle-rectified (20/15),CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (10/10),CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (20/15),CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v1
+font,serif (Times New Roman),CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,condensed (Arial Narrow),CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,small print (8 pt body),CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+quality,shadow (one third),CLM-2025-0001,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.920,,prep-v1
+quality,clutter (desk + 2 objects),CLM-2025-0001,correct,wrong,correct,correct,correct,true,false,true,REVIEW,R-14 R-20,0.920,,prep-v1
+quality,low contrast 60 % + JPEG q25,CLM-2025-0001,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v1
+perspective,A1 pitch 10 / yaw 10,CLM-2025-0009,correct,missed,correct,correct-null,correct,true,false,true,REVIEW,R-14,0.900,,prep-v1
+perspective,A1 pitch 20 / yaw 15,CLM-2025-0009,correct,missed,correct,correct-null,correct,true,false,true,ESCALATE,R-19,0.860,,prep-v1
+perspective,A2 oracle-rectified (10/10),CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A2 oracle-rectified (20/15),CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (10/10),CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v1
+perspective,A3 detected-rectified (20/15),CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v1
+font,serif (Times New Roman),CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,condensed (Arial Narrow),CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,small print (8 pt body),CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+quality,shadow (one third),CLM-2025-0009,correct,missed,missed,correct-null,wrong,true,false,true,ESCALATE,R-01 R-14 R-20,0.920,,prep-v1
+quality,clutter (desk + 2 objects),CLM-2025-0009,correct,wrong,correct,correct-null,correct,true,false,true,REVIEW,R-20,0.920,,prep-v1
+quality,low contrast 60 % + JPEG q25,CLM-2025-0009,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v1
+perspective,A1 pitch 10 / yaw 10,CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A1 pitch 20 / yaw 15,CLM-2025-0016,correct,wrong,wrong,correct,correct,true,false,true,ESCALATE,R-08 R-13 R-20,0.890,,prep-v1
+perspective,A2 oracle-rectified (10/10),CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A2 oracle-rectified (20/15),CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (10/10),CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v1
+perspective,A3 detected-rectified (20/15),CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v1
+font,serif (Times New Roman),CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,condensed (Arial Narrow),CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,small print (8 pt body),CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+quality,shadow (one third),CLM-2025-0016,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.920,,prep-v1
+quality,clutter (desk + 2 objects),CLM-2025-0016,correct,wrong,correct,correct,correct,true,false,true,REVIEW,R-20,0.920,,prep-v1
+quality,low contrast 60 % + JPEG q25,CLM-2025-0016,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v1
+perspective,A1 pitch 10 / yaw 10,CLM-2025-0020,correct,wrong,correct,missed,correct,true,false,true,REVIEW,R-14 R-20,0.910,,prep-v1
+perspective,A1 pitch 20 / yaw 15,CLM-2025-0020,correct,wrong,correct,correct,correct,true,false,true,REVIEW,R-20,0.900,,prep-v1
+perspective,A2 oracle-rectified (10/10),CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+perspective,A2 oracle-rectified (20/15),CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (10/10),CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (20/15),CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,serif (Times New Roman),CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+font,condensed (Arial Narrow),CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+font,small print (8 pt body),CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v1
+quality,shadow (one third),CLM-2025-0020,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.920,,prep-v1
+quality,clutter (desk + 2 objects),CLM-2025-0020,correct,wrong,wrong,correct,correct,true,false,true,REVIEW,R-20,0.920,,prep-v1
+quality,low contrast 60 % + JPEG q25,CLM-2025-0020,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+perspective,A1 pitch 10 / yaw 10,CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+perspective,A1 pitch 20 / yaw 15,CLM-2026-0007,correct,missed,wrong,correct,correct,true,false,true,ESCALATE,R-13 R-19,0.870,,prep-v1
+perspective,A2 oracle-rectified (10/10),CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A2 oracle-rectified (20/15),CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (10/10),CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (20/15),CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,serif (Times New Roman),CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+font,condensed (Arial Narrow),CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,small print (8 pt body),CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+quality,shadow (one third),CLM-2026-0007,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.920,,prep-v1
+quality,clutter (desk + 2 objects),CLM-2026-0007,correct,missed,missed,correct,correct,true,false,true,REVIEW,R-14,0.910,,prep-v1
+quality,low contrast 60 % + JPEG q25,CLM-2026-0007,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+perspective,A1 pitch 10 / yaw 10,CLM-2026-0011,correct,wrong,correct,missed,correct,true,false,true,REVIEW,R-14 R-20,0.900,,prep-v1
+perspective,A1 pitch 20 / yaw 15,CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+perspective,A2 oracle-rectified (10/10),CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+perspective,A2 oracle-rectified (20/15),CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (10/10),CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (20/15),CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,serif (Times New Roman),CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+font,condensed (Arial Narrow),CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,small print (8 pt body),CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+quality,shadow (one third),CLM-2026-0011,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.920,,prep-v1
+quality,clutter (desk + 2 objects),CLM-2026-0011,correct,missed,missed,correct,correct,true,false,true,REVIEW,R-14,0.910,,prep-v1
+quality,low contrast 60 % + JPEG q25,CLM-2026-0011,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+perspective,A1 pitch 10 / yaw 10,CLM-2026-0015,correct,missed,correct,missed,correct,true,false,true,REVIEW,R-14,0.910,,prep-v1
+perspective,A1 pitch 20 / yaw 15,CLM-2026-0015,correct,wrong,correct,correct,correct,true,false,true,REVIEW,R-20,0.900,,prep-v1
+perspective,A2 oracle-rectified (10/10),CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A2 oracle-rectified (20/15),CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (10/10),CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (20/15),CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+font,serif (Times New Roman),CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v1
+font,condensed (Arial Narrow),CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,small print (8 pt body),CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+quality,shadow (one third),CLM-2026-0015,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.930,,prep-v1
+quality,clutter (desk + 2 objects),CLM-2026-0015,correct,wrong,correct,correct,correct,true,false,true,ESCALATE,R-14 R-17 R-20,0.910,,prep-v1
+quality,low contrast 60 % + JPEG q25,CLM-2026-0015,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v1
+perspective,A1 pitch 10 / yaw 10,CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A1 pitch 20 / yaw 15,CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.870,,prep-v1
+perspective,A2 oracle-rectified (10/10),CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A2 oracle-rectified (20/15),CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (10/10),CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (20/15),CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v1
+font,serif (Times New Roman),CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v1
+font,condensed (Arial Narrow),CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v1
+font,small print (8 pt body),CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+quality,shadow (one third),CLM-2026-0023,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.920,,prep-v1
+quality,clutter (desk + 2 objects),CLM-2026-0023,correct,wrong,missed,correct,correct,true,false,true,REVIEW,R-14 R-20,0.920,,prep-v1
+quality,low contrast 60 % + JPEG q25,CLM-2026-0023,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A1 pitch 10 / yaw 10,CLM-2026-0029,correct,missed,missed,correct,correct,true,false,true,REVIEW,R-14,0.910,,prep-v1
+perspective,A1 pitch 20 / yaw 15,CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+perspective,A2 oracle-rectified (10/10),CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A2 oracle-rectified (20/15),CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (10/10),CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v1
+perspective,A3 detected-rectified (20/15),CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,serif (Times New Roman),CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+font,condensed (Arial Narrow),CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+font,small print (8 pt body),CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+quality,shadow (one third),CLM-2026-0029,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.920,,prep-v1
+quality,clutter (desk + 2 objects),CLM-2026-0029,correct,wrong,correct,correct,correct,true,false,true,REVIEW,R-20,0.920,,prep-v1
+quality,low contrast 60 % + JPEG q25,CLM-2026-0029,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A1 pitch 10 / yaw 10,CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v1
+perspective,A1 pitch 20 / yaw 15,CLM-2026-0035,correct,correct,correct,correct,correct,true,false,false,REVIEW,R-14,0.890,,prep-v1
+perspective,A2 oracle-rectified (10/10),CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A2 oracle-rectified (20/15),CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+perspective,A3 detected-rectified (10/10),CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (20/15),CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v1
+font,serif (Times New Roman),CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,condensed (Arial Narrow),CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v1
+font,small print (8 pt body),CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+quality,shadow (one third),CLM-2026-0035,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.920,,prep-v1
+quality,clutter (desk + 2 objects),CLM-2026-0035,correct,wrong,correct,correct,correct,true,false,true,REVIEW,R-14 R-20,0.920,,prep-v1
+quality,low contrast 60 % + JPEG q25,CLM-2026-0035,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A1 pitch 10 / yaw 10,CLM-2026-0042,wrong,wrong,correct,correct,correct,true,false,true,REVIEW,R-20,0.910,,prep-v1
+perspective,A1 pitch 20 / yaw 15,CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.890,,prep-v1
+perspective,A2 oracle-rectified (10/10),CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+perspective,A2 oracle-rectified (20/15),CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v1
+perspective,A3 detected-rectified (10/10),CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (20/15),CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+font,serif (Times New Roman),CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v1
+font,condensed (Arial Narrow),CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,small print (8 pt body),CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+quality,shadow (one third),CLM-2026-0042,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.930,,prep-v1
+quality,clutter (desk + 2 objects),CLM-2026-0042,correct,wrong,wrong,correct,correct,true,false,true,REVIEW,R-14 R-20,0.910,,prep-v1
+quality,low contrast 60 % + JPEG q25,CLM-2026-0042,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v1
+perspective,A1 pitch 10 / yaw 10,CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+perspective,A1 pitch 20 / yaw 15,CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+perspective,A2 oracle-rectified (10/10),CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A2 oracle-rectified (20/15),CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v1
+perspective,A3 detected-rectified (10/10),CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (20/15),CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,serif (Times New Roman),CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,condensed (Arial Narrow),CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,small print (8 pt body),CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+quality,shadow (one third),CLM-2026-0049,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.930,,prep-v1
+quality,clutter (desk + 2 objects),CLM-2026-0049,correct,wrong,missed,correct,correct,true,false,true,REVIEW,R-14 R-20,0.910,,prep-v1
+quality,low contrast 60 % + JPEG q25,CLM-2026-0049,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v1
+perspective,A1 pitch 10 / yaw 10,CLM-2026-0057,correct,wrong,correct,correct,correct,true,false,true,REVIEW,R-20,0.910,,prep-v1
+perspective,A1 pitch 20 / yaw 15,CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.890,,prep-v1
+perspective,A2 oracle-rectified (10/10),CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+perspective,A2 oracle-rectified (20/15),CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (10/10),CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+perspective,A3 detected-rectified (20/15),CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+font,serif (Times New Roman),CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v1
+font,condensed (Arial Narrow),CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,small print (8 pt body),CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+quality,shadow (one third),CLM-2026-0057,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.920,,prep-v1
+quality,clutter (desk + 2 objects),CLM-2026-0057,correct,wrong,wrong,correct,correct,true,false,true,ESCALATE,R-14 R-19 R-20,0.910,,prep-v1
+quality,low contrast 60 % + JPEG q25,CLM-2026-0057,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A1 pitch 10 / yaw 10,CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v1
+perspective,A1 pitch 20 / yaw 15,CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A2 oracle-rectified (10/10),CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A2 oracle-rectified (20/15),CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (10/10),CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+perspective,A3 detected-rectified (20/15),CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,serif (Times New Roman),CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,condensed (Arial Narrow),CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,small print (8 pt body),CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+quality,shadow (one third),CLM-2026-0062,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.920,,prep-v1
+quality,clutter (desk + 2 objects),CLM-2026-0062,correct,wrong,wrong,correct,correct,true,false,true,REVIEW,R-14 R-20,0.910,,prep-v1
+quality,low contrast 60 % + JPEG q25,CLM-2026-0062,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A1 pitch 10 / yaw 10,CLM-2026-0070,correct,wrong,correct,correct,correct,true,false,true,REVIEW,R-20,0.900,,prep-v1
+perspective,A1 pitch 20 / yaw 15,CLM-2026-0070,correct,wrong,correct,correct,correct,true,false,true,ESCALATE,R-14 R-17 R-20,0.850,,prep-v1
+perspective,A2 oracle-rectified (10/10),CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A2 oracle-rectified (20/15),CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (10/10),CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+perspective,A3 detected-rectified (20/15),CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,serif (Times New Roman),CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,condensed (Arial Narrow),CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,small print (8 pt body),CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v1
+quality,shadow (one third),CLM-2026-0070,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.920,,prep-v1
+quality,clutter (desk + 2 objects),CLM-2026-0070,correct,missed,missed,correct,correct,true,false,true,REVIEW,R-14,0.910,,prep-v1
+quality,low contrast 60 % + JPEG q25,CLM-2026-0070,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+perspective,A1 pitch 10 / yaw 10,CLM-2026-0076,correct,correct,correct,correct,correct,false,false,false,REVIEW,R-08,0.920,,prep-v1
+perspective,A1 pitch 20 / yaw 15,CLM-2026-0076,correct,wrong,wrong,correct,correct,true,false,true,REVIEW,R-13 R-20,0.870,,prep-v1
+perspective,A2 oracle-rectified (10/10),CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A2 oracle-rectified (20/15),CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (10/10),CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (20/15),CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v1
+font,serif (Times New Roman),CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,condensed (Arial Narrow),CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v1
+font,small print (8 pt body),CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+quality,shadow (one third),CLM-2026-0076,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.930,,prep-v1
+quality,clutter (desk + 2 objects),CLM-2026-0076,correct,wrong,correct,correct,correct,true,false,true,REVIEW,R-20,0.920,,prep-v1
+quality,low contrast 60 % + JPEG q25,CLM-2026-0076,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v1
+perspective,A1 pitch 10 / yaw 10,CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A1 pitch 20 / yaw 15,CLM-2026-0084,wrong,wrong,wrong,correct,correct,true,false,true,REVIEW,R-13 R-20,0.910,,prep-v1
+perspective,A2 oracle-rectified (10/10),CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A2 oracle-rectified (20/15),CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (10/10),CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (20/15),CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,serif (Times New Roman),CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,condensed (Arial Narrow),CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+font,small print (8 pt body),CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+quality,shadow (one third),CLM-2026-0084,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.920,,prep-v1
+quality,clutter (desk + 2 objects),CLM-2026-0084,correct,wrong,missed,correct,correct,true,false,true,REVIEW,R-14 R-20,0.920,,prep-v1
+quality,low contrast 60 % + JPEG q25,CLM-2026-0084,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A1 pitch 10 / yaw 10,CLM-2026-0090,correct,missed,correct,correct,correct,true,false,true,REVIEW,R-14,0.880,,prep-v1
+perspective,A1 pitch 20 / yaw 15,CLM-2026-0090,correct,correct,wrong,correct,correct,false,false,true,REVIEW,R-13,0.880,,prep-v1
+perspective,A2 oracle-rectified (10/10),CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+perspective,A2 oracle-rectified (20/15),CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v1
+perspective,A3 detected-rectified (10/10),CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v1
+perspective,A3 detected-rectified (20/15),CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+font,serif (Times New Roman),CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,condensed (Arial Narrow),CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,small print (8 pt body),CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v1
+quality,shadow (one third),CLM-2026-0090,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.910,,prep-v1
+quality,clutter (desk + 2 objects),CLM-2026-0090,correct,wrong,missed,correct,correct,true,false,true,REVIEW,R-14 R-20,0.920,,prep-v1
+quality,low contrast 60 % + JPEG q25,CLM-2026-0090,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v1
+perspective,A1 pitch 10 / yaw 10,CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+perspective,A1 pitch 20 / yaw 15,CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v1
+perspective,A2 oracle-rectified (10/10),CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A2 oracle-rectified (20/15),CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (10/10),CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+perspective,A3 detected-rectified (20/15),CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.930,,prep-v1
+font,serif (Times New Roman),CLM-2026-0094,correct,correct,correct,wrong,correct,true,false,true,ESCALATE,R-01 R-20,0.920,,prep-v1
+font,condensed (Arial Narrow),CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+font,small print (8 pt body),CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v1
+quality,shadow (one third),CLM-2026-0094,correct,missed,missed,correct-null,wrong,true,false,true,ESCALATE,R-01 R-14 R-20,0.920,,prep-v1
+quality,clutter (desk + 2 objects),CLM-2026-0094,correct,wrong,correct,correct-null,correct,true,false,true,REVIEW,R-20,0.920,,prep-v1
+quality,low contrast 60 % + JPEG q25,CLM-2026-0094,correct,correct,correct,correct-null,correct,false,true,false,AUTO_APPROVE,—,0.910,,prep-v1
+perspective,A1 pitch 10 / yaw 10,CLM-2026-0098,correct,wrong,correct,missed,correct,true,false,true,REVIEW,R-14 R-20,0.910,,prep-v1
+perspective,A1 pitch 20 / yaw 15,CLM-2026-0098,correct,correct,wrong,correct,correct,false,false,true,REVIEW,R-13,0.860,,prep-v1
+perspective,A2 oracle-rectified (10/10),CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A2 oracle-rectified (20/15),CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (10/10),CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+perspective,A3 detected-rectified (20/15),CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,serif (Times New Roman),CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+font,condensed (Arial Narrow),CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.900,,prep-v1
+font,small print (8 pt body),CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1
+quality,shadow (one third),CLM-2026-0098,correct,missed,missed,missed,wrong,true,false,true,ESCALATE,R-14 R-20,0.920,,prep-v1
+quality,clutter (desk + 2 objects),CLM-2026-0098,correct,wrong,correct,correct,correct,true,false,true,REVIEW,R-20,0.910,,prep-v1
+quality,low contrast 60 % + JPEG q25,CLM-2026-0098,correct,correct,correct,correct,correct,false,true,false,AUTO_APPROVE,—,0.920,,prep-v1

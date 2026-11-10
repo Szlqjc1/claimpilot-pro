@@ -18,6 +18,10 @@ import path from "node:path";
 import { chromium } from "playwright";
 
 const DOCS = Math.min(20, Math.max(1, Number(process.env.VARIANT_DOCS ?? 20)));
+// VARIANT_AXES=label,layout re-runs only those axes (Task 16 C); rows of other axes are kept from docs/variants.csv.
+const AXES = new Set((process.env.VARIANT_AXES ?? "label,layout,perspective,font,quality").split(",").map((a) => a.trim()));
+// VARIANT_OCR_ONLY=1 stops after OCR and reports how many texts differ from the prep-v1 cache: no model calls.
+const OCR_ONLY = process.env.VARIANT_OCR_ONLY === "1";
 const CONCURRENCY = 4;
 const CACHE = path.resolve(".bench-cache/variants");
 const MODEL_PATH = path.resolve("eng.traineddata");
@@ -62,21 +66,21 @@ async function main() {
   type Job = { key: string; claimId: string; label: (typeof V.LABEL_VARIANTS)[number]; layout: (typeof V.LAYOUT_VARIANTS)[number]; capture: import("../src/lib/bench/capture").CaptureId; font: import("../src/lib/bench/variants").FontVariant };
   const jobs = new Map<string, Job>();
   for (const c of picked) {
-    for (const label of V.LABEL_VARIANTS) jobs.set(`${c.claimId}|${label}|label-left`, { key: `${c.claimId}|${label}|label-left`, claimId: c.claimId, label, layout: "label-left", capture: "none", font: "default" });
-    for (const layout of V.LAYOUT_VARIANTS) jobs.set(`${c.claimId}|canonical|${layout}`, { key: `${c.claimId}|canonical|${layout}`, claimId: c.claimId, label: "canonical", layout, capture: "none", font: "default" });
+    if (AXES.has("label")) for (const label of V.LABEL_VARIANTS) jobs.set(`${c.claimId}|${label}|label-left`, { key: `${c.claimId}|${label}|label-left`, claimId: c.claimId, label, layout: "label-left", capture: "none", font: "default" });
+    if (AXES.has("layout")) for (const layout of V.LAYOUT_VARIANTS) jobs.set(`${c.claimId}|canonical|${layout}`, { key: `${c.claimId}|canonical|${layout}`, claimId: c.claimId, label: "canonical", layout, capture: "none", font: "default" });
     // Perspective arms (Task 14 A): the canonical render, photographed (A1), photographed and oracle-rectified (A2), or
     // photographed, corner-detected and rectified (A3, D-49).
-    for (const arm of C.PERSPECTIVE_ARMS.filter((a) => a.id !== "none")) {
+    for (const arm of C.PERSPECTIVE_ARMS.filter((a) => a.id !== "none" && AXES.has("perspective"))) {
       const key = `${c.claimId}|canonical|label-left|${arm.id}`;
       jobs.set(key, { key, claimId: c.claimId, label: "canonical", layout: "label-left", capture: arm.id, font: "default" });
     }
     // Typography (Task 14 B1): the canonical render in another face or at small print.
-    for (const font of V.FONT_VARIANTS.filter((f) => f !== "default")) {
+    for (const font of V.FONT_VARIANTS.filter((f) => f !== "default" && AXES.has("font"))) {
       const key = `${c.claimId}|canonical|label-left|font-${font}`;
       jobs.set(key, { key, claimId: c.claimId, label: "canonical", layout: "label-left", capture: "none", font });
     }
     // Capture quality (Task 14 B2): shadow, clutter, low contrast on the canonical render.
-    for (const arm of C.QUALITY_ARMS.filter((a) => a.id !== "none")) {
+    for (const arm of C.QUALITY_ARMS.filter((a) => a.id !== "none" && AXES.has("quality"))) {
       const key = `${c.claimId}|canonical|label-left|${arm.id}`;
       jobs.set(key, { key, claimId: c.claimId, label: "canonical", layout: "label-left", capture: arm.id, font: "default" });
     }
@@ -86,6 +90,7 @@ async function main() {
   // ── 1. render + OCR (cached by HTML) ─────────────────────────────────────────────────────────────────────
   type OcrEntry = { text: string; confidence: number; detection?: import("../src/lib/bench/capture").DetectionReport };
   const ocr = new Map<string, OcrEntry>();
+  const prepV1Text = new Map<string, string>(); // the same document's OCR text under the pre-D-52 clean-up, if cached
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 850, height: 1100 }, deviceScaleFactor: 3 }); // ≈ 300 dpi
   const { createWorker } = await import("tesseract.js");
@@ -101,7 +106,10 @@ async function main() {
       // A clean render keeps its Task 13 cache key, so the baseline is reused, never re-read.
       // Detected arms also key on the detector version, so a detector change re-reads them (and only them).
       const capKey = j.capture === "none" ? "" : `|${j.capture}|${C.CAPTURE_VERSION}${j.capture.startsWith("detected-") ? `|${CORNER_DETECTOR_VERSION}` : ""}`;
-      const file = path.join(CACHE, `ocr-${sha(`${html}${capKey}|${OCR_PIPELINE.mode}|${OCR_PIPELINE.psm}${(OCR_PREP_VERSION as string) === "prep-v1" ? "" : `|${OCR_PREP_VERSION}`}`)}.json`); // prep-v1 keys predate the version in the key
+      const keyFor = (v: string) => path.join(CACHE, `ocr-${sha(`${html}${capKey}|${OCR_PIPELINE.mode}|${OCR_PIPELINE.psm}${v === "prep-v1" ? "" : `|${v}`}`)}.json`); // prep-v1 keys predate the version in the key
+      const file = keyFor(OCR_PREP_VERSION);
+      const v1 = keyFor("prep-v1");
+      if ((OCR_PREP_VERSION as string) !== "prep-v1" && existsSync(v1)) prepV1Text.set(j.key, (JSON.parse(await readFile(v1, "utf8")) as OcrEntry).text);
       if (existsSync(file)) {
         ocr.set(j.key, JSON.parse(await readFile(file, "utf8")));
       } else {
@@ -122,6 +130,11 @@ async function main() {
     await worker.terminate();
     await browser.close();
   }
+
+  const compared = [...prepV1Text.keys()].filter((k) => ocr.has(k));
+  const changed = compared.filter((k) => ocr.get(k)!.text !== prepV1Text.get(k));
+  console.log(`OCR text vs prep-v1: ${changed.length} of ${compared.length} documents changed (${OCR_PREP_VERSION}); ${jobs.size - compared.length} had no prep-v1 text.`);
+  if (OCR_ONLY) return;
 
   // ── 2. live extraction (cached by OCR text + prompt version + model) ────────────────────────────────────
   type Extracted = { extraction: import("../src/lib/domain/schemas").Extraction | null; error: string | null; inputTokens: number; outputTokens: number; cached: boolean };
@@ -204,9 +217,19 @@ async function main() {
     const s = String(v ?? "");
     return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
-  const header = ["axis", "variant", "claim_id", ...V.BENCH_FIELDS, "escalated_r14_r19_r20", "auto_cleared", "doc_has_error", "decision", "rules", "ocr_confidence", "error"];
-  const csv = [header.join(","), ...rows.map((r) => [r.axis, r.variant, r.claimId, ...V.BENCH_FIELDS.map((f) => r.outcomes[f]), r.escalated, r.cleared, V.docHasError(r), r.decision, r.rules, r.ocrConfidence.toFixed(3), r.error].map(csvCell).join(","))];
-  await writeFile(path.resolve("docs/variants.csv"), `${csv.join("\n")}\n`);
+  // ocr_prep: the OCR clean-up each row was measured with (D-52 → prep-v2). Rows of arms not in this run (see
+  // VARIANT_AXES) are kept as they were; rows from before the column existed were measured with prep-v1.
+  const header = ["axis", "variant", "claim_id", ...V.BENCH_FIELDS, "escalated_r14_r19_r20", "auto_cleared", "doc_has_error", "decision", "rules", "ocr_confidence", "error", "ocr_prep"];
+  const csvPath = path.resolve("docs/variants.csv");
+  const runArms = new Set(rows.map((r) => `${r.axis},${r.variant}`));
+  const kept: string[] = [];
+  if (existsSync(csvPath)) {
+    const [head, ...lines] = (await readFile(csvPath, "utf8")).trimEnd().split("\n");
+    const hasPrep = head.endsWith(",ocr_prep");
+    for (const l of lines) if (!runArms.has(l.split(",").slice(0, 2).join(","))) kept.push(hasPrep ? l : `${l},prep-v1`);
+  }
+  const csv = [header.join(","), ...rows.map((r) => [r.axis, r.variant, r.claimId, ...V.BENCH_FIELDS.map((f) => r.outcomes[f]), r.escalated, r.cleared, V.docHasError(r), r.decision, r.rules, r.ocrConfidence.toFixed(3), r.error, OCR_PREP_VERSION].map(csvCell).join(",")), ...kept];
+  await writeFile(csvPath, `${csv.join("\n")}\n`);
 
   const p = (x: number) => `${(x * 100).toFixed(1)} %`;
   const bound = (k: number, n: number) => (n ? `${p(lowerBound(k, n))}–${p(upperBound(k, n))}` : "—");
@@ -235,6 +258,28 @@ async function main() {
     }
     return lines.join("\n");
   };
+  // R-20 (D-46) on this run's OCR: the counterfactual "without R-20" clears a document whose ONLY findings are R-20.
+  // Unique documents = one row per (claim, label, layout) on the label and layout axes; canonical × label-left once.
+  function r20Summary(): string[] {
+    const labelRows = rows.filter((r) => r.axis === "label");
+    const uniq = new Map<string, Row>();
+    for (const r of rows.filter((x) => x.axis === "label" || x.axis === "layout")) uniq.set(`${r.claimId}|${r.axis === "label" ? r.variant : "canonical"}|${r.axis === "layout" ? r.variant : "label-left"}`, r);
+    const ids = (r: Row) => (r.rules === "—" ? [] : r.rules.split(" "));
+    const clearsWithout = (r: Row) => r.decision !== "ERROR" && ids(r).every((x) => x === "R-20");
+    const before = labelRows.filter(clearsWithout);
+    const after = labelRows.filter((r) => r.cleared);
+    const fires = [...uniq.values()].filter((r) => ids(r).includes("R-20"));
+    if (!labelRows.length) return [];
+    return [
+      `### R-20 on this run (OCR clean-up \`${OCR_PREP_VERSION}\`)`,
+      "",
+      "| | Before R-20 | With R-20 |",
+      "|---|---|---|",
+      `| Auto-cleared documents with a wrong field (label axis) | ${before.filter(V.docHasError).length} / ${before.length} | **${after.filter(V.docHasError).length} / ${after.length}** |`,
+      `| Documents R-20 fires on, of ${uniq.size} | — | ${fires.length} (${fires.filter(V.docHasError).length} with a wrong field, ${fires.filter((r) => !V.docHasError(r)).length} false alarms) |`,
+      "",
+    ];
+  }
   const json = {
     generatedFor: { docsPerAxis: picked.length, claims: picked.map((c) => c.claimId), model, prompt: PROMPT_VERSION_EXTRACT, ocr: OCR_PIPELINE },
     label: V.LABEL_VARIANTS.map((v) => V.summarise(rows, "label", v)),
@@ -246,6 +291,8 @@ async function main() {
   // The generated tables go between markers in docs/EXTRACTION_VARIANTS.md; the written analysis around them is kept.
   const tables = [
     "<!-- tables:start (generated by pnpm bench:variants; do not edit by hand) -->",
+    "",
+    `Pipeline: illumination normalisation ${OCR_PIPELINE.illumination ? "on" : "off"} (D-52), rectification off (D-50; clean renders, never photographed). OCR clean-up \`${OCR_PREP_VERSION}\`.`,
     "",
     `Documents per axis: **${picked.length}** seeded claims that auto-clear on their reference extraction (${picked.map((c) => c.claimId).join(", ")}). Model \`${model}\`, prompt \`${PROMPT_VERSION_EXTRACT}\`, OCR: Tesseract \`eng\`, ${OCR_PIPELINE.mode} clean-up, PSM ${OCR_PIPELINE.psm}, clean ~300 dpi renders.`,
     "",
@@ -265,6 +312,7 @@ async function main() {
     "",
     fieldTable("layout", V.LAYOUT_VARIANTS),
     "",
+    ...r20Summary(),
     "<!-- tables:end -->",
   ].join("\n");
   const docPath = path.resolve("docs/EXTRACTION_VARIANTS.md");
@@ -321,6 +369,8 @@ async function main() {
     const decider = pairs[0];
     const block = [
       "<!-- results:start (generated by pnpm bench:variants; do not edit by hand) -->",
+      "",
+      `Pipeline: illumination normalisation ${OCR_PIPELINE.illumination ? "on" : "off"} (D-52), rectification off (D-50) for A0, A1, font and quality rows; A2 rectifies with the true corners, A3 with the detector's (D-49). OCR clean-up \`${OCR_PREP_VERSION}\`.`,
       "",
       `Documents: **${a0.docs}** (${picked.map((c) => c.claimId).join(", ")}). Model \`${model}\`, prompt \`${PROMPT_VERSION_EXTRACT}\`, capture \`${C.CAPTURE_VERSION}\`.`,
       "",
