@@ -147,7 +147,7 @@ export async function runAudit(claimId: string, opts: RunAuditOptions): Promise<
     // guard skipped the warp, rectification is switched off, or the clean-up fell back to the original.
     if (ocr.prep?.rectify) {
       const r = ocr.prep.rectify;
-      console.info(JSON.stringify({ evt: "ocr.rectify", requestId: opts.requestId, claimId, scope: r.scope, reason: r.reason, areaFraction: r.areaFraction, maxCornerOffset: r.maxCornerOffset }));
+      console.info(JSON.stringify({ evt: "ocr.rectify", requestId: opts.requestId, claimId, scope: r.scope, reason: r.reason, source: r.source, areaFraction: r.areaFraction, maxCornerOffset: r.maxCornerOffset }));
     }
     // D-37: deterministic grounding is part of the extraction stage, attached before scoring (R-14 reads it).
     extraction = { ...extraction, fieldChecks: groundExtraction(extraction, ocr.text) };

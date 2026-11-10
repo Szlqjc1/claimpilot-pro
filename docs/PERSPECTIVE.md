@@ -119,7 +119,7 @@ Per field, capture quality:
 **Decision (pre-registered rule, deciding pair 20/15):** gap = 12, recovered = 12, recovery% = 100.0 %: ≥ 70 % → **build corner detection**: geometry is the bottleneck.
 For reference, the 10/10 pair: gap = 11, recovered = 11, recovery% = 100.0 % (build).
 
-**Detected corners (A3, D-49, detector `corners-v2`):**
+**Detected corners (A3, D-49, detector `corners-v3`):**
 
 | Angle | Page found | Corner error, mean / worst (px, photo ≈ 2550 px wide) | bad A1 → A3 (oracle A2) | Recovery % (A3) |
 |---|---|---|---|---|
@@ -224,6 +224,60 @@ without the option and are unaffected.
 
 **Still synthetic.** All of this was measured on synthetic photos and our own renders. Release waits on 3–5 real
 phone photos, including a flat scan and a blank sheet on a white table (see D-50).
+
+## Lit desks: an edge stage in front of the region detector (D-51)
+
+**What failed.** Three AI-generated desk photos from the project owner (`src/tests/fixtures/photos`; not real
+photographs) defeated `corners-v2` on all three: `no-page`, so OCR read the full frame. The cause was the region step.
+A sunlit part of the desk is as bright as the paper, so the largest bright region was page plus desk:
+- on the dark desk, a light band touched the page's corner;
+- on the light-gray desks, the lit desk joined the page and ran off the photo.
+
+No other threshold helped either. Where the page did separate, the corner step locked onto wrong quads (one corner
+at (0, −1), others cutting across desk and page), and the D-50 background check rejected all of them. The
+safeguard held: nothing was warped into garbage. But reading the full frame was useless on these photos (Tesseract
+returned 2 garbage lines on one and nothing at all on the other two, yet reported 95 % confidence for those two).
+
+**What changed** (`corners-v3`):
+- **Region first, unchanged.** The D-49 region candidate still goes first, so clean photos and flat scans take
+  exactly the old path. The unit tests assert `source: "region"` on the synthetic photos.
+- **Edge stage on fallback.** It runs only when the region candidate fails:
+  1. Sobel gradients on the downscaled image, thinned to one-pixel edges.
+  2. A Hough transform over 0–360° that votes only along each edge pixel's gradient direction, so each line also
+     knows which side is brighter.
+  3. The 24 strongest lines, each re-fitted to its own edge pixels.
+  4. Every four lines whose bright sides face inward, turning by 40–140° per side, form a quad.
+  5. Each quad is scored by how much of its perimeter has inward-facing edge evidence. Every side needs at least
+     40 %.
+  6. The six best quads go through the same full-resolution refinement and checks as before.
+- **In-frame rule.** An edge quad's corners must lie inside the photo, within 1 %. On the German photo, a sunlit
+  band of desk that contains the page and runs off the photo otherwise outscores the page itself. Without this rule,
+  that test fails.
+- **Inward-only refinement.** The full-resolution refinement now looks only for a dark-to-bright step going inwards.
+  A shadow edge running the other way can no longer be chosen.
+- **Unchanged checks.** The page/background step check and the flat-scan guard are as in D-50.
+- **Source recorded.** The upload record and the `ocr.rectify` log now carry `source` (`region` or `edges`).
+
+**Result on the three generated photos:**
+- All three are found by the edge stage.
+- Gray profiles across every fitted side put the paper edge within about 4 px of the line, except near one corner
+  where the generated page lifts (≈ 14 px).
+- Tesseract through the real upload path (rectification on, gray clean-up, PSM 3):
+
+| Photo | Full frame (`corners-v2`) | Rectified (`corners-v3`) |
+|---|---|---|
+| German invoice, dark desk with light bands | 2 garbage lines | RECHNUNG, Musterhandel GmbH, RCH-2608-0817, 17.08.2026, 628,00 €, 684.52 € |
+| Chinese receipt, light-gray desk | no text | TEST-2026.0817, 499.00, 628.00, 56.52, 684.52 (Chinese text needs a Chinese model) |
+| English invoice, light-gray desk | no text | INVOICE, Northwind Trading Co, Ltd., $628.00, $56.52, $684.52 (number and date in a glare band, not read) |
+
+Detection takes 87–122 ms on these 1280 × 1198 photos, and 149 ms on a 2550 × 3300 photo where both stages run and
+nothing is found. The synthetic, flat-scan, ruled-table, white-table and page-less unit tests are unchanged and pass.
+The benchmark re-run under `corners-v3` gave identical A3 rows (bad 0/20 at both angles, corners 40/40, mean
+error 0.04 px) with 0 model calls: the synthetic photos still take the region path.
+
+**Still not the release check.** These are generated images: the lighting and fine print are rendered, and some text
+is duplicated or garbled. The expected corners in the tests are the detector's reviewed output, not independent
+ground truth. Release still waits on 3–5 real phone photos, including a flat scan and a blank sheet on a white table.
 
 ## Typography and capture quality (Part B)
 

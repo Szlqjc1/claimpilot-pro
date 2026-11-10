@@ -1,7 +1,7 @@
 import jpeg from "jpeg-js";
 import { PNG } from "pngjs";
 import type { BoundingBox } from "@/lib/domain/schemas";
-import { detectPageCorners, rectifyPage, type PageQuad } from "./corners";
+import { detectPageCorners, rectifyPage, type CornerSource, type PageQuad } from "./corners";
 import { applyH, homographyFromQuad, type Mat3, type Pt } from "./perspective";
 import { preprocess, type GrayImage, type RgbaImage } from "./preprocess";
 
@@ -51,6 +51,8 @@ export type OcrRectify = {
   /** The uploaded photo's size; corners and pageToPhoto are in its pixels. */
   photo: { width: number; height: number };
   corners: PageQuad | null;
+  /** Which detector stage found the page (D-51); null when none did. */
+  source: CornerSource | null;
   areaFraction: number | null;
   maxCornerOffset: number | null;
   /** Rectified page size and the page → photo homography (the sampling map); set only when scope is "page". */
@@ -70,7 +72,7 @@ function quadAreaOf(q: Pt[]): number {
  */
 export function rectifyForOcr(photo: RgbaImage, enabled: boolean): { image: RgbaImage; rectify: OcrRectify } {
   const { width: W, height: H } = photo;
-  const base: OcrRectify = { scope: "full-frame", reason: "disabled", photo: { width: W, height: H }, corners: null, areaFraction: null, maxCornerOffset: null, size: null, pageToPhoto: null };
+  const base: OcrRectify = { scope: "full-frame", reason: "disabled", photo: { width: W, height: H }, corners: null, source: null, areaFraction: null, maxCornerOffset: null, size: null, pageToPhoto: null };
   if (!enabled) return { image: photo, rectify: base };
   try {
     const found = detectPageCorners(photo);
@@ -84,7 +86,7 @@ export function rectifyForOcr(photo: RgbaImage, enabled: boolean): { image: Rgba
     ];
     const areaFraction = quadAreaOf(corners) / (W * H);
     const maxCornerOffset = Math.max(...corners.map((p, i) => Math.max(Math.abs(p.x - frame[i].x) / W, Math.abs(p.y - frame[i].y) / H)));
-    const measured: OcrRectify = { ...base, corners, areaFraction: Number(areaFraction.toFixed(4)), maxCornerOffset: Number(maxCornerOffset.toFixed(4)) };
+    const measured: OcrRectify = { ...base, corners, source: found.source, areaFraction: Number(areaFraction.toFixed(4)), maxCornerOffset: Number(maxCornerOffset.toFixed(4)) };
     if (areaFraction > FLAT_MIN_AREA && maxCornerOffset < FLAT_MAX_CORNER_OFFSET) return { image: photo, rectify: { ...measured, reason: "flat-scan" } };
     const image = rectifyPage(photo, corners);
     const size = { w: image.width, h: image.height };

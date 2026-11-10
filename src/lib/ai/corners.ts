@@ -2,19 +2,24 @@
 // Pure TypeScript, no dependency, deterministic, deliberately NOT server-only (like ocr-prep.ts) so the benchmark
 // runs the exact code an upload would.
 //
-// Model: a light page on a darker desk, roughly upright (each page edge within ~40° of its axis), fully in frame.
-//   1. coarse: grayscale → box-downscale to ≤ DETECT_MAX_DIM px → Otsu threshold → largest 4-connected bright
-//      component → its outer boundary (row and column extremes) → four extreme corners (min/max of x ± y) →
-//      a total-least-squares line per side through the boundary samples between them → corners = line intersections;
-//   2. fine: back at full resolution, each side is re-located by scanning across it for the strongest step edge
-//      (sub-pixel, averaged along the edge), a robust line fit, and the corners re-intersected.
-// It returns null instead of guessing: no component big enough, too little page/desk contrast, a boundary that is not
-// quadrilateral (solidity), or a degenerate / non-convex result.
+// Model: a page lighter than what surrounds it, roughly upright (each page edge within ~40° of its axis), fully in
+// frame. Grayscale, box-downscale to ≤ DETECT_MAX_DIM px, then candidate quads from two sources, tried in order:
+//   1a. region (D-49): Otsu threshold → largest 4-connected bright component → outer boundary → extreme corners
+//       (min/max of x ± y) → a total-least-squares line per side → intersections. Exact when the page is the only
+//       bright thing in the photo; it fails when lit desk merges with the page (D-51).
+//   1b. edges (D-51): Sobel gradient → thin edges → a Hough transform that votes only along each pixel's gradient
+//       direction, so every line knows which side is brighter → the strongest lines, each re-fitted to its edge pixels
+//       → every four lines whose bright sides face inward form a quad, scored by how much of its perimeter is edge.
+//   2. fine (both): back at full resolution, each side is re-located by scanning across it for the strongest
+//      dark-to-bright step towards the inside (sub-pixel, averaged along the edge), a robust line fit, and the corners
+//      re-intersected; then the sanity checks and the page/background step check. The first candidate that passes
+//      wins.
+// It returns null instead of guessing when no candidate passes.
 import { homographyFromQuad, warpPerspective, type Pt, type Rgba } from "./perspective";
 import { otsuThreshold, toGray, type GrayImage } from "./preprocess";
 
 /** Part of the benchmark's cache key for detected arms. Bump on any change to the detector or the rectifier. */
-export const CORNER_DETECTOR_VERSION = "corners-v2";
+export const CORNER_DETECTOR_VERSION = "corners-v3";
 export const DETECT_MAX_DIM = 400;
 /** The page must cover at least this fraction of the photo. */
 export const MIN_PAGE_FRACTION = 0.1;
@@ -25,7 +30,20 @@ export const MIN_SOLIDITY = 0.9;
 
 /** Top-left, top-right, bottom-right, bottom-left, in photo pixels (pixel edges, not centres: (0,0) is the corner). */
 export type PageQuad = [Pt, Pt, Pt, Pt];
-export type CornerDetection = { corners: PageQuad; threshold: number; contrast: number; solidity: number; factor: number };
+export type CornerSource = "region" | "edges";
+export type CornerDetection = {
+  corners: PageQuad;
+  /** Which candidate generator found it. */
+  source: CornerSource;
+  threshold: number;
+  contrast: number;
+  /** Region candidates: filled area / quad area. Null for edge candidates. */
+  solidity: number | null;
+  /** Edge candidates: the weakest side's share of its length with edge evidence. Null for region candidates. */
+  support: number | null;
+  factor: number;
+};
+type Candidate = { quad: PageQuad; source: CornerSource; solidity: number | null; support: number | null };
 
 type Line = { p: Pt; d: Pt }; // a point on the line and a unit direction
 
@@ -164,8 +182,9 @@ function sampleGray(g: GrayImage, x: number, y: number): number {
 
 /**
  * Re-locate one side at full resolution: at evenly spaced stations along the coarse side, average a short strip
- * along the side and find the strongest step across it (parabolic sub-pixel peak). Returns the refined line, or the
- * coarse one if too few stations found an edge.
+ * along the side and find the strongest dark-to-bright step towards the inside (parabolic sub-pixel peak). For a
+ * clockwise quad (TL → TR → BR → BL in image coordinates) the left normal of each side points inwards. Returns the
+ * refined line, or the coarse one if too few stations found an edge.
  */
 function refineSide(g: GrayImage, a: Pt, b: Pt, radius: number): Line {
   const len = Math.hypot(b.x - a.x, b.y - a.y);
@@ -188,13 +207,13 @@ function refineSide(g: GrayImage, a: Pt, b: Pt, radius: number): Line {
     let bestI = -1;
     let bestG = 0;
     for (let i = 1; i < prof.length - 1; i++) {
-      const grad = Math.abs(prof[i + 1] - prof[i - 1]);
+      const grad = prof[i + 1] - prof[i - 1]; // signed: brighter inwards (a shadow line inside the page is the wrong way)
       if (grad > bestG) [bestG, bestI] = [grad, i];
     }
     if (bestI < 0 || bestG < 20) continue; // no clear page/desk step here (an object over the edge, say)
     // Parabola through the central-difference gradient at bestI − 1, bestI, bestI + 1.
-    const g0 = bestI > 1 ? Math.abs(prof[bestI] - prof[bestI - 2]) : bestG;
-    const g2 = bestI < prof.length - 2 ? Math.abs(prof[bestI + 2] - prof[bestI]) : bestG;
+    const g0 = bestI > 1 ? prof[bestI] - prof[bestI - 2] : bestG;
+    const g2 = bestI < prof.length - 2 ? prof[bestI + 2] - prof[bestI] : bestG;
     const den = g0 - 2 * bestG + g2;
     const off = Math.abs(den) > 1e-9 ? Math.max(-0.5, Math.min(0.5, (0.5 * (g0 - g2)) / den)) : 0;
     const s = (bestI + off - steps) * STEP;
@@ -209,16 +228,12 @@ export function detectPageCorners(img: Rgba): CornerDetection | null {
   const gray = toGray(img);
   const factor = Math.max(1, Math.ceil(Math.max(img.width, img.height) / DETECT_MAX_DIM));
   const small = downscale(gray, factor);
-  const { width: w, height: h } = small;
-  if (w < 8 || h < 8) return null;
+  if (small.width < 8 || small.height < 8) return null;
 
   const threshold = otsuThreshold(small.data);
-  const mask = new Uint8Array(w * h);
   let [sumHi, nHi, sumLo, nLo] = [0, 0, 0, 0];
-  for (let i = 0; i < mask.length; i++) {
-    const v = small.data[i];
+  for (const v of small.data) {
     if (v > threshold) {
-      mask[i] = 1;
       sumHi += v;
       nHi++;
     } else {
@@ -226,10 +241,46 @@ export function detectPageCorners(img: Rgba): CornerDetection | null {
       nLo++;
     }
   }
-  if (!nHi || !nLo) return null;
-  const contrast = sumHi / nHi - sumLo / nLo;
-  if (contrast < MIN_CONTRAST) return null;
+  const contrast = nHi && nLo ? sumHi / nHi - sumLo / nLo : 0;
 
+  const tryCandidate = (c: Candidate): CornerDetection | null => {
+    const corners = finish(gray, c.quad, factor, img);
+    return corners ? { corners, source: c.source, threshold, contrast, solidity: c.solidity, support: c.support, factor } : null;
+  };
+  // The region candidate first: exact and cheap when the page is the only bright thing. The edge stage runs only
+  // when it fails.
+  const region = contrast >= MIN_CONTRAST ? regionCandidate(small, threshold) : null;
+  const fromRegion = region && tryCandidate(region);
+  if (fromRegion) return fromRegion;
+  for (const c of edgeCandidates(small)) {
+    const found = tryCandidate(c);
+    if (found) return found;
+  }
+  return null;
+}
+
+/** Fine stage and checks for one coarse candidate (small-image coordinates). Null when it does not hold up. */
+function finish(gray: GrayImage, coarse: PageQuad, factor: number, img: Rgba): PageQuad | null {
+  const full = coarse.map((p) => ({ x: p.x * factor, y: p.y * factor }));
+  const radius = 2 * factor + 2;
+  const fine = cornersFromSides(full.map((a, i) => refineSide(gray, a, full[(i + 1) % 4], radius)));
+  // quadArea > 0 also means clockwise (TL → TR → BR → BL), which refineSide's inward normal relies on.
+  const corners = fine && isConvex(fine) && quadArea(fine) >= MIN_PAGE_FRACTION * img.width * img.height ? fine : null;
+  if (!corners) return null;
+  // A sane page lies (almost) inside the photo; a corner far outside means a side fit went wrong.
+  const slack = 0.05 * Math.max(img.width, img.height);
+  if (corners.some((p) => p.x < -slack || p.y < -slack || p.x > img.width + slack || p.y > img.height + slack)) return null;
+  // A page edge is a STEP: paper inside, darker background outside. A table border inside a flat scan is a line with
+  // paper on both sides; without this check its interior could pass for the page and the header would be cropped.
+  if (!corners.every((_, i) => sideIsStep(gray, corners, i))) return null;
+  return corners;
+}
+
+/** Stage 1a (D-49): the largest bright region, if its outline is a clean quadrilateral. */
+function regionCandidate(small: GrayImage, threshold: number): Candidate | null {
+  const { width: w, height: h } = small;
+  const mask = new Uint8Array(w * h);
+  for (let i = 0; i < mask.length; i++) mask[i] = small.data[i] > threshold ? 1 : 0;
   const { labels, label, size } = largestComponent(mask, w, h);
   if (size < MIN_PAGE_FRACTION * w * h) return null;
 
@@ -281,23 +332,173 @@ export function detectPageCorners(img: Rgba): CornerDetection | null {
   }
   const coarse = cornersFromSides(coarseSides);
   if (!coarse || !isConvex(coarse)) return null;
-
   const solidity = filled / quadArea(coarse);
   if (!(solidity >= MIN_SOLIDITY)) return null;
+  return { quad: coarse, source: "region", solidity, support: null };
+}
 
-  // Fine: refine each side at full resolution around the coarse estimate (scaled up).
-  const full = coarse.map((p) => ({ x: p.x * factor, y: p.y * factor }));
-  const radius = 2 * factor + 2;
-  const fine = cornersFromSides(full.map((a, i) => refineSide(gray, a, full[(i + 1) % 4], radius)));
-  const corners = fine && isConvex(fine) && quadArea(fine) >= MIN_PAGE_FRACTION * img.width * img.height ? fine : null;
-  if (!corners) return null;
-  // A sane page lies (almost) inside the photo; a corner far outside means a side fit went wrong.
-  const slack = 0.05 * Math.max(img.width, img.height);
-  if (corners.some((p) => p.x < -slack || p.y < -slack || p.x > img.width + slack || p.y > img.height + slack)) return null;
-  // A page edge is a STEP: paper inside, darker background outside. A table border inside a flat scan is a line with
-  // paper on both sides; without this check its interior could pass for the page and the header would be cropped.
-  if (!corners.every((_, i) => sideIsStep(gray, corners, i))) return null;
-  return { corners, threshold, contrast, solidity, factor };
+/** Minimum Sobel magnitude (on the 3×3-blurred downscaled image) for an edge pixel; ≈ a 10-level step. */
+const EDGE_MIN_MAG = 40;
+/** Lines kept from the Hough transform, and the best-scoring quads handed to the fine stage. */
+const EDGE_LINES = 24;
+const EDGE_KEEP = 6;
+/** Every side of an edge quad needs edge evidence along at least this share of its length. */
+export const EDGE_MIN_SUPPORT = 0.4;
+
+type HoughLine = { theta: number; line: Line };
+
+/**
+ * Stage 1b (D-51): quads from straight edges. The Hough transform votes only within ±3° of each edge pixel's gradient
+ * direction, over 0–360°, so a line's angle is the normal pointing to its BRIGHTER side. A page's four sides then
+ * have inward normals that turn by roughly 90° each going round: sorted by angle from the one closest to "down"
+ * (90°, the top side) they are top, right, bottom, left.
+ */
+function edgeCandidates(small: GrayImage): Candidate[] {
+  const { width: w, height: h } = small;
+  // 3×3 box blur, then Sobel.
+  const b = new Float32Array(w * h);
+  for (let y = 0; y < h; y++)
+    for (let x = 0; x < w; x++) {
+      let s = 0;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) s += small.data[Math.min(h - 1, Math.max(0, y + dy)) * w + Math.min(w - 1, Math.max(0, x + dx))];
+      b[y * w + x] = s / 9;
+    }
+  const mag = new Float32Array(w * h);
+  const ang = new Float32Array(w * h).fill(Number.NaN); // gradient direction (towards brighter), radians; NaN = no edge
+  const gxA = new Float32Array(w * h);
+  const gyA = new Float32Array(w * h);
+  for (let y = 1; y < h - 1; y++)
+    for (let x = 1; x < w - 1; x++) {
+      const i = y * w + x;
+      const gx = b[i - w + 1] + 2 * b[i + 1] + b[i + w + 1] - b[i - w - 1] - 2 * b[i - 1] - b[i + w - 1];
+      const gy = b[i + w - 1] + 2 * b[i + w] + b[i + w + 1] - b[i - w - 1] - 2 * b[i - w] - b[i - w + 1];
+      gxA[i] = gx;
+      gyA[i] = gy;
+      mag[i] = Math.hypot(gx, gy);
+    }
+  // Thin edges: keep local maxima along the gradient (non-maximum suppression, 4 directions).
+  const edges: { x: number; y: number; a: number }[] = [];
+  for (let y = 2; y < h - 2; y++)
+    for (let x = 2; x < w - 2; x++) {
+      const i = y * w + x;
+      const m = mag[i];
+      if (m < EDGE_MIN_MAG) continue;
+      const a = Math.atan2(gyA[i], gxA[i]);
+      const q = Math.round((((a * 180) / Math.PI + 180) % 180) / 45) % 4; // 0: horizontal gradient, 1: 45°, 2: vertical, 3: 135°
+      const [dx, dy] = [
+        [1, 0],
+        [1, 1],
+        [0, 1],
+        [-1, 1],
+      ][q];
+      if (m < mag[i + dy * w + dx] || m < mag[i - dy * w - dx]) continue;
+      ang[i] = a;
+      edges.push({ x: x + 0.5, y: y + 0.5, a });
+    }
+  if (edges.length < 20) return [];
+
+  // Oriented Hough: θ in whole degrees 0..359 (normal towards the brighter side), ρ in px.
+  const D = Math.ceil(Math.hypot(w, h));
+  const R = 2 * D + 1;
+  const acc = new Float32Array(360 * R);
+  const COS = Array.from({ length: 360 }, (_, t) => Math.cos((t * Math.PI) / 180));
+  const SIN = Array.from({ length: 360 }, (_, t) => Math.sin((t * Math.PI) / 180));
+  for (const e of edges) {
+    const t0 = Math.round((e.a * 180) / Math.PI);
+    for (let dt = -3; dt <= 3; dt++) {
+      const t = (t0 + dt + 720) % 360;
+      acc[t * R + Math.round(e.x * COS[t] + e.y * SIN[t]) + D] += 1;
+    }
+  }
+  const minVotes = 0.12 * Math.min(w, h);
+  const peaks: { t: number; r: number; v: number }[] = [];
+  for (let t = 0; t < 360; t++)
+    for (let r = 0; r < R; r++) {
+      const v = acc[t * R + r];
+      if (v >= minVotes) peaks.push({ t, r, v });
+    }
+  peaks.sort((p, q) => q.v - p.v || p.t - q.t || p.r - q.r);
+  const angDiff = (p: number, q: number) => {
+    const d = Math.abs(p - q) % 360;
+    return d > 180 ? 360 - d : d;
+  };
+  const lines: HoughLine[] = [];
+  for (const pk of peaks) {
+    if (lines.length >= EDGE_LINES) break;
+    const rho = pk.r - D;
+    if (lines.some((l) => angDiff(l.theta, pk.t) <= 5 && Math.abs(l.line.p.x * COS[pk.t] + l.line.p.y * SIN[pk.t] - rho) <= 6)) continue;
+    // Re-fit to the edge pixels it collected: within 1.5 px, gradient within 12° of the normal.
+    const n = { x: COS[pk.t], y: SIN[pk.t] };
+    const pts = edges.filter((e) => Math.abs(e.x * n.x + e.y * n.y - rho) <= 1.5 && angDiff((e.a * 180) / Math.PI, pk.t) <= 12);
+    const fit = pts.length >= minVotes / 2 ? fitLine(pts) : null;
+    const line: Line = fit ?? { p: { x: rho * n.x, y: rho * n.y }, d: { x: -n.y, y: n.x } };
+    // Normal of the fitted line, oriented like the peak (towards the brighter side).
+    let nx = -line.d.y;
+    let ny = line.d.x;
+    if (nx * n.x + ny * n.y < 0) [nx, ny] = [-nx, -ny];
+    const theta = (((Math.atan2(ny, nx) * 180) / Math.PI) % 360 + 360) % 360;
+    lines.push({ theta, line });
+  }
+  if (lines.length < 4) return [];
+
+  // Edge evidence at a point: an edge pixel in its 3×3 neighbourhood whose gradient is within 20° of `normalDeg`.
+  const evidence = (x: number, y: number, normalDeg: number) => {
+    const cx = Math.floor(x);
+    const cy = Math.floor(y);
+    for (let dy = -1; dy <= 1; dy++)
+      for (let dx = -1; dx <= 1; dx++) {
+        const [px, py] = [cx + dx, cy + dy];
+        if (px < 0 || py < 0 || px >= w || py >= h) continue;
+        const a = ang[py * w + px];
+        if (!Number.isNaN(a) && angDiff((a * 180) / Math.PI, normalDeg) <= 20) return true;
+      }
+    return false;
+  };
+  // The page is wholly in frame (the model), so an edge quad's corners must be too. Without this a sunlit band of desk
+  // that runs off the photo and contains the page outscores the page itself.
+  const slack = 0.01 * Math.max(w, h);
+  const scored: (Candidate & { score: number })[] = [];
+  const L = lines.length;
+  for (let i = 0; i < L; i++)
+    for (let j = i + 1; j < L; j++)
+      for (let k = j + 1; k < L; k++)
+        for (let m = k + 1; m < L; m++) {
+          const four = [lines[i], lines[j], lines[k], lines[m]].sort((p, q) => p.theta - q.theta);
+          // Inward normals turning by 40–140° per side, all the way round.
+          let ok = true;
+          for (let s = 0; s < 4 && ok; s++) {
+            const gap = (four[(s + 1) % 4].theta - four[s].theta + 360) % 360;
+            ok = gap >= 40 && gap <= 140;
+          }
+          if (!ok) continue;
+          // Start at the side whose inward normal is closest to "down": top, right, bottom, left.
+          let top = 0;
+          for (let s = 1; s < 4; s++) if (angDiff(four[s].theta, 90) < angDiff(four[top].theta, 90)) top = s;
+          const sides = [0, 1, 2, 3].map((s) => four[(top + s) % 4]);
+          const quad = cornersFromSides(sides.map((l) => l.line));
+          if (!quad || !isConvex(quad) || quadArea(quad) < MIN_PAGE_FRACTION * w * h) continue;
+          if (quad.some((p) => p.x < -slack || p.y < -slack || p.x > w + slack || p.y > h + slack)) continue;
+          // Support: share of each side (away from its corners) with edge evidence facing inwards.
+          let score = 0;
+          let minSupport = 1;
+          for (let s = 0; s < 4; s++) {
+            const [a, c] = [quad[s], quad[(s + 1) % 4]];
+            const len = Math.hypot(c.x - a.x, c.y - a.y);
+            let hits = 0;
+            const N = 24;
+            for (let u = 0; u < N; u++) {
+              const f = 0.08 + (0.84 * u) / (N - 1);
+              if (evidence(a.x + (c.x - a.x) * f, a.y + (c.y - a.y) * f, sides[s].theta)) hits++;
+            }
+            const support = hits / N;
+            minSupport = Math.min(minSupport, support);
+            score += support * len;
+          }
+          if (minSupport < EDGE_MIN_SUPPORT) continue;
+          scored.push({ quad, source: "edges", solidity: null, support: minSupport, score });
+        }
+  scored.sort((p, q) => q.score - p.score);
+  return scored.slice(0, EDGE_KEEP).map((c) => ({ quad: c.quad, source: c.source, solidity: c.solidity, support: c.support }));
 }
 
 /** Minimum median (inside − outside) gray difference across an interior page side. */

@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { detectPageCorners } from "@/lib/ai/corners";
 import { applyH, mat3Inverse, type Rgba } from "@/lib/ai/perspective";
-import { FLAT_MAX_CORNER_OFFSET, FLAT_MIN_AREA, prepareForOcr, rectifyForOcr, rectifyHint, wordsToOriginal, type OcrPrep, type OcrWord } from "@/lib/ai/ocr-prep";
+import { FLAT_MAX_CORNER_OFFSET, FLAT_MIN_AREA, decodeToRgba, prepareForOcr, rectifyForOcr, rectifyHint, wordsToOriginal, type OcrPrep, type OcrWord } from "@/lib/ai/ocr-prep";
 import { encodePng, photoOptions } from "@/lib/bench/capture";
 import { photograph, projectedCorners } from "@/lib/bench/photo";
 import { readEnv } from "@/lib/env";
@@ -56,7 +58,7 @@ describe("rectifyForOcr: when the upload is warped flat, and when OCR reads the 
     const opts = photoOptions({ pitchDeg: 20, yawDeg: 15 }, "CLM-U1");
     const { image } = photograph(textPage(), opts);
     const { image: flat, rectify } = rectifyForOcr(image, true);
-    expect(rectify).toMatchObject({ scope: "page", reason: "rectified" });
+    expect(rectify).toMatchObject({ scope: "page", reason: "rectified", source: "region" });
     expect(flat).not.toBe(image);
     expect(flat.width).toBe(rectify.size!.w);
     // page → photo maps the page's corners onto the true projected corners.
@@ -107,6 +109,12 @@ describe("rectifyForOcr: when the upload is warped flat, and when OCR reads the 
     expect(rectify.scope).toBe("full-frame");
     expect(["no-page", "flat-scan"]).toContain(rectify.reason);
     expect(out).toBe(image);
+  });
+
+  it("a generated desk photo with a sunlit desk is rectified, and the record says the edge stage found it", () => {
+    const photo = decodeToRgba(readFileSync(path.resolve("src/tests/fixtures/photos/generated-en-invoice.jpg")), "image/jpeg");
+    const { rectify } = rectifyForOcr(photo, true);
+    expect(rectify).toMatchObject({ scope: "page", reason: "rectified", source: "edges" });
   });
 
   it("switched off: full frame, reason disabled, nothing detected", () => {

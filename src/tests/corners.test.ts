@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { cornerError, detectPageCorners, rectifiedSize, rectifyPage } from "@/lib/ai/corners";
+import { decodeToRgba } from "@/lib/ai/ocr-prep";
 import type { Rgba } from "@/lib/ai/perspective";
 import { detectedCapture, photoOptions } from "@/lib/bench/capture";
 import { deskTexture, photograph, projectedCorners } from "@/lib/bench/photo";
@@ -38,7 +41,8 @@ describe("detectPageCorners", () => {
       expect(found).not.toBeNull();
       const err = cornerError(found!.corners, projectedCorners({ w: W, h: H }, opts));
       expect(err.max).toBeLessThan(1);
-      expect(found!.solidity).toBeGreaterThan(0.95);
+      expect(found!.source).toBe("region"); // the D-49 path, unchanged for clean photos
+      expect(found!.solidity!).toBeGreaterThan(0.95);
     });
   }
 
@@ -71,6 +75,31 @@ describe("detectPageCorners", () => {
   it("is deterministic", () => {
     const { image } = photograph(doc, photoOptions({ pitchDeg: 20, yawDeg: 15 }, "CLM-D"));
     expect(detectPageCorners(image)).toEqual(detectPageCorners(image));
+  });
+});
+
+describe("generated desk photos: lit desk merges with the page (D-51, src/tests/fixtures/photos)", () => {
+  // Reviewed detector output (see the fixtures README); a regression guard, not independent ground truth.
+  const CASES: { file: string; corners: number[][] }[] = [
+    { file: "generated-de-rechnung.jpg", corners: [[34, 347], [702, 172], [1266, 864], [482, 1102]] },
+    { file: "generated-zh-receipt.jpg", corners: [[108, 393], [800, 209], [1169, 814], [397, 1066]] },
+    { file: "generated-en-invoice.jpg", corners: [[112, 333], [789, 156], [1234, 922], [431, 1116]] },
+  ];
+  for (const c of CASES) {
+    it(`${c.file}: found by the edge stage, every corner within 8 px of the reviewed position`, () => {
+      const img = decodeToRgba(readFileSync(path.resolve("src/tests/fixtures/photos", c.file)), "image/jpeg");
+      const found = detectPageCorners(img);
+      expect(found).not.toBeNull();
+      expect(found!.source).toBe("edges");
+      found!.corners.forEach((p, i) => expect(Math.hypot(p.x - c.corners[i][0], p.y - c.corners[i][1])).toBeLessThan(8));
+    });
+  }
+
+  it("the in-frame rule: on the German photo the sunlit band (corner off the photo) is not taken for the page", () => {
+    const img = decodeToRgba(readFileSync(path.resolve("src/tests/fixtures/photos/generated-de-rechnung.jpg")), "image/jpeg");
+    const found = detectPageCorners(img)!;
+    expect(Math.min(...found.corners.map((p) => p.x))).toBeGreaterThan(0);
+    expect(Math.min(...found.corners.map((p) => p.y))).toBeGreaterThan(100); // the band's top corner was at y ≈ 20
   });
 });
 
