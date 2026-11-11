@@ -34,7 +34,7 @@ R-20 in the escalation column.
 - **OCR:** the app's own pipeline (`OCR_PIPELINE`: grayscale clean-up, PSM 3) and the real Tesseract with `eng`.
 - **Extraction:** the live model through the app's own `extractWithDeepSeek` and prompt `extract-v2`. As for an upload,
   confidence comes from the OCR page, never the model.
-- **Scoring:** grounding, presence (D-44) and the full 19-rule engine, with the claim's own SAP context
+- **Scoring:** grounding, presence (D-44) and the full rule engine at the time of the run (19 rules; R-20 was added afterwards, D-46), with the claim's own SAP context
   (`seedRiskInput`).
 - **Metrics, per variant:**
   1. **field accuracy:** of the critical values the model returned, how many match the reference, using the engine's
