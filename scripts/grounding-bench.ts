@@ -8,6 +8,7 @@ import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import { buildSeedPlan, seedRiskInput } from "../src/lib/seed/run";
 import { evaluateRisk } from "../src/lib/risk/score";
+import { RULES } from "../src/lib/risk/rules";
 import { CRITICAL_GROUNDED_FIELDS, groundExtraction } from "../src/lib/ai/grounding";
 import { mutationsFor, type Mutation } from "../src/lib/bench/mutate";
 import { PROFILE_RANGES } from "../src/lib/bench/prng";
@@ -209,7 +210,7 @@ async function main() {
     "",
     `1. **False alarms, raw OCR (what the app does today).** Grounding flagged at least one critical field as "not in the OCR text" on **${rate(realRaw.docsFa, realRaw.docs)}** of ${realRaw.docs} realistic scans (95 % upper bound **${pct(upperBound(realRaw.docsFa, realRaw.docs), 1)}**) and on **${rate(harshRaw.docsFa, harshRaw.docs)}** of ${harshRaw.docs} harsh scans (≤ ${pct(upperBound(harshRaw.docsFa, harshRaw.docs), 1)}), counted per document; undegraded control: ${control.docsFa} / ${control.docs}.`,
     `2. **After clean-up.** The best clean-up on the realistic profile (${variantLabel(realBest.ocr)}) gives **${rate(realBest.docsFa, realBest.docs)}** (≤ ${pct(upperBound(realBest.docsFa, realBest.docs), 1)}); binarisation, as specified, gives ${rate(run("realistic", "binary").docsFa, realRaw.docs)} realistic and ${rate(run("harsh", "binary").docsFa, harshRaw.docs)} harsh.`,
-    `3. **Detection.** Of ${errors.length} injected extraction errors on claims the engine otherwise auto-approves, the 18-rule ensemble moved the decision off AUTO_APPROVE for **${pct(recall, 1)}** (${caught.length} / ${errors.length}; 95 % lower bound **${pct(recallLower, 1)}**), or **${pct(sumLCaught / sumL, 1)}** weighted by exposure (${formatUsd(sumLCaught)} of ${formatUsd(sumL)}). Grounding by itself flagged ${pct(groundingFlagged.length / errors.length, 1)} of the errors; that is its contribution, not the system's recall.`,
+    `3. **Detection.** Of ${errors.length} injected extraction errors on claims the engine otherwise auto-approves, the ${RULES.length}-rule engine moved the decision off AUTO_APPROVE for **${pct(recall, 1)}** (${caught.length} / ${errors.length}; 95 % lower bound **${pct(recallLower, 1)}**), or **${pct(sumLCaught / sumL, 1)}** weighted by exposure (${formatUsd(sumLCaught)} of ${formatUsd(sumL)}). Grounding by itself flagged ${pct(groundingFlagged.length / errors.length, 1)} of the errors; that is its contribution, not the system's recall.`,
     "",
     `**Part C decision.** The realistic false-alarm rate with the pipeline the app ships (\`${OCR_PIPELINE.mode === "off" ? "raw" : `${OCR_PIPELINE.mode}, PSM ${OCR_PIPELINE.psm}`}\`) is **${pct(partCRate, 1)}**, ${partCRate > PART_C_LIMIT ? `above the ${pct(PART_C_LIMIT, 0)} line: an intake state ("scan too poor to verify → rescan") is the next step, not lower points. Not implemented here.` : `under the ${pct(PART_C_LIMIT, 0)} line.`}`,
     "",
