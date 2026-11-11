@@ -29,7 +29,8 @@
     "bench:resolution": "tsx --conditions=react-server scripts/resolution-sweep.ts",
     "a11y:audit": "tsx scripts/a11y-audit.ts",
     "evidence:shots": "tsx scripts/evidence-shots.ts",
-    "bench:scope": "tsx --conditions=react-server scripts/scope-variants.ts"
+    "bench:scope": "tsx --conditions=react-server scripts/scope-variants.ts",
+    "build:landing": "node scripts/build-landing.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
