@@ -7,9 +7,10 @@ Everything Week 8 asks for, in one folder. Status is honest: what exists, what i
 | 1 | Landing page | https://szlqjc1.github.io/claimpilot-pro/ | ✅ live |
 | 2a | Logo (shield, invoice, arrow; navy page border) | Lockup with the wordmark: [`logo.png`](logo.png) (transparent), [`logo-on-white.png`](logo-on-white.png), [`logo-dark.png`](logo-dark.png) (for dark backgrounds), [`logo.svg`](logo.svg) (the PNG wrapped in SVG; there is no vector source). Mark only: [`logo-mark-transparent.png`](logo-mark-transparent.png), [`logo-512.png`](logo-512.png) / [`logo-128.png`](logo-128.png) / [`logo-32.png`](logo-32.png). Source: [`logo-mark-bordered.png`](logo-mark-bordered.png) | ✅ |
 | 2b | Poster 1080×1080 with QR | [`poster-1080x1080.png`](poster-1080x1080.png) | ✅ |
-| 2c | QR code (standalone, for reuse in Canva or print) | [`qr-code.png`](qr-code.png) | ✅ |
+| 2c | QR code (standalone, for reuse in Canva or print) | [`qr-code.png`](qr-code.png) — points at the landing page | ✅ |
+| 2d | Survey QR (fallback door for blocked networks) | [`qr-survey.png`](qr-survey.png) — points straight at the wenjuanxing form | ✅ |
 | 3 | 1-minute video (phone, real people) | — | ⬜ to shoot |
-| 4 | Social post, ≤ 280 characters | — | ⬜ to write |
+| 4 | Social post, ≤ 280 characters | [`social.md`](social.md) — both languages, with the posting checklist | ✅ written |
 | 5 | Promotion started (one live post + dated screenshot) | — | ⬜ to post |
 
 ## Checks before posting

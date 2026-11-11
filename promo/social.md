@@ -29,6 +29,18 @@ text are not clickable.
 
 Pick one to start. Do not wait for the video: reach accumulates from the day you post.
 
+## If the page will not open
+
+Campus and office networks block `github.io` and `github.com`. A tester scanned the poster, reached the page, tapped the
+button and nothing happened — on mobile data it worked. That is the network, not the page.
+
+Two doors, in this order:
+
+1. **Poster QR → landing page → the feedback button.** The tester sees the product first. This is the default.
+2. **`promo/qr-survey.png` → the survey directly.** The survey is on wenjuanxing, which is domestic and opens on any
+   network. Use it only as the fallback for someone who cannot reach the page at all: it skips the product, so their
+   answers are about the form, not about ClaimPilot.
+
 ## Posting checklist
 
 - [ ] Poster is the 1080×1080 with a scannable QR
