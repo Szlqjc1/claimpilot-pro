@@ -112,6 +112,10 @@
   .lead{margin:0;max-width:52ch;font-size:clamp(15.5px,2.2vw,18.5px);color:#414c5e}
   .lead code{background:var(--canvas);border:1px solid var(--line);border-radius:6px;padding:1px 6px;white-space:nowrap}
   .hero-cta{display:flex;flex-wrap:wrap;gap:10px;margin:26px 0 0}
+.cta-alt{margin:12px 0 0;font-size:13px;line-height:1.5;color:var(--muted)}
+.cta-alt a{color:var(--action);text-decoration:none;border-bottom:1px solid currentColor}
+.cta-alt a:hover{border-bottom-width:2px}
+.cta-band .cta-alt{margin-top:16px;text-align:center}
 
   /* stats */
   .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;grid-column:1 / -1}
@@ -333,6 +337,7 @@
         </p>
         <div class="hero-cta">
           <a class="btn btn-primary btn-lg" href="https://v.wjx.cn/vm/exN8JYc.aspx" target="_blank" rel="noopener noreferrer" data-survey-link>Join the beta test →</a>
+          <p class="cta-alt">No account, no install. <a href="https://github.com/Szlqjc1/claimpilot-pro/issues/new?title=%5BFEEDBACK%5D%20ClaimPilot%20PRO%20beta%20feedback" target="_blank" rel="noopener noreferrer" data-issue-link>Prefer GitHub? Open an issue instead.</a></p>
         </div>
       </div>
 
@@ -654,6 +659,7 @@ pnpm dev
         <a class="btn btn-primary btn-lg" href="https://v.wjx.cn/vm/exN8JYc.aspx" target="_blank" rel="noopener noreferrer" data-survey-link>Join the beta test</a>
         <a class="btn btn-ghost btn-lg" href="https://github.com/Szlqjc1/claimpilot-pro" target="_blank" rel="noopener noreferrer">Read the source first</a>
       </div>
+      <p class="cta-alt">The form takes two minutes and needs no account. No GitHub? That's fine. <a href="https://github.com/Szlqjc1/claimpilot-pro/issues/new?title=%5BFEEDBACK%5D%20ClaimPilot%20PRO%20beta%20feedback" target="_blank" rel="noopener noreferrer" data-issue-link>Prefer GitHub? Open an issue instead.</a></p>
     </div>
   </section>
 </main>
@@ -682,9 +688,16 @@ pnpm dev
     // Survey link: replace {{SURVEY_URL}} with your Wenjuanxing / Tencent Questionnaire URL before launch.
     // Until then the buttons fall back to a GitHub issue (works, won't 404) and a banner is shown.
     var SURVEY_URL = "https://v.wjx.cn/vm/exN8JYc.aspx";
+    // Second door. The survey is domestic and opens on any network; GitHub Issues is the fallback for people who
+    // cannot or will not use a form. Both are the same request ("tell us what's wrong"), so the page still has one
+    // call to action, reached two ways.
+    var ISSUE_URL = "https://github.com/Szlqjc1/claimpilot-pro/issues/new?title=%5BFEEDBACK%5D%20ClaimPilot%20PRO%20beta%20feedback";
     var resolved = /^https?:\/\//i.test(SURVEY_URL) && SURVEY_URL.indexOf("{{") === -1;
     Array.prototype.slice.call(document.querySelectorAll("[data-survey-link]")).forEach(function (a) {
       if (resolved) { a.setAttribute("href", SURVEY_URL); }
+    });
+    Array.prototype.slice.call(document.querySelectorAll("[data-issue-link]")).forEach(function (a) {
+      a.setAttribute("href", ISSUE_URL);
     });
     if (!resolved) {
       var note = document.getElementById("deploy-note");
