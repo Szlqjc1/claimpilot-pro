@@ -15,14 +15,8 @@ Everything Week 8 asks for, in one folder. Status is honest: what exists, what i
 
 ## Where the page is hosted
 
-| Door | Status | Address |
-|---|---|---|
-| GitHub Pages | **live** | <https://szlqjc1.github.io/claimpilot-pro/> |
-| Domestic mirror | **built, not deployed** | — |
-
-`pnpm build:landing` produces `deploy/landing/` (index.html plus assets, relative paths only) and `docs/HOSTING.md`
-walks through Gitee Pages and Tencent COS. **Until that folder is uploaded, no material may claim a second host** —
-the poster QR points at GitHub Pages, and on a campus network that is where it stops.
+GitHub Pages only: <https://szlqjc1.github.io/claimpilot-pro/>. The audience for this product is outside China, so no
+mirror is planned. The feedback form is on Wenjuanxing because that is where the testers are.
 
 ## Checks before posting
 

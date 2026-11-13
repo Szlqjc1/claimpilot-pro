@@ -1,4 +1,4 @@
-node_modules/
+﻿node_modules/
 .next/
 out/
 coverage/
@@ -30,5 +30,3 @@ eng.traineddata
 # WorkBuddy tool scratch
 .workbuddy-ai/
 
-# built by pnpm build:landing, uploaded by hand to the domestic host
-deploy/landing/

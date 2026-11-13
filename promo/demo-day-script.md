@@ -129,38 +129,30 @@ repository; the last section lists where each number comes from.
 
 ## 5:00–6:00 — What was hard, what we learned
 
-`[PPT 4]` The failing QR, and the two doors.
+`[PPT 4]` Two columns from the illumination table: 20/98 against 98/98.
 
 **EN**
 
-> The hardest thing was not the code.
-> Our poster carries a QR to the landing page. A tester scanned it, the page opened, he tapped the button — and
-> nothing happened. On mobile data it worked. His campus network blocks that host, and it blocks the feedback channel
-> behind it too.
-> So the feedback moved to a form that opens anywhere, and the page gets a second door on a domestic host. `[Adjusted
-> version, see below.]`
-> That is the lesson I am taking away. Not an AI problem, not a design problem — a problem with where our users stand.
-> We only found it because somebody outside the team tried it.
-> The second lesson is about building with AI. It writes fast, and it sounds just as confident when it is wrong. Most
-> of the work was not writing. It was checking: precise requirements, real documents, and turning "I am not sure"
-> into a rule.
+> The hardest thing was not the code. It was the photographs.
+> The first version only worked on flat scans. We put a shadow across a third of one invoice: it recovered 20 of 98
+> critical values, and every one of twenty otherwise-clean invoices was escalated to a human.
+> So we normalise the lighting before OCR. The same page now gives 98 of 98, and all twenty clear.
+> On ordinary phone photos our false-alarm rate is still 12.2 %. That is above the line we set ourselves, and it is in
+> the report.
+> That is the lesson I am taking away. Not a design problem, not a model problem — a problem with the conditions our
+> users actually work in. We only found it because we degraded our own documents instead of trusting a clean scan.
+> And building with AI: it writes fast, and it sounds just as confident when it is wrong. Most of the work was not
+> writing. It was checking — and turning "I am not sure" into a rule.
 
 **中文**
 
-> 最难的不是代码。
-> 海报上印着二维码。一位测试者扫了，页面打开了，他点了按钮——什么都没发生。换移动流量就正常。他的校园网封了那个域名，
-> 也顺带封了它后面的反馈入口。
-> 于是反馈迁到哪儿都能打开的表单，页面在国内托管上多了一扇门。
-> 这是我带走的收获：不是 AI 问题，也不是设计问题，是用户站在哪里的问题。而我们是靠团队之外的人试了才知道的。
-> 第二个收获关于用 AI 开发。它写得快，错的时候语气也一样自信。所以大部分功夫不在写，在核对：把要求说准，
-> 拿真实单据去试，把"我不确定"变成一条规则。
-
-### The one sentence to adjust on the day
-
-| If... | Say |
-|---|---|
-| the mirror **is** uploaded before Demo Day | "…and the page now has a second door on a domestic host." |
-| the mirror is **not** uploaded | "…and a mirror of the page is built and waiting for an account. The feedback is already on a domestic form." |
+> 最难的不是代码，是照片。
+> 第一版只对平扫件有效。我们把阴影盖在发票的三分之一上：98 个关键值只读出 20 个，二十张本来干净的单全部被升级给人。
+> 所以我们在 OCR 之前先做光照归一化。同一页现在是 98 个读出 98 个，二十张全部自动通过。
+> 普通手机照片下，误报率仍然是 12.2%。这高于我们给自己定的线，报告里写着。
+> 这是我带走的收获：不是设计问题，也不是模型问题，是用户真实工作条件的问题。而我们发现它，是因为我们拿自己的单据去做退化，
+> 而不是相信一张干净的扫描件。
+> 还有用 AI 开发这件事：它写得快，错的时候语气也一样自信。大部分功夫不在写，在核对——把"我不确定"变成一条规则。
 
 ## 6:00 — Close
 
@@ -186,4 +178,6 @@ repository; the last section lists where each number comes from.
 | Two log entries one letter apart | commit `22b8b8f` |
 | Success shown in red, now green | commit `36ac45c` |
 | 10 testers / 10 responses | Wenjuanxing export |
+| Shadow across a third of the page: 20 of 98 critical values, then 98 of 98 | `docs/ILLUMINATION.md`, tables at L34–35 |
+| 12.2 % false alarms on realistic phone photos | `docs/GROUNDING_BENCH.md` L23 |
 | Uploaded invoice → `422 OCR_DISABLED` in demo mode | `src/lib/audit/run-audit.ts:109` |
