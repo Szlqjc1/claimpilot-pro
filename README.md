@@ -2,11 +2,11 @@
 
 [![CI](https://github.com/Szlqjc1/claimpilot-pro/actions/workflows/ci.yml/badge.svg)](https://github.com/Szlqjc1/claimpilot-pro/actions/workflows/ci.yml)
 
-AI-RPA expense review for **Ironwood Safety Systems, Inc.**, a fictional Tier-1 automotive safety supplier (airbag modules, seatbelt assemblies, pretensioners) headquartered in Auburn Hills, MI, with plants in Toledo OH, Chattanooga TN, San Antonio TX and cross-border supply from Monterrey.
+AI-RPA expense review for **Shanghai Joyson Safety Systems Co., Ltd.** — the project's industry setting: a Tier-1 automotive safety supplier (airbag modules, seatbelt assemblies, pretensioners). The demo models an accounts-payable shared-service centre with plants in Ohio, Tennessee and Texas, and cross-border supply from Monterrey.
 
-Ironwood processes ~1,400 supplier invoices a month. Manual review averages 4.2 days, duplicate invoices slip through, and project-code mismatches turn into audit findings. ClaimPilot PRO combines OCR, LLM extraction, deterministic rules and SAP master data (PO ↔ GRN/gate pass ↔ invoice) to clear clean invoices in hours, with explainable, auditable risk decisions.
+The demo company processes ~1,400 supplier invoices a month. Manual review averages 4.2 days, duplicate invoices slip through, and project-code mismatches turn into audit findings. ClaimPilot PRO combines OCR, LLM extraction, deterministic rules and SAP master data (PO ↔ GRN/gate pass ↔ invoice) to clear clean invoices in hours, with explainable, auditable risk decisions.
 
-> **Demo only.** All companies, vendors, tax IDs, people and invoices are fictional. Every receipt carries a `SAMPLE — NOT A REAL INVOICE` watermark. USD only.
+> **Demo only.** The company name is the industry background for this project. Every vendor, tax ID, person, invoice and amount in this repository is synthetic, and this project is not affiliated with or endorsed by Joyson Safety Systems. Every receipt carries a `SAMPLE — NOT A REAL INVOICE` watermark. USD only.
 
 ## Run it
 
@@ -52,9 +52,9 @@ Created by `pnpm db:seed` / `pnpm db:reset` and also listed on the `/login` page
 
 | Role | Name | Email | Password |
 |---|---|---|---|
-| `admin` | Dana Whitfield (Corporate Audit) | `dana.whitfield@ironwood.example` | `Ironwood-Audit-2026` |
-| `reviewer` | Priya Natarajan (Plant Controller) | `priya.natarajan@ironwood.example` | `Toledo-Controller-26` |
-| `requester` | Marcus Reed (R&D Engineering) | `marcus.reed@ironwood.example` | `CrashSled-Request-26` |
+| `admin` | Dana Whitfield (Corporate Audit) | `dana.whitfield@joyson.example` | `Joyson-Audit-2026` |
+| `reviewer` | Priya Natarajan (Plant Controller) | `priya.natarajan@joyson.example` | `Toledo-Controller-26` |
+| `requester` | Marcus Reed (R&D Engineering) | `marcus.reed@joyson.example` | `CrashSled-Request-26` |
 
 What each role may do (DECISIONS D-27):
 

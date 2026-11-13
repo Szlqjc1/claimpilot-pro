@@ -1,6 +1,6 @@
 import type { Category, Department } from "@/lib/domain/constants";
 
-// Fictional master data for Ironwood Safety Systems, Inc. Money in integer cents.
+// Fictional master data for Shanghai Joyson Safety Systems Co., Ltd. Money in integer cents.
 
 export const EMPLOYEES: { name: string; department: Department | "Corporate Audit"; title: string }[] = [
   { name: "Marcus Reed", department: "R&D Engineering", title: "Crash Safety Engineer" },

@@ -13,7 +13,7 @@ const inter = localFont({
 
 export const metadata: Metadata = {
   title: { default: "ClaimPilot PRO", template: "%s · ClaimPilot PRO" },
-  description: "AI-RPA expense review for Ironwood Safety Systems (demo environment).",
+  description: "AI-RPA expense review for Joyson Safety Systems (demo environment).",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

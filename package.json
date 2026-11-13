@@ -2,7 +2,7 @@
   "name": "claimpilot-pro",
   "version": "0.1.0",
   "private": true,
-  "description": "ClaimPilot PRO — AI-RPA expense review for Ironwood Safety Systems (demo)",
+  "description": "ClaimPilot PRO — AI-RPA expense review for Shanghai Joyson Safety Systems Co., Ltd. (demo)",
   "engines": {
     "node": ">=22.13"
   },

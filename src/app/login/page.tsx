@@ -24,7 +24,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           </div>
           <div>
             <h2 className="text-lg font-semibold">Demo accounts</h2>
-            <p className="mt-1 text-[13px] text-slate-300">Fictional Ironwood Safety Systems users. Demo credentials only.</p>
+            <p className="mt-1 text-[13px] text-slate-300">Demo accounts only — not real Joyson employees.</p>
             <ul className="mt-4 space-y-3">
               {DEMO_ACCOUNTS.map((a) => (
                 <li key={a.email} className="rounded-lg bg-navy-900 p-3 text-[13px]">
@@ -37,11 +37,11 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
               ))}
             </ul>
           </div>
-          <p className="text-[11px] text-slate-400">Demo environment · Ironwood Safety Systems</p>
+          <p className="text-[11px] text-slate-400">Demo environment · Joyson Safety Systems</p>
         </section>
         <section className="p-8">
           <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
-          <p className="mt-1 text-sm text-muted">Use your Ironwood account to review supplier invoices.</p>
+          <p className="mt-1 text-sm text-muted">Use your Joyson Safety Systems account to review supplier invoices.</p>
           <LoginForm next={next} />
         </section>
       </div>

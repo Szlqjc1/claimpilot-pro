@@ -9,9 +9,9 @@ Demo accounts, all shown on the sign-in page:
 
 | Account | Role | Can |
 |---|---|---|
-| `priya.natarajan@ironwood.example` / `Toledo-Controller-26` | Reviewer (Plant Controller) | Everything in this script |
-| `dana.whitfield@ironwood.example` / `Ironwood-Audit-2026` | Admin | Everything a reviewer can |
-| `marcus.reed@ironwood.example` / `CrashSled-Request-26` | Requester | Submit claims and run the audit; no resolve, dismiss or post |
+| `priya.natarajan@joyson.example` / `Toledo-Controller-26` | Reviewer (Plant Controller) | Everything in this script |
+| `dana.whitfield@joyson.example` / `Joyson-Audit-2026` | Admin | Everything a reviewer can |
+| `marcus.reed@joyson.example` / `CrashSled-Request-26` | Requester | Submit claims and run the audit; no resolve, dismiss or post |
 
 ---
 
