@@ -40,15 +40,6 @@
   .wrap{width:100%;max-width:var(--wrap);margin:0 auto;padding:0 20px}
   .tabular{font-variant-numeric:tabular-nums}
 
-  /* ---------- deploy notice ---------- */
-  .deploy-note{
-    background:#fff7ed;border-bottom:1px solid #f5cfa8;color:#7a3d0a;
-    font-size:13px;line-height:1.55;padding:9px 0
-  }
-  .deploy-note .wrap{display:flex;gap:10px;align-items:flex-start}
-  .deploy-note .k{font-weight:700;flex:none}
-  .deploy-note code{background:#fde8d0;border-radius:5px;padding:1px 5px;font-size:12.5px}
-
   /* ---------- nav ---------- */
   .site-nav{
     position:sticky;top:0;z-index:40;background:rgba(255,255,255,.92);
@@ -277,14 +268,13 @@
     .demo code{font-size:12px}
     .demo .note{flex:1 1 100%}
     section.band{padding:42px 0}
-    .deploy-note{font-size:12px}
-  }
+      }
   @media (prefers-reduced-motion:reduce){
     *{transition:none!important;animation:none!important;scroll-behavior:auto!important}
     html{scroll-behavior:auto}
   }
   @media print{
-    .site-nav,.hero-cta,.cta-band .btn,.deploy-note{display:none}
+    .site-nav,.hero-cta,.cta-band .btn{display:none}
     body{font-size:12pt}
     section.band{padding:18px 0;break-inside:avoid}
     a{color:var(--ink);text-decoration:underline}
@@ -293,14 +283,6 @@
 </head>
 <body>
 
-<div class="deploy-note" id="deploy-note" hidden>
-  <div class="wrap">
-    <span class="k">Pre-release</span>
-    <span>The survey link has not been swapped yet: every “Join the beta test” button currently points at a GitHub issue
-      (it works, it won't 404). Before launch, replace <code>{{SURVEY_URL}}</code> in <code>index.html</code> with your
-      Wenjuanxing / Tencent Questionnaire URL and this notice disappears on its own.</span>
-  </div>
-</div>
 
 <header class="site-nav">
   <div class="wrap nav-inner">
@@ -699,11 +681,6 @@ pnpm dev
     Array.prototype.slice.call(document.querySelectorAll("[data-issue-link]")).forEach(function (a) {
       a.setAttribute("href", ISSUE_URL);
     });
-    if (!resolved) {
-      var note = document.getElementById("deploy-note");
-      if (note) { note.hidden = false; }
-      console.warn("[ClaimPilot] {{SURVEY_URL}} is not replaced yet: buttons point at a GitHub issue. Swap in the survey URL before launch.");
-    }
 
     // In-page navigation always resolves inside this document.
     Array.prototype.slice.call(document.querySelectorAll('a[href^="#"]')).forEach(function (a) {

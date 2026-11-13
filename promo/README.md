@@ -13,6 +13,17 @@ Everything Week 8 asks for, in one folder. Status is honest: what exists, what i
 | 4 | Social post, ≤ 280 characters | [`social.md`](social.md) — both languages, with the posting checklist | ✅ written |
 | 5 | Promotion started (one live post + dated screenshot) | — | ⬜ to post |
 
+## Where the page is hosted
+
+| Door | Status | Address |
+|---|---|---|
+| GitHub Pages | **live** | <https://szlqjc1.github.io/claimpilot-pro/> |
+| Domestic mirror | **built, not deployed** | — |
+
+`pnpm build:landing` produces `deploy/landing/` (index.html plus assets, relative paths only) and `docs/HOSTING.md`
+walks through Gitee Pages and Tencent COS. **Until that folder is uploaded, no material may claim a second host** —
+the poster QR points at GitHub Pages, and on a campus network that is where it stops.
+
 ## Checks before posting
 
 - [ ] QR scans from a second phone and opens the landing page
@@ -21,6 +32,8 @@ Everything Week 8 asks for, in one folder. Status is honest: what exists, what i
 - [ ] Video is under 60 seconds, a team member on camera, no AI faces or voices
 - [ ] Post text contains: the problem, the app, the one action, the link or QR
 - [ ] Post link + a screenshot **showing the date** are saved the day it goes out
+- [ ] The demo runs against a claim that already has a fixture — in the default mode an **uploaded** invoice returns
+      `422 OCR_DISABLED` when the audit runs (see `src/lib/audit/run-audit.ts:109`)
 
 ## The one action
 
