@@ -1,7 +1,7 @@
 {
   "captured": "2026-11-04",
   "command": "pnpm build && pnpm start (AI_MODE=mock, OCR_MODE=fixture)",
-  "browser": "Signed out → /dashboard redirected to /login?next=%2Fdashboard; signed in as priya.natarajan@joyson.example over http://localhost:3000 → landed on /dashboard (H1 'Claims Dashboard'), topbar 'Priya Natarajan · Reviewer'.",
+  "browser": "Signed out → /dashboard redirected to /login?next=%2Fdashboard; signed in as priya.natarajan@ironwood.example over http://localhost:3000 → landed on /dashboard (H1 'Claims Dashboard'), topbar 'Priya Natarajan · Reviewer'.",
   "setCookie": {
     "plain http": "cp_session=<redacted>; Path=/; Max-Age=86400; HttpOnly; SameSite=lax",
     "x-forwarded-proto: https": "cp_session=<redacted>; Path=/; Max-Age=86400; Secure; HttpOnly; SameSite=lax"

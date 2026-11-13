@@ -23,7 +23,7 @@ afterAll(() => prisma.$disconnect());
 
 describe("login throttling", () => {
   it("the account bucket defeats X-Forwarded-For rotation: 10 × 401, then 429", async () => {
-    const email = `victim-${suffix()}@joyson.example`;
+    const email = `victim-${suffix()}@ironwood.example`;
     const statuses: number[] = [];
     for (let i = 0; i < 12; i++) statuses.push((await loginReq(email, "Wrong-Password-123", spoofedIp())).status);
     expect(statuses.slice(0, 10)).toEqual(Array(10).fill(401));
@@ -36,7 +36,7 @@ describe("login throttling", () => {
   it("the IP bucket still works: same IP, different emails → 429 from the 6th attempt", async () => {
     const ip = `198.51.100.7-${suffix()}`;
     const statuses: number[] = [];
-    for (let i = 0; i < 12; i++) statuses.push((await loginReq(`user${i}-${suffix()}@joyson.example`, "Wrong-Password-123", ip)).status);
+    for (let i = 0; i < 12; i++) statuses.push((await loginReq(`user${i}-${suffix()}@ironwood.example`, "Wrong-Password-123", ip)).status);
     expect(statuses.slice(0, 5)).toEqual(Array(5).fill(401));
     expect(statuses.slice(5)).toEqual(Array(7).fill(429));
   });
@@ -50,7 +50,7 @@ describe("login throttling", () => {
   });
 
   it("two accounts do not lock each other out: A exhausted, B still signs in", async () => {
-    const a = `account-a-${suffix()}@joyson.example`;
+    const a = `account-a-${suffix()}@ironwood.example`;
     for (let i = 0; i < 10; i++) expect((await loginReq(a, "Wrong-Password-123", spoofedIp())).status).toBe(401);
     expect((await loginReq(a, "Wrong-Password-123", spoofedIp())).status).toBe(429);
     const b = DEMO_ACCOUNTS.find((x) => x.role === "requester")!;

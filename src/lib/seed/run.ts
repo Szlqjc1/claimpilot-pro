@@ -201,7 +201,7 @@ export async function seedDatabase(prisma: PrismaClient, opts: { log?: (msg: str
       p50: centsToDecimalString(b.p50Cents),
       p90: centsToDecimalString(b.p90Cents),
       effectiveDate: isoDate("2026-01-01"),
-      source: "Joyson Safety Systems strategic sourcing index FY2026 (synthetic)",
+      source: "Ironwood strategic sourcing index FY2026 (synthetic)",
     })),
   });
   await prisma.purchaseOrder.createMany({

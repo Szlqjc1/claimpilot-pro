@@ -41,7 +41,7 @@ export type InvoiceDoc = {
 };
 
 export const BILL_TO = {
-  name: "Shanghai Joyson Safety Systems Co., Ltd.",
+  name: "Ironwood Safety Systems, Inc.",
   dept: "Accounts Payable — Attn: AP Shared Services",
   address: "2600 Featherstone Rd, Auburn Hills, MI 48326",
 };
@@ -212,7 +212,7 @@ export function renderInvoice(doc: InvoiceDoc): Rendered {
   if (doc.approval) {
     text(72, 1462, `${doc.approval.name}`, 22, { fill: "#175cd3" });
     box("approval", 72, 1462, doc.approval.name, 22);
-    text(72, 1486, `${doc.approval.level} · Joyson Safety Systems`, 14, { fill: "#475467" });
+    text(72, 1486, `${doc.approval.level} · Ironwood Safety Systems`, 14, { fill: "#475467" });
     ocr.push(`Approved by: ${doc.approval.name}, ${doc.approval.level}`);
   } else {
     text(72, 1462, "— not signed —", 18, { fill: "#98a2b3" });

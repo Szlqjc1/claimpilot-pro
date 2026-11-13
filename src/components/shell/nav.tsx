@@ -57,5 +57,5 @@ export function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
 }
 
 export function SidebarFooter() {
-  return <p className="px-5 py-4 text-[11px] leading-relaxed text-slate-400">Demo environment · Joyson Safety Systems</p>;
+  return <p className="px-5 py-4 text-[11px] leading-relaxed text-slate-400">Demo environment · Ironwood Safety Systems</p>;
 }

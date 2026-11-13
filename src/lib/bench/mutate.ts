@@ -59,7 +59,7 @@ function absent(e: Extraction, text: string, f: CriticalField): Mutation | null 
 function confusable(e: Extraction, text: string, f: CriticalField): Mutation | null {
   const v = valueOf(e, f);
   const options: [string | number | null | undefined, string][] = [];
-  if (f === "vendorName") options.push([text.match(/Shanghai Joyson Safety Systems Co\., Ltd\./)?.[0], "bill-to company read as the vendor"]);
+  if (f === "vendorName") options.push([text.match(/Ironwood Safety Systems, Inc\./)?.[0], "bill-to company read as the vendor"]);
   if (f === "invoiceNumber") options.push([e.poNumber, "PO number read as the invoice number"], [e.vendor.taxId, "vendor tax id read as the invoice number"]);
   if (f === "poNumber") options.push([e.grnNumber, "GRN read as the PO number"], [e.invoiceNumber, "invoice number read as the PO number"]);
   if (f === "invoiceDate") options.push([e.dueDate, "due date read as the invoice date"]);

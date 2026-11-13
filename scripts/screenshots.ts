@@ -41,7 +41,7 @@ async function main() {
     console.log("✔ login.png");
 
     // Pages require a session: sign in as Priya Natarajan, the reviewer docs/DEMO_SCRIPT.md uses (the cookie is shared with the page).
-    const reviewer = DEMO_ACCOUNTS.find((a) => a.email === "priya.natarajan@joyson.example")!;
+    const reviewer = DEMO_ACCOUNTS.find((a) => a.email === "priya.natarajan@ironwood.example")!;
     const login = await page.request.post(`${BASE}/api/auth/login`, { data: { email: reviewer.email, password: reviewer.password } });
     if (!login.ok()) {
       console.error(`Demo sign-in failed (${login.status()}). Run \`pnpm db:seed\` to create the demo accounts.`);

@@ -1,5 +1,5 @@
 # Task 2f acceptance — pnpm dev on http://localhost:3000, 2026-11-04T21:47:55Z
-## A. 10 wrong-password attempts, one email (priya.natarajan@joyson.example), new X-Forwarded-For each
+## A. 10 wrong-password attempts, one email (priya.natarajan@ironwood.example), new X-Forwarded-For each
 attempt 1  XFF=198.18.0.1  -> 401
 attempt 2  XFF=198.18.0.2  -> 401
 attempt 3  XFF=198.18.0.3  -> 401
@@ -14,17 +14,17 @@ attempt 10  XFF=198.18.0.10  -> 401
 attempt 11  XFF=198.18.0.11  -> 429
 attempt 12  XFF=198.18.0.12  -> 429
 ## B. 12 attempts, same XFF 192.0.2.50, different emails
-attempt 1  user1@joyson.example  -> 401
-attempt 2  user2@joyson.example  -> 401
-attempt 3  user3@joyson.example  -> 401
-attempt 4  user4@joyson.example  -> 401
-attempt 5  user5@joyson.example  -> 401
-attempt 6  user6@joyson.example  -> 429
-attempt 7  user7@joyson.example  -> 429
-attempt 8  user8@joyson.example  -> 429
-attempt 9  user9@joyson.example  -> 429
-attempt 10  user10@joyson.example  -> 429
-attempt 11  user11@joyson.example  -> 429
-attempt 12  user12@joyson.example  -> 429
+attempt 1  user1@ironwood.example  -> 401
+attempt 2  user2@ironwood.example  -> 401
+attempt 3  user3@ironwood.example  -> 401
+attempt 4  user4@ironwood.example  -> 401
+attempt 5  user5@ironwood.example  -> 401
+attempt 6  user6@ironwood.example  -> 429
+attempt 7  user7@ironwood.example  -> 429
+attempt 8  user8@ironwood.example  -> 429
+attempt 9  user9@ironwood.example  -> 429
+attempt 10  user10@ironwood.example  -> 429
+attempt 11  user11@ironwood.example  -> 429
+attempt 12  user12@ironwood.example  -> 429
 ## C. correct sign-in for an unrelated account (marcus.reed, XFF 192.0.2.99)
 marcus.reed -> 200

@@ -12,7 +12,7 @@ pnpm db:reset     # about 3 s: 130 demo claims, 3 users, 130 receipts
 pnpm dev          # http://localhost:3000
 ```
 
-Sign in at `http://localhost:3000` (not `127.0.0.1`) as the reviewer **`priya.natarajan@joyson.example` /
+Sign in at `http://localhost:3000` (not `127.0.0.1`) as the reviewer **`priya.natarajan@ironwood.example` /
 `Toledo-Controller-26`**. All three demo accounts are listed on the sign-in page. Everything runs offline in mock AI
 mode.
 

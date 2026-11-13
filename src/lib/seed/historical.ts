@@ -556,7 +556,7 @@ export function generateHistorical(seed = 20261029): HistoricalData {
               names:
                 anomaly === "entertainment"
                   ? []
-                  : Array.from({ length: lines[0].quantity }, (_, k) => `${GUEST_NAMES[(k + i) % GUEST_NAMES.length]} (${["Lakeshore Motors", "Summit Motor Co.", "Cascade EV", "Joyson Safety Systems"][k % 4]})`),
+                  : Array.from({ length: lines[0].quantity }, (_, k) => `${GUEST_NAMES[(k + i) % GUEST_NAMES.length]} (${["Lakeshore Motors", "Summit Motor Co.", "Cascade EV", "Ironwood"][k % 4]})`),
             }
           : null,
       notes: built.notes,

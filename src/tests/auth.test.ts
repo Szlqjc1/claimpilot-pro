@@ -57,7 +57,7 @@ describe("sessions", () => {
 describe("login and logout routes", () => {
   it("unknown email and wrong password get the identical 401", async () => {
     const wrong = await loginReq(reviewer.email, "Wrong-Password-123");
-    const unknown = await loginReq("nobody@joyson.example", "Wrong-Password-123");
+    const unknown = await loginReq("nobody@ironwood.example", "Wrong-Password-123");
     expect(wrong.status).toBe(401);
     expect(unknown.status).toBe(401);
     const [a, b] = (await Promise.all([wrong.json(), unknown.json()])) as { error: { code: string; message: string } }[];

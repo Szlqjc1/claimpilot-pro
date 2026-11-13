@@ -7,7 +7,7 @@
       "timestamp": "2026-11-04T19:26:59.107Z",
       "actor": "Authentication",
       "action": "Sign-in Failed",
-      "details": "Failed sign-in attempt for priya.natarajan@joyson.example.",
+      "details": "Failed sign-in attempt for priya.natarajan@ironwood.example.",
       "claimId": null,
       "metadata": "{\"requestId\":\"eee8fb23-171b\",\"ip\":\"::1\"}"
     },
@@ -34,7 +34,7 @@
       "timestamp": "2026-11-04T19:27:51.166Z",
       "actor": "Authentication",
       "action": "Sign-in Failed",
-      "details": "Failed sign-in attempt for priya.natarajan@joyson.example.",
+      "details": "Failed sign-in attempt for priya.natarajan@ironwood.example.",
       "claimId": null,
       "metadata": "{\"requestId\":\"77d15163-9f1f\",\"ip\":\"::1\"}"
     },

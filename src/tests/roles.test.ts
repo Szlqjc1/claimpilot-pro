@@ -15,9 +15,9 @@ const { POST: post } = await import("@/app/api/claims/[claimId]/post/route");
 const { PATCH: patch } = await import("@/app/api/claims/[claimId]/exceptions/[exceptionId]/route");
 const { POST: submit } = await import("@/app/api/claims/route");
 
-const requester: SessionUser = { id: "U-0003", name: "Marcus Reed", email: "marcus.reed@joyson.example", role: "requester" };
-const reviewer: SessionUser = { id: "U-0002", name: "Priya Natarajan", email: "priya.natarajan@joyson.example", role: "reviewer" };
-const admin: SessionUser = { id: "U-0001", name: "Dana Whitfield", email: "dana.whitfield@joyson.example", role: "admin" };
+const requester: SessionUser = { id: "U-0003", name: "Marcus Reed", email: "marcus.reed@ironwood.example", role: "requester" };
+const reviewer: SessionUser = { id: "U-0002", name: "Priya Natarajan", email: "priya.natarajan@ironwood.example", role: "reviewer" };
+const admin: SessionUser = { id: "U-0001", name: "Dana Whitfield", email: "dana.whitfield@ironwood.example", role: "admin" };
 
 const postReq = (claimId: string) => post(new Request(`http://localhost/api/claims/${claimId}/post`, { method: "POST" }), { params: Promise.resolve({ claimId }) });
 const patchReq = (claimId: string, exceptionId: string, body = { status: "Resolved", note: "Supplier credit memo matched to invoice." }) =>
@@ -113,7 +113,7 @@ describe("claim ownership on submission", () => {
   });
 
   it("a user with no employee record cannot submit → 403", async () => {
-    current = { id: "U-9999", name: "Contractor Without Record", email: "contractor@joyson.example", role: "requester" };
+    current = { id: "U-9999", name: "Contractor Without Record", email: "contractor@ironwood.example", role: "requester" };
     const res = await submit(form());
     expect(res.status).toBe(403);
     expect(await code(res)).toBe("FORBIDDEN");

@@ -23,7 +23,7 @@ const { answerQuestion, templateAnswer, validateModelAnswer, REFUSAL } = await i
 const { POST: ask } = await import("@/app/api/ask/route");
 type Facts = import("@/lib/ask/retrieve").Facts;
 
-const reviewer: SessionUser = { id: "U-0002", name: "Priya Natarajan", email: "priya.natarajan@joyson.example", role: "reviewer" };
+const reviewer: SessionUser = { id: "U-0002", name: "Priya Natarajan", email: "priya.natarajan@ironwood.example", role: "reviewer" };
 const opts = { requestId: "test-ask" };
 const askReq = (question: string) => ask(new Request("http://localhost/api/ask", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ question }) }));
 
