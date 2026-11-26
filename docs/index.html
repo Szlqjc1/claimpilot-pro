@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ClaimPilot PRO — The invoice-processing agent for accounts payable</title>
-<meta name="description" content="ClaimPilot PRO processes AP invoices end to end: OCR with field-level grounding, cross-system lookup, 18 deterministic rules, an expected-loss gate that decides whether to clear the claim or escalate to a human, and a fully auditable trail.">
+<meta name="description" content="ClaimPilot PRO processes AP invoices end to end: OCR with field-level grounding, cross-system lookup, 20 deterministic rules, an expected-loss gate that decides whether to clear the claim or escalate to a human, and a fully auditable trail.">
 <meta property="og:title" content="ClaimPilot PRO — It runs the invoice queue on its own">
 <meta property="og:description" content="One number decides where it stops: expected loss p·L ≤ c clears on its own, anything above that goes to a human.">
 <meta property="og:image" content="assets/dashboard.png">
@@ -334,7 +334,7 @@
       <div class="stats">
         <div class="stat accent">
           <span class="n tabular">65.8<small>%</small></span>
-          <span class="l">of invoices cleared without human review</span>
+          <span class="l">of invoices never need a reviewer to open them</span>
         </div>
         <div class="stat">
           <span class="n tabular">9.6<small>hours</small></span>
@@ -405,8 +405,8 @@
         </article>
         <article class="step">
           <span class="n">3</span>
-          <h3>Judge: 18 rules</h3>
-          <p>18 deterministic rules score 0–100 and land in Low / Medium / High. A single High finding makes the whole claim High.</p>
+          <h3>Judge: 20 rules</h3>
+          <p>20 deterministic rules score 0–100 and land in Low / Medium / High. Only firing rules add points, capped at 100. A single High finding makes the whole claim High.</p>
         </article>
         <article class="step">
           <span class="n">4</span>
@@ -450,7 +450,8 @@
           <p class="callout">
             <b>Two constant constraints always go to a human:</b> R-03 duplicate invoices and R-17 bank account changes
             are excluded from the arithmetic — their damage isn't money. Work is ranked by <code>p·L / c</code>.
-            Rules explain and score; <b>the LLM never assigns the score.</b>
+            Rules explain and score; <b>the LLM never assigns the score.</b> And clearing is not posting: a cleared claim
+            waits for a reviewer to release payment, and nothing posts itself.
           </p>
         </div>
 
@@ -479,7 +480,7 @@
           <h3><span class="pill">Real</span>Real: runs on your machine</h3>
           <ul>
             <li>OCR recognition and field-level grounding</li>
-            <li>18-rule deterministic engine and 0–100 scoring</li>
+            <li>20-rule deterministic engine and 0–100 scoring</li>
             <li>Expected-loss math, the gate, and work ranking</li>
             <li>Separation of duties (submitter / reviewer / admin)</li>
             <li>Append-only audit log — no update or delete endpoints</li>
@@ -580,7 +581,7 @@
               <td class="src"><code>pnpm kpi:report</code>; the human baseline is in the repo README</td>
             </tr>
             <tr>
-              <td class="num tabular">18 rules · 0–100 · 3 tiers</td>
+              <td class="num tabular">20 rules · 0–100 · 3 tiers</td>
               <td>The risk scoring system</td>
               <td class="src"><code>src/lib/risk/rules.ts</code>, <code>docs/RISK_RULES.md</code></td>
             </tr>
@@ -590,9 +591,9 @@
               <td class="src"><code>docs/cost-curve.csv</code> (<code>pnpm cost:curve</code>)</td>
             </tr>
             <tr>
-              <td class="num tabular">289 tests</td>
+              <td class="num tabular">406 tests</td>
               <td>Automated test count, CI green</td>
-              <td class="src"><code>pnpm test</code> (27 test files, all passing)</td>
+              <td class="src"><code>pnpm test</code> (36 test files, all passing)</td>
             </tr>
             <tr>
               <td class="num tabular">55.8% / 15.2% / 12.2%</td>
