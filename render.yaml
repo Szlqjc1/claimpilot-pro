@@ -1,0 +1,28 @@
+# Render blueprint for ClaimPilot PRO.
+#
+# Deploy: push this file, then in Render choose New → Blueprint and point it at
+# the repository. The service builds the Next.js app, and every cold start
+# rebuilds the demo database from the seed, so the login page always works
+# without anyone running a command.
+
+services:
+  - type: web
+    name: claimpilot-pro
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: pnpm install --frozen-lockfile && npx prisma generate && pnpm build
+    startCommand: bash scripts/boot.sh
+    healthCheckPath: /login
+    envVars:
+      - key: NODE_VERSION
+        value: 22.13.0
+      - key: DATABASE_URL
+        value: file:./dev.db
+      # Mock mode: no API key, no external calls. The seeded book audits offline.
+      - key: AI_MODE
+        value: mock
+      - key: OCR_MODE
+        value: fixture
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
