@@ -1,0 +1,12 @@
+# Shell scripts run under bash on the server; a CRLF would break them.
+*.sh text eol=lf
+
+# Keep the deploy blueprint and the docs as LF too.
+*.yaml text eol=lf
+*.yml text eol=lf
+*.md text eol=lf
+
+# Windows-only helpers, if any are added later.
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+*.bat text eol=crlf
